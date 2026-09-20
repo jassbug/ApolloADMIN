@@ -257,7 +257,7 @@ $generos = buscarGeneros();
 
                 <?php foreach ($generos as $genero): ?>
                     <a href="Generos.php?id=<?= (int) $genero['id'] ?>" class="genero-btn">
-                        <i class="bi <?= e($genero['icone']) ?>"></i>
+                        
                         <?= e($genero['nome']) ?>
                     </a>
                 <?php endforeach; ?>

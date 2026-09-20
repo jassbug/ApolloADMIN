@@ -26,7 +26,7 @@ $paginaAtual = basename($_SERVER['PHP_SELF']);
         </div>
 
         <div class="links-menu d-none d-lg-flex">
-            <a class="<?= $paginaAtual === 'index.php' ? 'ativo' : '' ?>" href="index.php">
+            <a class="<?= $paginaAtual === '../index.php' ? 'ativo' : '' ?>" href="www/index.php">
                 Início
             </a>
 

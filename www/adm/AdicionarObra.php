@@ -126,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_FILES['capa']['tmp_name']
             );
 
-            finfo_close($finfo);
+            
 
 
             if (!isset($tiposPermitidos[$tipoArquivo])) {

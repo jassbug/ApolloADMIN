@@ -32,15 +32,47 @@ function e($texto)
     return htmlspecialchars($texto ?? '', ENT_QUOTES, 'UTF-8');
 }
 
-// Busca os itens do carrossel de avisos.
+/**
+ * Busca os avisos ativos para exibição no site.
+ */
 function buscarAvisos()
 {
     $conexao = conectarBanco();
 
     $sql = "
-        SELECT id, titulo, descricao, imagem, link
+        SELECT
+            id,
+            titulo,
+            descricao,
+            imagem,
+            link
         FROM avisos
         WHERE ativo = 1
+        ORDER BY id DESC
+    ";
+
+    $consulta = $conexao->query($sql);
+
+    return $consulta->fetchAll();
+}
+
+/**
+ * Busca todos os avisos cadastrados.
+ */
+function buscarTodosAvisos()
+{
+    $conexao = conectarBanco();
+
+    $sql = "
+        SELECT
+            id,
+            titulo,
+            descricao,
+            imagem,
+            link,
+            ativo,
+            data_criacao
+        FROM avisos
         ORDER BY id DESC
     ";
 
@@ -882,3 +914,311 @@ function excluirGenero($id)
 
 
 
+/**
+ * Busca todos os usuários cadastrados.
+ */
+function buscarTodosUsuarios()
+{
+    $conexao = conectarBanco();
+
+    $sql = "
+        SELECT
+            id,
+            nome,
+            email,
+            tipo,
+            email_verificado,
+            foto,
+            bio,
+            criado_em
+        FROM usuarios
+        ORDER BY criado_em DESC
+    ";
+
+    $consulta = $conexao->query($sql);
+
+    return $consulta->fetchAll();
+}
+
+
+/**
+ * Busca um usuário pelo ID.
+ */
+function buscarUsuarioPorId($id)
+{
+    $id = (int) $id;
+
+    if ($id <= 0) {
+        return null;
+    }
+
+    $conexao = conectarBanco();
+
+    $consulta = $conexao->prepare("
+        SELECT
+            id,
+            nome,
+            email,
+            tipo,
+            email_verificado,
+            foto,
+            bio,
+            criado_em
+        FROM usuarios
+        WHERE id = :id
+    ");
+
+    $consulta->execute([
+        ':id' => $id
+    ]);
+
+    return $consulta->fetch();
+}
+
+/**
+ * Atualiza os dados de um usuário.
+ */
+function atualizarUsuario(
+    $id,
+    $nome,
+    $email,
+    $tipo,
+    $emailVerificado,
+    $bio
+) {
+    $id = (int) $id;
+    $nome = trim($nome);
+    $email = trim($email);
+    $tipo = trim($tipo);
+    $bio = trim($bio);
+
+    if ($id <= 0) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'Usuário inválido.'
+        ];
+    }
+
+    if (empty($nome) || empty($email)) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'Nome e e-mail são obrigatórios.'
+        ];
+    }
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'Informe um e-mail válido.'
+        ];
+    }
+
+    if (!in_array($tipo, ['usuario', 'admin'], true)) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'Tipo de usuário inválido.'
+        ];
+    }
+
+    $conexao = conectarBanco();
+
+    $verificar = $conexao->prepare("
+        SELECT id
+        FROM usuarios
+        WHERE email = :email
+          AND id != :id
+    ");
+
+    $verificar->execute([
+        ':email' => $email,
+        ':id' => $id
+    ]);
+
+    if ($verificar->fetch()) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'Este e-mail já está sendo utilizado.'
+        ];
+    }
+
+    $consulta = $conexao->prepare("
+        UPDATE usuarios
+        SET
+            nome = :nome,
+            email = :email,
+            tipo = :tipo,
+            email_verificado = :email_verificado,
+            bio = :bio
+        WHERE id = :id
+    ");
+
+    $consulta->execute([
+        ':nome' => $nome,
+        ':email' => $email,
+        ':tipo' => $tipo,
+        ':email_verificado' => $emailVerificado ? 1 : 0,
+        ':bio' => $bio !== '' ? $bio : null,
+        ':id' => $id
+    ]);
+
+    return [
+        'sucesso' => true,
+        'mensagem' => 'Usuário atualizado com sucesso.'
+    ];
+}
+
+/**
+ * Exclui um usuário.
+ */
+function excluirUsuario($id)
+{
+    $id = (int) $id;
+
+    if ($id <= 0) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'Usuário inválido.'
+        ];
+    }
+
+    $conexao = conectarBanco();
+
+    $consulta = $conexao->prepare("
+        DELETE FROM usuarios
+        WHERE id = :id
+    ");
+
+    $consulta->execute([
+        ':id' => $id
+    ]);
+
+    if ($consulta->rowCount() === 0) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'Usuário não encontrado.'
+        ];
+    }
+
+    return [
+        'sucesso' => true,
+        'mensagem' => 'Usuário excluído com sucesso.'
+    ];
+}
+
+/**
+ * Cadastra um novo aviso.
+ */
+function cadastrarAviso(
+    $titulo,
+    $descricao,
+    $imagem,
+    $link = null
+) {
+    $titulo = trim($titulo);
+    $descricao = trim($descricao);
+    $imagem = trim($imagem);
+    $link = trim($link);
+
+    if (
+        empty($titulo) ||
+        empty($descricao) ||
+        empty($imagem)
+    ) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'Preencha todos os campos obrigatórios.'
+        ];
+    }
+
+    $conexao = conectarBanco();
+
+    $consulta = $conexao->prepare("
+        INSERT INTO avisos (
+            titulo,
+            descricao,
+            imagem,
+            link,
+            ativo
+        )
+        VALUES (
+            :titulo,
+            :descricao,
+            :imagem,
+            :link,
+            1
+        )
+    ");
+
+    $consulta->execute([
+        ':titulo' => $titulo,
+        ':descricao' => $descricao,
+        ':imagem' => $imagem,
+        ':link' => $link !== '' ? $link : null
+    ]);
+
+    return [
+        'sucesso' => true,
+        'mensagem' => 'Aviso cadastrado com sucesso.'
+    ];
+}
+
+/**
+ * Atualiza um aviso existente.
+ */
+function atualizarAviso(
+    $id,
+    $titulo,
+    $descricao,
+    $imagem,
+    $link = null
+) {
+    $id = (int) $id;
+
+    $titulo = trim($titulo);
+    $descricao = trim($descricao);
+    $imagem = trim($imagem);
+    $link = trim($link);
+
+    if ($id <= 0) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'Aviso inválido.'
+        ];
+    }
+
+    if (
+        empty($titulo) ||
+        empty($descricao) ||
+        empty($imagem)
+    ) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'Preencha todos os campos obrigatórios.'
+        ];
+    }
+
+    $conexao = conectarBanco();
+
+    $consulta = $conexao->prepare("
+        UPDATE avisos
+        SET
+            titulo = :titulo,
+            descricao = :descricao,
+            imagem = :imagem,
+            link = :link
+        WHERE id = :id
+    ");
+
+    $consulta->execute([
+        ':titulo' => $titulo,
+        ':descricao' => $descricao,
+        ':imagem' => $imagem,
+        ':link' => $link !== '' ? $link : null,
+        ':id' => $id
+    ]);
+
+    return [
+        'sucesso' => true,
+        'mensagem' => 'Aviso atualizado com sucesso.'
+    ];
+}
