@@ -1,970 +1,920 @@
+<?php
+
+require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/autenticacao.php';
+
+exigirAdministrador();
+
+$mensagem = '';
+$tipoMensagem = '';
+
+/*
+|--------------------------------------------------------------------------
+| AÇÕES DA PÁGINA
+|--------------------------------------------------------------------------
+*/
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $acao = $_POST['acao'] ?? '';
+    $id = (int) ($_POST['id'] ?? 0);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | EXCLUIR OBRA
+    |--------------------------------------------------------------------------
+    */
+
+    if ($acao === 'excluir') {
+
+        $resultado = excluirObra($id);
+
+        $mensagem = $resultado['mensagem'];
+        $tipoMensagem = $resultado['sucesso']
+            ? 'sucesso'
+            : 'erro';
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ATIVAR / DESATIVAR OBRA
+    |--------------------------------------------------------------------------
+    */
+
+    elseif ($acao === 'status') {
+
+        $ativo = isset($_POST['ativo'])
+            ? (int) $_POST['ativo']
+            : 0;
+
+        $resultado = alterarStatusObra($id, $ativo);
+
+        $mensagem = $resultado['mensagem'];
+        $tipoMensagem = $resultado['sucesso']
+            ? 'sucesso'
+            : 'erro';
+    }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| BUSCAR OBRAS
+|--------------------------------------------------------------------------
+*/
+
+$obras = buscarTodasObras();
+
+
+/*
+|--------------------------------------------------------------------------
+| CONTADORES
+|--------------------------------------------------------------------------
+*/
+
+$totalObras = count($obras);
+
+$obrasAtivas = 0;
+$obrasEmAlta = 0;
+
+foreach ($obras as $obra) {
+
+    if ((int) $obra['ativo'] === 1) {
+        $obrasAtivas++;
+    }
+
+    if ((int) $obra['em_alta'] === 1) {
+        $obrasEmAlta++;
+    }
+}
+
+?>
+
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 
 <head>
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <title>Gerenciar Obras - Apollo</title>
+    <title>Gerenciar obras | Apollo</title>
+
+
+    <!-- Bootstrap -->
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-        rel="stylesheet">
+        rel="stylesheet"
+    >
 
-    <link rel="stylesheet" href="../css/styles.css">
+
+    <!-- Bootstrap Icons -->
 
     <link
         rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
 
-    
+
+    <!-- CSS do Apollo -->
+
+    <link
+        rel="stylesheet"
+        href="../css/styles.css"
+    >
 
 </head>
 
+
 <body>
 
-    <!-- MENU -->
 
-    <header>
+<header>
 
-        <?php include '../menu.php'; ?>
+    <?php include '../menu.php'; ?>
 
-    </header>
+</header>
 
 
-    <!-- CONTEÚDO -->
 
-    <main class="container py-4">
+<main class="container py-5">
 
-        <h1 class="mb-4">
 
-            Obras
+    <!-- ==========================================================
+         CABEÇALHO
+    =========================================================== -->
 
-        </h1>
+    <section class="admin-cabecalho mb-5">
 
+        <div>
 
-        <div class="gerenciar-obras">
+            <p class="hero-etiqueta mb-2">
 
+                <i class="bi bi-film"></i>
 
-            <!-- TÍTULO -->
+                CONTROLE DO SITE
 
-            <div class="titulo-gerenciar">
+            </p>
 
-                <i class="bi bi-list"></i>
 
-                <h3>
+            <h1>
 
-                    Gerenciar obras
+                Gerenciar obras
 
-                </h3>
+            </h1>
 
-            </div>
 
+            <p class="texto-autenticacao">
 
-            <!-- FILTROS -->
+                Cadastre, edite, visualize e gerencie as obras
+                disponíveis no Apollo.
 
-            <div class="filtros-obras">
-
-                <input
-                    type="text"
-                    class="form-control"
-                    placeholder="Buscar">
-
-
-                <select class="form-select">
-
-                    <option selected>
-
-                        Tipo
-
-                    </option>
-
-                    <option>
-
-                        Filme
-
-                    </option>
-
-                    <option>
-
-                        Série
-
-                    </option>
-
-                    <option>
-
-                        Anime
-
-                    </option>
-
-                </select>
-
-
-                <select class="form-select">
-
-                    <option selected>
-
-                        Gênero
-
-                    </option>
-
-                    <option>
-
-                        Ação
-
-                    </option>
-
-                    <option>
-
-                        Drama
-
-                    </option>
-
-                    <option>
-
-                        Romance
-
-                    </option>
-
-                </select>
-
-
-                <button
-                    type="button"
-                    class="btn btn-outline-light">
-
-                    Limpar filtros
-
-                </button>
-
-
-                <a
-                    href="AdicionarObra.php"
-                    class="btn btn-primary">
-
-                    Adicionar obra
-
-                </a>
-
-            </div>
-
-
-            <!-- TABELA -->
-
-            <div class="table-responsive">
-
-                <table class="table table-dark table-bordered align-middle tabela-obras">
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-
-                                Capa
-
-                            </th>
-
-                            <th>
-
-                                Título
-
-                            </th>
-
-                            <th>
-
-                                Gêneros
-
-                            </th>
-
-                            <th>
-
-                                Ano
-
-                            </th>
-
-                            <th>
-
-                                Avaliação média
-
-                            </th>
-
-                            <th>
-
-                                Ações
-
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-
-                        <!-- OBRA 1 -->
-
-                        <tr>
-
-                            <td>
-
-                                <div class="capa-obra">
-
-                                    Capa
-
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                Interestelar
-
-                            </td>
-
-
-                            <td>
-
-                                Ficção<br>
-
-                                Drama
-
-                            </td>
-
-
-                            <td>
-
-                                2014
-
-                            </td>
-
-
-                            <td>
-
-                                <div class="avaliacao-obra">
-
-                                    <i class="bi bi-star-fill"></i>
-
-                                    <span>
-
-                                        4.8
-
-                                    </span>
-
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                <div class="acoes-obra">
-
-
-                                    <!-- EDITAR -->
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-outline-light"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalEditar">
-
-                                        <i class="bi bi-pencil"></i>
-
-                                    </button>
-
-
-                                    <!-- VISUALIZAR -->
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-outline-light"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalVisualizar">
-
-                                        <i class="bi bi-eye"></i>
-
-                                    </button>
-
-
-                                    <!-- EXCLUIR -->
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-outline-danger"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalExcluir">
-
-                                        <i class="bi bi-trash"></i>
-
-                                    </button>
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-
-                        <!-- OBRA 2 -->
-
-                        <tr>
-
-                            <td>
-
-                                <div class="capa-obra">
-
-                                    Capa
-
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                Breaking Bad
-
-                            </td>
-
-
-                            <td>
-
-                                Drama<br>
-
-                                Crime
-
-                            </td>
-
-
-                            <td>
-
-                                2008
-
-                            </td>
-
-
-                            <td>
-
-                                <div class="avaliacao-obra">
-
-                                    <i class="bi bi-star-fill"></i>
-
-                                    <span>
-
-                                        4.9
-
-                                    </span>
-
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                <div class="acoes-obra">
-
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-outline-light"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalEditar">
-
-                                        <i class="bi bi-pencil"></i>
-
-                                    </button>
-
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-outline-light"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalVisualizar">
-
-                                        <i class="bi bi-eye"></i>
-
-                                    </button>
-
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-outline-danger"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalExcluir">
-
-                                        <i class="bi bi-trash"></i>
-
-                                    </button>
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-
-                        <!-- OBRA 3 -->
-
-                        <tr>
-
-                            <td>
-
-                                <div class="capa-obra">
-
-                                    Capa
-
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                Os Cavaleiros do Zodíaco
-
-                            </td>
-
-
-                            <td>
-
-                                Anime<br>
-
-                                Ação
-
-                            </td>
-
-
-                            <td>
-
-                                1986
-
-                            </td>
-
-
-                            <td>
-
-                                <div class="avaliacao-obra">
-
-                                    <i class="bi bi-star-fill"></i>
-
-                                    <span>
-
-                                        4.5
-
-                                    </span>
-
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                <div class="acoes-obra">
-
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-outline-light"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalEditar">
-
-                                        <i class="bi bi-pencil"></i>
-
-                                    </button>
-
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-outline-light"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalVisualizar">
-
-                                        <i class="bi bi-eye"></i>
-
-                                    </button>
-
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-outline-danger"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalExcluir">
-
-                                        <i class="bi bi-trash"></i>
-
-                                    </button>
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-
-                    </tbody>
-
-                </table>
-
-            </div>
+            </p>
 
         </div>
 
-    </main>
 
+        <a
+            href="AdicionarObra.php"
+            class="btn botao-roxo"
+        >
 
+            <i class="bi bi-plus-lg"></i>
 
-    <!-- ==========================================
-                  MODAL EDITAR OBRA
-    =========================================== -->
+            Adicionar obra
 
-    <div
-        class="modal fade"
-        id="modalEditar"
-        tabindex="-1">
+        </a>
 
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+    </section>
 
-            <div class="modal-content bg-dark text-white">
 
 
-                <div class="modal-header">
+    <!-- ==========================================================
+         MENSAGEM
+    =========================================================== -->
 
-                    <h5 class="modal-title">
+    <?php if (!empty($mensagem)): ?>
 
-                        Editar obra
+        <div class="mensagem-autenticacao <?= e($tipoMensagem) ?> mb-4">
 
-                    </h5>
+            <i class="bi
+                <?= $tipoMensagem === 'sucesso'
+                    ? 'bi-check-circle'
+                    : 'bi-exclamation-circle'
+                ?>">
+            </i>
 
-                    <button
-                        type="button"
-                        class="btn-close btn-close-white"
-                        data-bs-dismiss="modal">
+            <?= e($mensagem) ?>
 
-                    </button>
+        </div>
 
-                </div>
+    <?php endif; ?>
 
 
-                <div class="modal-body">
 
-                    <div class="row g-3">
+    <!-- ==========================================================
+         RESUMO
+    =========================================================== -->
 
+    <section class="mb-5">
 
-                        <div class="col-md-6">
+        <div class="row g-4">
 
-                            <label class="form-label">
 
-                                Título
+            <!-- TOTAL -->
 
-                            </label>
+            <div class="col-md-4">
 
-                            <input
-                                type="text"
-                                class="form-control"
-                                value="Interestelar">
+                <div class="admin-info-card">
 
-                        </div>
+                    <div class="admin-info-icone">
 
+                        <i class="bi bi-film"></i>
 
-                        <div class="col-md-6">
+                    </div>
 
-                            <label class="form-label">
 
-                                Tipo
+                    <div>
 
-                            </label>
+                        <span>
+                            Total de obras
+                        </span>
 
-                            <select class="form-select">
-
-                                <option selected>
-
-                                    Filme
-
-                                </option>
-
-                                <option>
-
-                                    Série
-
-                                </option>
-
-                                <option>
-
-                                    Anime
-
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <div class="col-md-6">
-
-                            <label class="form-label">
-
-                                Ano
-
-                            </label>
-
-                            <input
-                                type="number"
-                                class="form-control"
-                                value="2014">
-
-                        </div>
-
-
-                        <div class="col-md-6">
-
-                            <label class="form-label">
-
-                                Gênero
-
-                            </label>
-
-                            <select class="form-select">
-
-                                <option selected>
-
-                                    Ficção
-
-                                </option>
-
-                                <option>
-
-                                    Drama
-
-                                </option>
-
-                                <option>
-
-                                    Ação
-
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <div class="col-12">
-
-                            <label class="form-label">
-
-                                Descrição
-
-                            </label>
-
-                            <textarea
-                                class="form-control"
-                                rows="4">Uma equipe viaja pelo espaço em busca de um novo planeta habitável.</textarea>
-
-                        </div>
-
+                        <strong>
+                            <?= $totalObras ?>
+                        </strong>
 
                     </div>
 
                 </div>
 
-
-                <div class="modal-footer">
-
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        data-bs-dismiss="modal">
-
-                        Cancelar
-
-                    </button>
+            </div>
 
 
-                    <button
-                        type="button"
-                        class="btn btn-primary"
-                        data-bs-dismiss="modal">
 
-                        Salvar alterações
+            <!-- ATIVAS -->
 
-                    </button>
+            <div class="col-md-4">
+
+                <div class="admin-info-card">
+
+                    <div class="admin-info-icone">
+
+                        <i class="bi bi-check-circle"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Obras ativas
+                        </span>
+
+                        <strong>
+                            <?= $obrasAtivas ?>
+                        </strong>
+
+                    </div>
 
                 </div>
 
+            </div>
+
+
+
+            <!-- EM ALTA -->
+
+            <div class="col-md-4">
+
+                <div class="admin-info-card">
+
+                    <div class="admin-info-icone">
+
+                        <i class="bi bi-fire"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Em alta
+                        </span>
+
+                        <strong>
+                            <?= $obrasEmAlta ?>
+                        </strong>
+
+                    </div>
+
+                </div>
 
             </div>
 
         </div>
 
-    </div>
+    </section>
 
 
 
-    <!-- ==========================================
-               MODAL VISUALIZAR OBRA
-    =========================================== -->
+    <!-- ==========================================================
+         TÍTULO DA LISTA
+    =========================================================== -->
 
-    <div
-        class="modal fade"
-        id="modalVisualizar"
-        tabindex="-1">
+    <section class="mb-4">
 
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="titulo-secao">
 
-            <div class="modal-content bg-dark text-white">
+            <div>
 
+                <p>
+                    CATÁLOGO
+                </p>
 
-                <div class="modal-header">
+                <h2>
+                    Obras cadastradas
+                </h2>
 
-                    <h5 class="modal-title">
-
-                        Informações da obra
-
-                    </h5>
+            </div>
 
 
-                    <button
-                        type="button"
-                        class="btn-close btn-close-white"
-                        data-bs-dismiss="modal">
+            <i class="bi bi-collection-play"></i>
 
-                    </button>
+        </div>
 
-                </div>
+    </section>
 
 
-                <div class="modal-body">
 
-                    <div class="row">
+    <!-- ==========================================================
+         LISTA DE OBRAS
+    =========================================================== -->
+
+    <?php if (empty($obras)): ?>
 
 
-                        <div class="col-md-4 text-center">
+        <!-- NENHUMA OBRA -->
 
-                            <div class="capa-modal">
+        <div class="mensagem-vazia">
 
-                                Capa
+            <i class="bi bi-film fs-1 d-block mb-3"></i>
+
+
+            <h3>
+                Nenhuma obra cadastrada
+            </h3>
+
+
+            <p>
+                Comece adicionando a primeira obra ao Apollo.
+            </p>
+
+
+            <a
+                href="AdicionarObra.php"
+                class="btn botao-roxo"
+            >
+
+                <i class="bi bi-plus-lg"></i>
+
+                Adicionar obra
+
+            </a>
+
+        </div>
+
+
+    <?php else: ?>
+
+
+        <div class="row g-4">
+
+
+            <?php foreach ($obras as $obra): ?>
+
+
+                <div class="col-12">
+
+
+                    <!-- ==================================================
+                         CARD DA OBRA
+                    =================================================== -->
+
+                    <article class="admin-obra-card">
+
+
+                        <!-- ==================================================
+                             CAPA
+                        =================================================== -->
+
+                        <div class="admin-obra-capa">
+
+                            <img
+                                src="<?= e($obra['capa']) ?>"
+                                alt="<?= e($obra['titulo']) ?>"
+                            >
+
+                        </div>
+
+
+
+                        <!-- ==================================================
+                             INFORMAÇÕES DA OBRA
+                        =================================================== -->
+
+                        <div class="admin-obra-conteudo">
+
+
+                            <!-- STATUS -->
+
+                            <div class="admin-obra-topo">
+
+
+                                <!-- TIPO -->
+
+                                <span class="admin-obra-tipo">
+
+                                    <?= e($obra['tipo']) ?>
+
+                                </span>
+
+
+
+                                <!-- ATIVA / INATIVA -->
+
+                                <?php if ((int) $obra['ativo'] === 1): ?>
+
+                                    <span class="admin-obra-status ativa">
+
+                                        <i class="bi bi-check-circle"></i>
+
+                                        Ativa
+
+                                    </span>
+
+                                <?php else: ?>
+
+                                    <span class="admin-obra-status inativa">
+
+                                        <i class="bi bi-eye-slash"></i>
+
+                                        Inativa
+
+                                    </span>
+
+                                <?php endif; ?>
+
+
+
+                                <!-- EM ALTA -->
+
+                                <?php if ((int) $obra['em_alta'] === 1): ?>
+
+                                    <span class="admin-obra-status alta">
+
+                                        <i class="bi bi-fire"></i>
+
+                                        Em alta
+
+                                    </span>
+
+                                <?php endif; ?>
+
+
+
+                                <!-- LANÇAMENTO -->
+
+                                <?php if ((int) $obra['lancamento'] === 1): ?>
+
+                                    <span class="admin-obra-status lancamento">
+
+                                        <i class="bi bi-rocket-takeoff"></i>
+
+                                        Lançamento
+
+                                    </span>
+
+                                <?php endif; ?>
+
 
                             </div>
 
+
+
+                            <!-- TÍTULO -->
+
+                            <h2 class="admin-obra-titulo">
+
+                                <?= e($obra['titulo']) ?>
+
+                            </h2>
+
+
+
+                            <!-- DESCRIÇÃO -->
+
+                            <p class="admin-obra-descricao">
+
+                                <?= e($obra['descricao']) ?>
+
+                            </p>
+
+
+
+                            <!-- ==================================================
+                                 INFORMAÇÕES
+                            =================================================== -->
+
+                            <div class="admin-obra-informacoes">
+
+
+                                <div>
+
+                                    <span>
+                                        Ano
+                                    </span>
+
+                                    <strong>
+                                        <?= e($obra['ano_lancamento']) ?>
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <span>
+                                        Classificação
+                                    </span>
+
+                                    <strong>
+                                        <?= e($obra['classificacao']) ?>
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <span>
+                                        Duração
+                                    </span>
+
+                                    <strong>
+                                        <?= e($obra['duracao']) ?>
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <span>
+                                        Estúdio
+                                    </span>
+
+                                    <strong>
+                                        <?= e($obra['estudio']) ?>
+                                    </strong>
+
+                                </div>
+
+
+                            </div>
+
+
+
+                            <!-- ==================================================
+                                 GÊNEROS
+                            =================================================== -->
+
+                            <div class="admin-obra-generos">
+
+
+                                <span class="admin-obra-generos-titulo">
+
+                                    Gêneros
+
+                                </span>
+
+
+
+                                <?php if (!empty($obra['generos'])): ?>
+
+
+                                    <div class="admin-obra-generos-lista">
+
+
+                                        <?php foreach ($obra['generos'] as $genero): ?>
+
+
+                                            <span class="admin-obra-genero">
+
+                                                <?= e($genero['nome']) ?>
+
+                                            </span>
+
+
+                                        <?php endforeach; ?>
+
+
+                                    </div>
+
+
+                                <?php else: ?>
+
+
+                                    <small class="text-secondary">
+
+                                        Nenhum gênero associado.
+
+                                    </small>
+
+
+                                <?php endif; ?>
+
+
+                            </div>
+
+
                         </div>
 
 
-                        <div class="col-md-8">
 
-                            <h3>
+                        <!-- ==================================================
+                             AÇÕES
+                        =================================================== -->
 
-                                Interestelar
-
-                            </h3>
-
-
-                            <p>
-
-                                <strong>
-
-                                    Tipo:
-
-                                </strong>
-
-                                Filme
-
-                            </p>
+                        <div class="admin-obra-acoes">
 
 
-                            <p>
+                            <!-- EDITAR -->
 
-                                <strong>
+                            <a
+                                href="EditarObra.php?id=<?= (int) $obra['id'] ?>"
+                                class="btn botao-editar"
+                            >
 
-                                    Ano:
+                                <i class="bi bi-pencil"></i>
 
-                                </strong>
+                                Editar
 
-                                2014
-
-                            </p>
-
-
-                            <p>
-
-                                <strong>
-
-                                    Gêneros:
-
-                                </strong>
-
-                                Ficção, Drama
-
-                            </p>
+                            </a>
 
 
-                            <p>
 
-                                <strong>
+                            <!-- ATIVAR / DESATIVAR -->
 
-                                    Avaliação média:
+                            <form
+                                method="POST"
+                                class="w-100"
+                            >
 
-                                </strong>
+                                <input
+                                    type="hidden"
+                                    name="acao"
+                                    value="status"
+                                >
 
-                                ⭐ 4.8
 
-                            </p>
+                                <input
+                                    type="hidden"
+                                    name="id"
+                                    value="<?= (int) $obra['id'] ?>"
+                                >
 
 
-                            <p>
+                                <input
+                                    type="hidden"
+                                    name="ativo"
+                                    value="<?= (int) $obra['ativo'] === 1 ? 0 : 1 ?>"
+                                >
 
-                                <strong>
 
-                                    Duração:
+                                <button
+                                    type="submit"
+                                    class="btn botao-desativar"
+                                >
 
-                                </strong>
+                                    <?php if ((int) $obra['ativo'] === 1): ?>
 
-                                169 minutos
+                                        <i class="bi bi-eye-slash"></i>
 
-                            </p>
+                                        Desativar
+
+                                    <?php else: ?>
+
+                                        <i class="bi bi-eye"></i>
+
+                                        Ativar
+
+                                    <?php endif; ?>
+
+                                </button>
+
+                            </form>
+
+
+
+                            <!-- EXCLUIR -->
+
+                            <button
+                                type="button"
+                                class="btn botao-excluir"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalExcluir<?= (int) $obra['id'] ?>"
+                            >
+
+                                <i class="bi bi-trash"></i>
+
+                                Excluir
+
+                            </button>
+
+
+                        </div>
+
+
+                    </article>
+
+
+                </div>
+
+
+
+                <!-- ==========================================================
+                     MODAL DE EXCLUSÃO
+                =========================================================== -->
+
+                <div
+                    class="modal fade modal-apollo"
+                    id="modalExcluir<?= (int) $obra['id'] ?>"
+                    tabindex="-1"
+                    aria-hidden="true"
+                >
+
+                    <div class="modal-dialog modal-dialog-centered">
+
+
+                        <div class="modal-content">
+
+
+                            <!-- CABEÇALHO -->
+
+                            <div class="modal-header">
+
+
+                                <div>
+
+                                    <p class="etiqueta-autenticacao">
+
+                                        <i class="bi bi-exclamation-triangle"></i>
+
+                                        ATENÇÃO
+
+                                    </p>
+
+
+                                    <h2 class="modal-title">
+
+                                        Excluir obra
+
+                                    </h2>
+
+                                </div>
+
+
+
+                                <button
+                                    type="button"
+                                    class="botao-fechar-modal"
+                                    data-bs-dismiss="modal"
+                                    aria-label="Fechar"
+                                >
+
+                                    <i class="bi bi-x-lg"></i>
+
+                                </button>
+
+
+                            </div>
+
+
+
+                            <!-- CORPO -->
+
+                            <div class="modal-body">
+
+
+                                <p>
+
+                                    Tem certeza que deseja excluir a obra
+
+                                    <strong>
+                                        <?= e($obra['titulo']) ?>
+                                    </strong>?
+
+                                </p>
+
+
+                                <p class="text-secondary mb-0">
+
+                                    Essa ação não poderá ser desfeita.
+
+                                </p>
+
+
+                            </div>
+
+
+
+                            <!-- RODAPÉ -->
+
+                            <div class="modal-footer">
+
+
+                                <button
+                                    type="button"
+                                    class="btn botao-cancelar"
+                                    data-bs-dismiss="modal"
+                                >
+
+                                    Cancelar
+
+                                </button>
+
+
+
+                                <form method="POST">
+
+                                    <input
+                                        type="hidden"
+                                        name="acao"
+                                        value="excluir"
+                                    >
+
+
+                                    <input
+                                        type="hidden"
+                                        name="id"
+                                        value="<?= (int) $obra['id'] ?>"
+                                    >
+
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-danger"
+                                    >
+
+                                        <i class="bi bi-trash"></i>
+
+                                        Excluir obra
+
+                                    </button>
+
+                                </form>
+
+
+                            </div>
+
 
                         </div>
 
                     </div>
 
-
-                    <hr>
-
-
-                    <h5>
-
-                        Descrição
-
-                    </h5>
-
-
-                    <p>
-
-                        Uma equipe viaja pelo espaço em busca de um novo planeta habitável para garantir a sobrevivência da humanidade.
-
-                    </p>
-
-
                 </div>
 
 
-                <div class="modal-footer">
+            <?php endforeach; ?>
 
-                    <button
-                        type="button"
-                        class="btn btn-primary"
-                        data-bs-dismiss="modal">
-
-                        Fechar
-
-                    </button>
-
-                </div>
-
-
-            </div>
 
         </div>
 
-    </div>
+
+    <?php endif; ?>
+
+
+</main>
 
 
 
-    <!-- ==========================================
-                  MODAL EXCLUIR OBRA
-    =========================================== -->
+<!-- ==========================================================
+     JAVASCRIPT
+========================================================== -->
 
-    <div
-        class="modal fade"
-        id="modalExcluir"
-        tabindex="-1">
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js">
+</script>
 
-        <div class="modal-dialog modal-dialog-centered">
-
-            <div class="modal-content bg-dark text-white border border-danger">
-
-
-                <div class="modal-header">
-
-                    <h5 class="modal-title">
-
-                        Excluir obra
-
-                    </h5>
-
-
-                    <button
-                        type="button"
-                        class="btn-close btn-close-white"
-                        data-bs-dismiss="modal">
-
-                    </button>
-
-                </div>
-
-
-                <div class="modal-body">
-
-                    <p>
-
-                        Tem certeza que deseja excluir esta obra?
-
-                    </p>
-
-
-                    <p class="text-secondary">
-
-                        Essa ação removerá a obra da plataforma.
-
-                    </p>
-
-                </div>
-
-
-                <div class="modal-footer">
-
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        data-bs-dismiss="modal">
-
-                        Cancelar
-
-                    </button>
-
-
-                    <button
-                        type="button"
-                        class="btn btn-danger"
-                        data-bs-dismiss="modal">
-
-                        Confirmar exclusão
-
-                    </button>
-
-                </div>
-
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-
-    <!-- BOOTSTRAP -->
-
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js">
-
-    </script>
 
 </body>
 

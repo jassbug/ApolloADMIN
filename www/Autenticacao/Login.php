@@ -1,176 +1,125 @@
+<?php
+
+require_once __DIR__ . '/../includes/autenticacao.php';
+
+if (usuarioLogado()) {
+    header('Location: /index.php');
+    exit;
+}
+
+$mensagem = '';
+$tipoMensagem = '';
+$email = '';
+
+if (isset($_GET['cadastro']) && $_GET['cadastro'] === 'sucesso') {
+    $mensagem = 'Conta criada com sucesso. Entre para continuar.';
+    $tipoMensagem = 'sucesso';
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = $_POST['email'] ?? '';
+    $senha = $_POST['senha'] ?? '';
+
+    $resultado = fazerLogin($email, $senha);
+
+    if ($resultado['sucesso']) {
+        header('Location: /index.php');
+        exit;
+    }
+
+    $mensagem = $resultado['mensagem'];
+    $tipoMensagem = 'erro';
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Login - Apollo</title>
+    <title>Entrar | Apollo</title>
 
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../css/styles.css">
-
 </head>
 
-<body>
+<body class="pagina-autenticacao">
 
-    <!-- Navbar -->
+    <main class="container">
 
-    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="caixa-autenticacao">
 
-        <div class="container">
-
-            <a class="navbar-brand fw-bold" href="/index.php">
-                APOLLO
+            <a href="/index.php" class="logo-apollo">
+                APOLLO<span>.</span>
             </a>
 
-        </div>
-
-    </nav>
-
-    <!-- Login -->
-
-    <main class="container d-flex justify-content-center align-items-center py-5">
-
-        <div class="login-card">
-
-            <h1 class="text-center mb-2">
-                APOLLO
-            </h1>
-
-            <p class="text-center text-secondary mb-4">
-                Faça login para continuar
+            <p class="etiqueta-autenticacao">
+                <i class="bi bi-stars"></i> BEM-VINDO DE VOLTA
             </p>
 
-            <form>
+            <h1>Entre na sua órbita.</h1>
 
-                <div class="mb-3">
+            <p class="texto-autenticacao">
+                Acesse sua conta para continuar explorando suas histórias favoritas.
+            </p>
 
-                    <label class="form-label">
-                        E-mail
-                    </label>
+            <?php if (!empty($mensagem)): ?>
+                <div class="mensagem-autenticacao <?= $tipoMensagem ?>">
+                    <i class="bi bi-info-circle"></i>
+                    <?= e($mensagem) ?>
+                </div>
+            <?php endif; ?>
 
-                    <input
-                        type="email"
-                        class="form-control"
-                        placeholder="Digite seu e-mail">
+            <form method="POST" class="formulario-autenticacao">
 
+                <div class="campo-formulario">
+                    <label for="email">E-mail</label>
+
+                    <div>
+                        <i class="bi bi-envelope"></i>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value="<?= e($email) ?>"
+                            placeholder="voce@email.com"
+                            required>
+                    </div>
                 </div>
 
-                <div class="mb-3">
+                <div class="campo-formulario">
+                    <label for="senha">Senha</label>
 
-                    <label class="form-label">
-                        Senha
-                    </label>
-
-                    <input
-                        type="password"
-                        class="form-control"
-                        placeholder="Digite sua senha">
-
+                    <div>
+                        <i class="bi bi-lock"></i>
+                        <input
+                            type="password"
+                            id="senha"
+                            name="senha"
+                            placeholder="Sua senha"
+                            required>
+                    </div>
                 </div>
 
-                <div class="text-end mb-4">
-
-                    <a href="Recuperacao-senha.php" class="login-link">
-                        Esqueci minha senha
-                    </a>
-
-                </div>
-
-                <div class="d-grid">
-
-                    <button
-                        type="button"
-                        class="btn btn-primary"
-                        data-bs-toggle="modal"
-                        data-bs-target="#modalLogin">
-
-                        Entrar
-
-                    </button>
-
-                </div>
+                <button type="submit" class="btn botao-roxo botao-autenticacao">
+                    Entrar na minha conta
+                    <i class="bi bi-arrow-right"></i>
+                </button>
 
             </form>
 
-            <hr>
-
-            <p class="text-center mb-0">
-
-                Não possui uma conta?
-
-                <a href="Cadastro.php" class="login-link">
-                    Criar conta
-                </a>
-
+            <p class="link-autenticacao">
+                Ainda não possui uma conta?
+                <a href="/Autenticacao/cadastro.php">Criar conta</a>
             </p>
 
         </div>
 
     </main>
 
-    <!-- Modal -->
-
-    <div class="modal fade" id="modalLogin" tabindex="-1">
-
-        <div class="modal-dialog modal-dialog-centered">
-
-            <div class="modal-content bg-dark text-white border border-primary">
-
-                <div class="modal-header">
-
-                    <h5 class="modal-title">
-                        Login
-                    </h5>
-
-                    <button
-                        type="button"
-                        class="btn-close btn-close-white"
-                        data-bs-dismiss="modal">
-                    </button>
-
-                </div>
-
-                <div class="modal-body">
-
-                    <p>
-                        Esta funcionalidade será implementada no back-end.
-                    </p>
-
-                    <p>
-                        Quando o sistema estiver conectado ao banco de dados,
-                        o usuário poderá entrar utilizando seu e-mail e senha.
-                    </p>
-
-                </div>
-
-                <div class="modal-footer">
-
-                    <button
-                        class="btn btn-primary"
-                        data-bs-dismiss="modal">
-
-                        Entendi
-
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- Bootstrap -->
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
-
 </html>

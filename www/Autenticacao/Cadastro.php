@@ -1,244 +1,138 @@
+<?php
+
+require_once __DIR__ . '/../includes/autenticacao.php';
+
+if (usuarioLogado()) {
+    header('Location: /index.php');
+    exit;
+}
+
+$mensagem = '';
+$tipoMensagem = '';
+$nome = '';
+$email = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nome = $_POST['nome'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $senha = $_POST['senha'] ?? '';
+
+    $resultado = cadastrarUsuario($nome, $email, $senha);
+
+    if ($resultado['sucesso']) {
+        header('Location: /Autenticacao/login.php?cadastro=sucesso');
+        exit;
+    }
+
+    $mensagem = $resultado['mensagem'];
+    $tipoMensagem = 'erro';
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Criar Conta - Apollo</title>
+    <title>Criar conta | Apollo</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../css/styles.css">
-
 </head>
 
-<body>
+<body class="pagina-autenticacao">
 
-    <main class="container d-flex justify-content-center align-items-center min-vh-100">
+    <main class="container">
 
-        <div class="login-card">
+        <div class="caixa-autenticacao">
 
-            <div class="text-center mb-5">
+            <a href="/index.php" class="logo-apollo">
+                APOLLO<span>.</span>
+            </a>
 
-                <img src="../img/logo.png" alt="Logo Apollo" class="logo-login">
+            <p class="etiqueta-autenticacao">
+                <i class="bi bi-stars"></i> CRIE SUA CONTA
+            </p>
 
-            </div>
+            <h1>Seu universo começa aqui.</h1>
 
-            <form>
+            <p class="texto-autenticacao">
+                Crie sua conta para favoritar obras, criar listas e participar da comunidade.
+            </p>
 
-                <!-- Nome -->
+            <?php if (!empty($mensagem)): ?>
+                <div class="mensagem-autenticacao <?= $tipoMensagem ?>">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <?= e($mensagem) ?>
+                </div>
+            <?php endif; ?>
 
-                <div class="mb-3">
+            <form method="POST" class="formulario-autenticacao">
 
-                    <label class="form-label">
+                <div class="campo-formulario">
+                    <label for="nome">Nome</label>
 
-                        Nome
-
-                    </label>
-
-                    <input
-                        type="text"
-                        class="form-control"
-                        placeholder="Digite seu nome">
-
+                    <div>
+                        <i class="bi bi-person"></i>
+                        <input
+                            type="text"
+                            id="nome"
+                            name="nome"
+                            value="<?= e($nome) ?>"
+                            placeholder="Seu nome"
+                            required>
+                    </div>
                 </div>
 
-                <!-- Usuário -->
+                <div class="campo-formulario">
+                    <label for="email">E-mail</label>
 
-                <div class="mb-3">
-
-                    <label class="form-label">
-
-                        Nome de usuário
-
-                    </label>
-
-                    <input
-                        type="text"
-                        class="form-control"
-                        placeholder="Digite seu nome de usuário">
-
+                    <div>
+                        <i class="bi bi-envelope"></i>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value="<?= e($email) ?>"
+                            placeholder="voce@email.com"
+                            required>
+                    </div>
                 </div>
 
-                <!-- Data de nascimento -->
+                <div class="campo-formulario">
+                    <label for="senha">Senha</label>
 
-                <div class="mb-3">
-
-                    <label class="form-label">
-
-                        Data de nascimento
-
-                    </label>
-
-                    <input
-                        type="date"
-                        class="form-control">
-
+                    <div>
+                        <i class="bi bi-lock"></i>
+                        <input
+                            type="password"
+                            id="senha"
+                            name="senha"
+                            placeholder="Mínimo de 6 caracteres"
+                            minlength="6"
+                            required>
+                    </div>
                 </div>
 
-                <!-- Email -->
-
-                <div class="mb-3">
-
-                    <label class="form-label">
-
-                        E-mail
-
-                    </label>
-
-                    <input
-                        type="email"
-                        class="form-control"
-                        placeholder="Digite seu e-mail">
-
-                </div>
-
-                <!-- Senha -->
-
-                <div class="mb-3">
-
-                    <label class="form-label">
-
-                        Senha
-
-                    </label>
-
-                    <input
-                        type="password"
-                        class="form-control"
-                        placeholder="Digite sua senha">
-
-                </div>
-
-                <!-- Confirmar senha -->
-
-                <div class="mb-4">
-
-                    <label class="form-label">
-
-                        Confirmar senha
-
-                    </label>
-
-                    <input
-                        type="password"
-                        class="form-control"
-                        placeholder="Confirme sua senha">
-
-                </div>
-
-                <!-- Botão -->
-
-                <div class="d-grid mb-4">
-
-                    <button
-                        type="button"
-                        class="btn btn-primary"
-                        data-bs-toggle="modal"
-                        data-bs-target="#modalConfirmacao">
-
-                        Criar Conta
-
-                    </button>
-
-                </div>
-
-                <hr>
-
-                <div class="text-center mt-4">
-
-                    Já possui uma conta?
-
-                    <a href="login.php" class="login-link">
-
-                        Entrar
-
-                    </a>
-
-                </div>
+                <button type="submit" class="btn botao-roxo botao-autenticacao">
+                    Criar minha conta
+                    <i class="bi bi-arrow-right"></i>
+                </button>
 
             </form>
+
+            <p class="link-autenticacao">
+                Já possui uma conta?
+                <a href="/Autenticacao/login.php">Entrar</a>
+            </p>
 
         </div>
 
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- Modal Confirmação -->
-
-<div class="modal fade" id="modalConfirmacao" tabindex="-1">
-
-    <div class="modal-dialog modal-dialog-centered">
-
-        <div class="modal-content bg-dark text-white border border-primary">
-
-            <div class="modal-header">
-
-                <h5 class="modal-title">
-
-                    Confirmação de E-mail
-
-                </h5>
-
-                <button
-                    type="button"
-                    class="btn-close btn-close-white"
-                    data-bs-dismiss="modal">
-                </button>
-
-            </div>
-
-            <div class="modal-body">
-
-                <p>
-
-                    Sua conta foi criada com sucesso!
-
-                </p>
-
-                <p>
-
-                    Um código de confirmação será enviado para o e-mail informado durante o cadastro.
-
-                </p>
-
-                <p>
-
-                    Informe esse código na próxima tela para confirmar seu e-mail e ativar sua conta no Apollo.
-
-                </p>
-
-            </div>
-
-            <div class="modal-footer">
-
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            data-bs-dismiss="modal">
-
-                            Cancelar
-
-                        </button>
-
-                        <a href="Codigo.php" class="btn btn-primary">
-
-                            Continuar
-
-                        </a>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
 </body>
-
 </html>

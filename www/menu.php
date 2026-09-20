@@ -1,204 +1,167 @@
-<!-- Navbar -->
+<?php
+$paginaAtual = basename($_SERVER['PHP_SELF']);
+?>
 
-<nav class="navbar navbar-expand-lg navbar-dark">
+<nav class="navbar menu-superior">
 
     <div class="container-fluid">
 
-        <!-- Botão Menu -->
+        <div class="menu-esquerda">
 
-        <button class="btn btn-menu me-3"
-            type="button"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#menuLateral">
+            <button
+                class="botao-menu"
+                type="button"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#menuLateral"
+                aria-controls="menuLateral"
+                aria-label="Abrir menu">
 
-            <i class="bi bi-list"></i>
-
-        </button>
-
-        <!-- Logo -->
-
-        <a class="navbar-brand fw-bold" href="/index.php">
-
-            APOLLO
-
-        </a>
-
-        <!-- Busca -->
-
-        <form class="d-flex mx-auto w-50">
-
-            <input
-                class="form-control me-2"
-                type="search"
-                placeholder="Buscar">
-
-            <button class="btn btn-outline-light">
-
-                Buscar
-
+                <i class="bi bi-list"></i>
             </button>
 
+            <a href="index.php" class="logo-apollo">
+                APOLLO<span>.</span>
+            </a>
+
+        </div>
+
+        <div class="links-menu d-none d-lg-flex">
+            <a class="<?= $paginaAtual === 'index.php' ? 'ativo' : '' ?>" href="index.php">
+                Início
+            </a>
+
+            <a class="<?= $paginaAtual === 'catalogo.php' ? 'ativo' : '' ?>" href="catalogo.php">
+                Catálogo
+            </a>
+
+            <a class="<?= $paginaAtual === 'Obras.php' ? 'ativo' : '' ?>" href="Obras.php">
+                Obras
+            </a>
+
+            <a class="<?= $paginaAtual === 'Generos.php' ? 'ativo' : '' ?>" href="Generos.php">
+                Gêneros
+            </a>
+        </div>
+
+        <form class="busca-menu" action="catalogo.php" method="GET">
+            <input
+                type="search"
+                name="busca"
+                placeholder="Busque uma obra..."
+                aria-label="Buscar obra">
+
+            <button type="submit" aria-label="Pesquisar">
+                <i class="bi bi-search"></i>
+            </button>
         </form>
-
-        <!-- Perfil -->
-
 
     </div>
 
 </nav>
 
-<!-- Menu Lateral -->
 
-<div class="offcanvas offcanvas-start text-bg-dark"
+<div
+    class="offcanvas offcanvas-start menu-lateral"
     tabindex="-1"
-    id="menuLateral">
+    id="menuLateral"
+    aria-labelledby="tituloMenuLateral">
 
     <div class="offcanvas-header">
 
-        <h4 class="fw-bold text-primary">
-
-            APOLLO
-
-        </h4>
+        <a href="index.php" class="logo-apollo" id="tituloMenuLateral">
+            APOLLO<span>.</span>
+        </a>
 
         <button
             type="button"
-            class="btn-close btn-close-white"
-            data-bs-dismiss="offcanvas">
+            class="btn-fechar-menu"
+            data-bs-dismiss="offcanvas"
+            aria-label="Fechar menu">
+
+            <i class="bi bi-x-lg"></i>
         </button>
 
     </div>
 
     <div class="offcanvas-body">
 
-        <ul class="navbar-nav">
+        <p class="titulo-menu-lateral">NAVEGAÇÃO</p>
 
-            <li class="nav-item mb-3">
+        <nav class="links-laterais">
 
-                <a href="/index.php" class="nav-link">
+            <a class="<?= $paginaAtual === 'index.php' ? 'ativo' : '' ?>" href="index.php">
+                <i class="bi bi-house-door"></i>
+                Início
+            </a>
 
-                    <i class="bi bi-house-door-fill me-2"></i>
+            <a class="<?= $paginaAtual === 'catalogo.php' ? 'ativo' : '' ?>" href="catalogo.php">
+                <i class="bi bi-collection-play"></i>
+                Catálogo
+            </a>
 
-                    Início
+            <a class="<?= $paginaAtual === 'Obras.php' ? 'ativo' : '' ?>" href="Obras.php">
+                <i class="bi bi-film"></i>
+                Obras
+            </a>
 
-                </a>
+            <a class="<?= $paginaAtual === 'Generos.php' ? 'ativo' : '' ?>" href="Generos.php">
+                <i class="bi bi-grid"></i>
+                Gêneros
+            </a>
 
-            </li>
+            <a class="<?= $paginaAtual === 'Categoria.php' ? 'ativo' : '' ?>" href="Categoria.php">
+                <i class="bi bi-tags"></i>
+                Categorias
+            </a>
 
-            <li class="nav-item mb-3">
+        </nav>
 
-                <a href="/Usuario/Perfil.php" class="nav-link">
+        <div class="linha-menu"></div>
 
-                    <i class="bi bi-person-fill me-2"></i>
+<p class="titulo-menu-lateral">SUA CONTA</p>
 
-                    Perfil
+<nav class="links-laterais">
 
-                </a>
+    <?php if (usuarioLogado()): ?>
 
-            </li>
+        <a href="/Usuario/perfil.php">
+            <i class="bi bi-person-circle"></i>
+            Meu perfil
+        </a>
 
-            <li class="nav-item mb-3">
+        <?php if (usuarioEhAdmin()): ?>
+            <a href="/adm/index.php">
+                <i class="bi bi-shield-lock"></i>
+                Controle do site
+            </a>
+        <?php endif; ?>
 
-                <a href="/Usuario/Listas.php" class="nav-link">
+        <a href="/Autenticacao/sair.php">
+            <i class="bi bi-box-arrow-right"></i>
+            Sair
+        </a>
 
-                    <i class="bi bi-heart-fill me-2"></i>
+    <?php else: ?>
 
-                    Minha Lista
+        <a href="/Autenticacao/login.php">
+            <i class="bi bi-box-arrow-in-right"></i>
+            Entrar
+        </a>
 
-                </a>
+        <a href="/Autenticacao/cadastro.php">
+            <i class="bi bi-person-plus"></i>
+            Criar conta
+        </a>
 
-            </li>
+    <?php endif; ?>
 
-            <li class="nav-item mb-3">
+</nav>
 
-                <a href="/catalogo.php" class="nav-link">
+    </div>
 
-                    <i class="bi bi-film me-2"></i>
-
-                    Filmes
-
-                </a>
-
-            </li>
-
-            <li class="nav-item mb-3">
-
-                <a href="/catalogo.php" class="nav-link">
-
-                    <i class="bi bi-tv-fill me-2"></i>
-
-                    Séries
-
-                </a>
-
-            </li>
-
-            <li class="nav-item mb-3">
-
-                <a href="/catalogo.php" class="nav-link">
-
-                    <i class="bi bi-play-circle-fill me-2"></i>
-
-                    Animes
-
-                </a>
-
-            </li>
-
-            <li class="nav-item mb-3">
-
-                <a href="/Generos.php" class="nav-link">
-
-                    <i class="bi bi-grid-fill me-2"></i>
-
-                    Gêneros
-
-                </a>
-
-            </li>
-
-            <hr>
-
-            <li class="nav-item mb-3">
-
-                <a href="../Autenticacao/login.php" class="nav-link text-danger">
-
-                    <i class="bi bi-box-arrow-in-right me-2"></i>
-
-                    Login
-
-                </a>
-
-            </li>
-
-            <hr>
-
-            <li class="nav-item">
-
-                <a href="../Autenticacao/login.php" class="nav-link text-danger">
-
-                    <i class="bi bi-box-arrow-right me-2"></i>
-
-                    Sair
-
-                </a>
-
-            </li>
-
-            <li class="nav-item mb-3">
-
-                <a href="/Adm/Dashboard.php" class="nav-link">
-
-                    <i class="bi bi-speedometer2 me-2"></i>
-
-                    Administração
-
-                </a>
-
-            </li>
-
-        </ul>
-
+    <div class="rodape-menu">
+        <i class="bi bi-stars"></i>
+        Descubra sua próxima história.
     </div>
 
 </div>

@@ -1,468 +1,285 @@
+<?php
+
+require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/autenticacao.php';
+
+$avisos = buscarAvisos();
+
+$avisos = buscarAvisos();
+$emAlta = buscarObrasEmAlta();
+$lancamentos = buscarLancamentos();
+$generos = buscarGeneros();
+
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Apollo</title>
+    <title>Apollo | Descubra novas histórias</title>
 
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="css/styles.css">
-
-    <link rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
 </head>
 
 <body>
 
-    <!-- Menu lateral -->
-     <header>
-
+    <header>
         <?php include 'menu.php'; ?>
-
     </header>
 
-    <section class="hero">
+    <main>
 
-        <div class="container">
+        <section class="hero-apollo">
+            <div class="hero-luz"></div>
 
-            <h1>
-                Descubra novos filmes, séries e animes
-            </h1>
+            <div class="container position-relative">
+                <div class="row align-items-center min-vh-75">
 
-            <p>
-                Organize suas listas, favorite obras e compartilhe opiniões com a comunidade.
-            </p>
+                    <div class="col-lg-7">
+                        <p class="hero-etiqueta">
+                            <i class="bi bi-stars"></i> SEU UNIVERSO DE ENTRETENIMENTO
+                        </p>
 
-        </div>
+                        <h1>
+                            Histórias que ficam
+                            <span>na sua órbita.</span>
+                        </h1>
 
-    </section>
+                        <p class="hero-texto">
+                            Descubra filmes, séries e animes. Organize suas listas,
+                            favorite suas obras e compartilhe opiniões com a comunidade.
+                        </p>
 
-    <section class="container mt-5">
+                        <a href="#em-alta" class="btn botao-roxo">
+                            Explorar agora
+                            <i class="bi bi-arrow-down"></i>
+                        </a>
+                    </div>
 
-    <h2 class="mb-4">
-        📢 Avisos
-    </h2>
+                    <div class="col-lg-5 d-none d-lg-flex justify-content-center">
+                        <div class="planeta-apollo">
+                            <i class="bi bi-play-fill"></i>
+                        </div>
+                    </div>
 
-    <div id="carouselAvisos" class="carousel slide carousel-fade shadow rounded" data-bs-ride="carousel">
+                </div>
+            </div>
+        </section>
 
-        <div class="carousel-indicators">
+        <section class="container secao-home" id="avisos">
 
-            <button type="button" data-bs-target="#carouselAvisos" data-bs-slide-to="0" class="active"></button>
-            <button type="button" data-bs-target="#carouselAvisos" data-bs-slide-to="1"></button>
-            <button type="button" data-bs-target="#carouselAvisos" data-bs-slide-to="2"></button>
+            <div class="titulo-secao">
+                <div>
+                    <p>FIQUE POR DENTRO</p>
+                    <h2>Avisos</h2>
+                </div>
+                <i class="bi bi-megaphone-fill"></i>
+            </div>
 
-        </div>
+            <?php if (!empty($avisos)): ?>
 
-        <div class="carousel-inner rounded">
+                <div id="carouselAvisos" class="carousel slide carousel-fade carousel-apollo" data-bs-ride="carousel">
 
-            <!-- Interestelar -->
-            <div class="carousel-item active">
+                    <div class="carousel-indicators">
 
-                <img src="https://image.tmdb.org/t/p/original/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg"
-                    class="d-block w-100"
-                    alt="Interestelar">
+                        <?php foreach ($avisos as $indice => $aviso): ?>
+                            <button
+                                type="button"
+                                data-bs-target="#carouselAvisos"
+                                data-bs-slide-to="<?= $indice ?>"
+                                class="<?= $indice === 0 ? 'active' : '' ?>"
+                                aria-label="Aviso <?= $indice + 1 ?>">
+                            </button>
+                        <?php endforeach; ?>
 
-                <div class="carousel-caption">
+                    </div>
 
-                    <h2>Interestelar</h2>
+                    <div class="carousel-inner">
 
-                    <p>
-                        Explore um dos maiores sucessos da ficção científica.
-                    </p>
+                        <?php foreach ($avisos as $indice => $aviso): ?>
 
-                    <a href="Obras.php" class="btn btn-primary">
-                        Ver deatalhes
-                    </a>
+                            <div class="carousel-item <?= $indice === 0 ? 'active' : '' ?>">
+
+                                <img
+                                    src="<?= e($aviso['imagem']) ?>"
+                                    class="d-block w-100"
+                                    alt="<?= e($aviso['titulo']) ?>">
+
+                                <div class="carousel-caption">
+                                    <span>DESTAQUE</span>
+                                    <h2><?= e($aviso['titulo']) ?></h2>
+                                    <p><?= e($aviso['descricao']) ?></p>
+
+                                    <?php if (!empty($aviso['link'])): ?>
+                                        <a href="<?= e($aviso['link']) ?>" class="btn botao-roxo">
+                                            Ver detalhes
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+
+                            </div>
+
+                        <?php endforeach; ?>
+
+                    </div>
+
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselAvisos" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselAvisos" data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>
 
                 </div>
 
-            </div>
+            <?php else: ?>
+                <p class="mensagem-vazia">Nenhum aviso publicado ainda.</p>
+            <?php endif; ?>
 
-            <!-- Superman -->
-            <div class="carousel-item">
+        </section>
 
-                <img src="https://image.tmdb.org/t/p/original/ombsmhYUqR4qqOLOxAyr5V8hbyv.jpg"
-                    class="d-block w-100"
-                    alt="Superman">
+        <section class="container secao-home" id="em-alta">
 
-                <div class="carousel-caption">
-
-                    <h2>Superman</h2>
-
-                    <p>
-                        Confira um dos lançamentos em destaque da plataforma.
-                    </p>
-
-                    <a href="Obras.php" class="btn btn-primary">
-                        Ver deatalhes
-                    </a>
-
+            <div class="titulo-secao">
+                <div>
+                    <p>ESCOLHAS DA COMUNIDADE</p>
+                    <h2><i class="bi bi-fire"></i> Em alta</h2>
                 </div>
 
+                <a href="Obras.php" class="link-secao">
+                    Ver todas <i class="bi bi-arrow-right"></i>
+                </a>
             </div>
 
-            <!-- Demon Slayer -->
-            <div class="carousel-item">
+            <div class="row g-4">
 
-                <img src="https://image.tmdb.org/t/p/original/aFRDH3P7TX61FVGpaLhKr6QiOC1.jpg"
-                    class="d-block w-100"
-                    alt="Demon Slayer">
+                <?php foreach ($emAlta as $obra): ?>
 
-                <div class="carousel-caption">
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        <article class="card obra-card h-100">
 
-                    <h2>Demon Slayer</h2>
+                            <img
+                                src="<?= e($obra['capa']) ?>"
+                                class="card-img-top"
+                                alt="<?= e($obra['titulo']) ?>">
 
-                    <p>
-                        Os animes mais populares estão aqui.
-                    </p>
+                            <div class="card-body">
+                                <span class="tipo-obra"><?= e($obra['tipo']) ?></span>
 
-                    <a href="Obras.php" class="btn btn-primary">
-                       Ver deatalhes
-                    </a>
+                                <h3 class="card-title">
+                                    <?= e($obra['titulo']) ?>
+                                </h3>
 
+                                <a href="Obras.php?id=<?= (int) $obra['id'] ?>" class="btn botao-card w-100">
+                                    Ver detalhes
+                                </a>
+                            </div>
+
+                        </article>
+                    </div>
+
+                <?php endforeach; ?>
+
+            </div>
+
+            <?php if (empty($emAlta)): ?>
+                <p class="mensagem-vazia">Ainda não há obras em alta.</p>
+            <?php endif; ?>
+
+        </section>
+
+        <section class="container secao-home">
+
+            <div class="titulo-secao">
+                <div>
+                    <p>NOVIDADES PARA EXPLORAR</p>
+                    <h2><i class="bi bi-rocket-takeoff"></i> Lançamentos</h2>
                 </div>
 
+                <a href="Obras.php" class="link-secao">
+                    Ver todas <i class="bi bi-arrow-right"></i>
+                </a>
             </div>
 
-        </div>
+            <div class="row g-4">
 
-        <button class="carousel-control-prev"
-            type="button"
-            data-bs-target="#carouselAvisos"
-            data-bs-slide="prev">
+                <?php foreach ($lancamentos as $obra): ?>
 
-            <span class="carousel-control-prev-icon"></span>
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        <article class="card obra-card h-100">
 
-        </button>
+                            <img
+                                src="<?= e($obra['capa']) ?>"
+                                class="card-img-top"
+                                alt="<?= e($obra['titulo']) ?>">
 
-        <button class="carousel-control-next"
-            type="button"
-            data-bs-target="#carouselAvisos"
-            data-bs-slide="next">
+                            <div class="card-body">
+                                <span class="tipo-obra"><?= e($obra['tipo']) ?></span>
 
-            <span class="carousel-control-next-icon"></span>
+                                <h3 class="card-title">
+                                    <?= e($obra['titulo']) ?>
+                                </h3>
 
-        </button>
+                                <a href="Obras.php?id=<?= (int) $obra['id'] ?>" class="btn botao-card w-100">
+                                    Ver detalhes
+                                </a>
+                            </div>
 
-    </div>
+                        </article>
+                    </div>
 
-</section>
+                <?php endforeach; ?>
 
-   <section class="container mt-5">
+            </div>
 
-    <h2 class="mb-4">
-        🔥 Em Alta
-    </h2>
+            <?php if (empty($lancamentos)): ?>
+                <p class="mensagem-vazia">Ainda não há lançamentos cadastrados.</p>
+            <?php endif; ?>
 
-    <div class="row">
+        </section>
 
-        <!-- Card 1 -->
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-4 d-flex justify-content-center">
+        <section class="container secao-home mb-5">
 
-            <div class="card obra-card">
-
-                <img src="https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg"
-                class="card-img-top"
-                alt="Interestelar">
-
-                <div class="card-body">
-
-                    <h5 class="card-title">
-                        Interestelar
-                    </h5>
-
-                    <p class="card-text">
-                        Filme
-                    </p>
-
-                    <a href="Obras.php" class="btn btn-primary w-100">
-                        Ver detalhes
-                    </a>
-
+            <div class="titulo-secao">
+                <div>
+                    <p>ENCONTRE O SEU TIPO DE HISTÓRIA</p>
+                    <h2><i class="bi bi-grid-fill"></i> Gêneros</h2>
                 </div>
-
             </div>
 
-        </div>
+            <div class="generos-lista">
 
-        <!-- Card 2 -->
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-4 d-flex justify-content-center">
-
-            <div class="card obra-card">
-
-                <img src="https://image.tmdb.org/t/p/w500/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg"
-                class="card-img-top"
-                alt="Breaking Bad">
-
-                <div class="card-body">
-
-                    <h5 class="card-title">
-                        Breaking Bad
-                    </h5>
-
-                    <p class="card-text">
-                        Série
-                    </p>
-
-                    <a href="Obras.php" class="btn btn-primary w-100">
-                        Ver detalhes
+                <?php foreach ($generos as $genero): ?>
+                    <a href="Generos.php?id=<?= (int) $genero['id'] ?>" class="genero-btn">
+                        <i class="bi <?= e($genero['icone']) ?>"></i>
+                        <?= e($genero['nome']) ?>
                     </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- Card 3 -->
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-4 d-flex justify-content-center">
-
-            <div class="card obra-card">
-
-                <img src="img/cdz.jpeg"
-                    class="card-img-top"
-                    alt="Os Cavaleiros do Zodíaco">
-
-                <div class="card-body">
-
-                    <h5 class="card-title">
-                        Os Cavaleiros do Zodíaco
-                    </h5>
-
-                    <p class="card-text">
-                        Anime
-                    </p>
-
-                    <a href="Obras.php" class="btn btn-primary w-100">
-                        Ver detalhes
-                    </a>
-
-                </div>
+                <?php endforeach; ?>
 
             </div>
 
-        </div>
+            <?php if (empty($generos)): ?>
+                <p class="mensagem-vazia">Nenhum gênero cadastrado ainda.</p>
+            <?php endif; ?>
 
-        <!-- Card 4 -->
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-4 d-flex justify-content-center">
+        </section>
 
-            <div class="card obra-card">
+    </main>
 
-                <img src="https://image.tmdb.org/t/p/w500/ptpr0kGAckfQkJeJIt8st5dglvd.jpg"
-                class="card-img-top"
-                alt="Oppenheimer">
-
-                <div class="card-body">
-
-                    <h5 class="card-title">
-                        Oppenheimer
-                    </h5>
-
-                    <p class="card-text">
-                        Filme
-                    </p>
-
-                    <a href="Obras.php" class="btn btn-primary w-100">
-                        Ver detalhes
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-<section class="container mt-5">
-
-    <h2 class="mb-4">
-        🎬 Lançamentos
-    </h2>
-
-    <div class="row">
-
-        <!-- Card 1 -->
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-4 d-flex justify-content-center">
-
-            <div class="card obra-card">
-
-                <img src="https://image.tmdb.org/t/p/w500/ombsmhYUqR4qqOLOxAyr5V8hbyv.jpg"
-                     class="card-img-top"
-                     alt="Superman">
-
-                <div class="card-body">
-
-                    <h5 class="card-title">
-                        Superman
-                    </h5>
-
-                    <p class="card-text">
-                        Filme
-                    </p>
-
-                    <a href="Obras.php" class="btn btn-primary w-100">
-                        Ver detalhes
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- Card 2 -->
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-4 d-flex justify-content-center">
-
-            <div class="card obra-card">
-
-                <img src="https://image.tmdb.org/t/p/w500/x26MtUlwtWD26d0G0FXcppxCJio.jpg"
-                     class="card-img-top"
-                     alt="Quarteto Fantástico">
-
-                <div class="card-body">
-
-                    <h5 class="card-title">
-                        Quarteto Fantástico
-                    </h5>
-
-                    <p class="card-text">
-                        Filme
-                    </p>
-
-                    <a href="Obras.php" class="btn btn-primary w-100">
-                        Ver detalhes
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- Card 3 -->
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-4 d-flex justify-content-center">
-
-            <div class="card obra-card">
-
-                <img src="https://image.tmdb.org/t/p/w500/q0fGCmjLu42MPlSO9OYWpI5w86I.jpg"
-                     class="card-img-top"
-                     alt="Jurassic World">
-
-                <div class="card-body">
-
-                    <h5 class="card-title">
-                        Jurassic World
-                    </h5>
-
-                    <p class="card-text">
-                        Filme
-                    </p>
-
-                    <a href="Obras.php" class="btn btn-primary w-100">
-                        Ver detalhes
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- Card 4 -->
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-4 d-flex justify-content-center">
-
-            <div class="card obra-card">
-
-                <img src="https://image.tmdb.org/t/p/w500/aFRDH3P7TX61FVGpaLhKr6QiOC1.jpg"
-                     class="card-img-top"
-                     alt="Demon Slayer">
-
-                <div class="card-body">
-
-                    <h5 class="card-title">
-                        Demon Slayer
-                    </h5>
-
-                    <p class="card-text">
-                        Anime
-                    </p>
-
-                    <a href="Obras.php" class="btn btn-primary w-100">
-                        Ver detalhes
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-<section class="container mt-5 mb-5">
-
-    <h2 class="mb-4">
-        🎭 Gêneros
-    </h2>
-
-    <div class="d-flex flex-wrap gap-3 justify-content-center">
-
-        <a href="Generos.php" class="btn btn-outline-primary genero-btn">🎬 Ação</a>
-
-        <a href="Generos.php" class="btn btn-outline-primary genero-btn">😂 Comédia</a>
-
-        <a href="Generos.php" class="btn btn-outline-primary genero-btn">❤️ Romance</a>
-
-        <a href="Generos.php" class="btn btn-outline-primary genero-btn">😱 Terror</a>
-
-        <a href="Generos.php" class="btn btn-outline-primary genero-btn">🚀 Ficção</a>
-
-        <a href="Generos.php" class="btn btn-outline-primary genero-btn">🕵 Suspense</a>
-
-        <a href="Generos.php" class="btn btn-outline-primary genero-btn">🎭 Drama</a>
-
-        <a href="Generos.php" class="btn btn-outline-primary genero-btn">👨‍👩‍👧 Família</a>
-
-        <a href="Generos.php" class="btn btn-outline-primary genero-btn">🎌 Anime</a>
-
-        <a href="Generos.php" class="btn btn-outline-primary genero-btn">📺 Série</a>
-
-        <a href="Generos.php" class="btn btn-outline-primary genero-btn">🎞 Filme</a>
-
-        <a href="Generos.php" class="btn btn-outline-primary genero-btn">🧙 Fantasia</a>
-
-    </div>
-
-</section>
-
-
-    <!-- Bootstrap -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <footer>
-
         <div class="container">
-            <p>
-                © 2026 Apollo
-            </p>
+            <p>© <?= date('Y') ?> Apollo — seu universo de histórias.</p>
         </div>
     </footer>
 
-    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/script.js"></script>
 
 </body>
-
 </html>
