@@ -2,10 +2,10 @@
 // DADOS DO BANCO
 $host = 'mysql';
 $banco = 'pi_apollo';
-$usuario = 'apollo_app';
-$senha = '123456';
+$usuario = 'root';
+$senhaBanco = '1234';
 function conectarBanco(){
-    global $host, $banco, $usuario, $senha;
+    global $host, $banco, $usuario, $senhaBanco;
 
     static $conexao = null;
 
@@ -15,7 +15,7 @@ function conectarBanco(){
         $conexao = new PDO(
             $dsn,
             $usuario,
-            $senha,
+            $senhaBanco,
             [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC

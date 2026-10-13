@@ -1,11 +1,12 @@
 services:
+
   php:
     build: .
-    container_name: pi_apollo
-    ports:
-      - "8080:80"
+    container_name: php_app
     volumes:
       - ./www:/var/www/html
+    ports:
+      - "8080:80"
     depends_on:
       - mysql
 
