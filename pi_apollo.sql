@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql
--- Tempo de geração: 20/09/2026 às 13:04
+-- Tempo de geração: 13/10/2026 às 23:30
 -- Versão do servidor: 8.3.0
 -- Versão do PHP: 8.3.32
 
@@ -78,7 +78,25 @@ CREATE TABLE `generos` (
 
 INSERT INTO `generos` (`id`, `nome`, `ativo`) VALUES
 (2, 'Fantasia', 1),
-(3, 'Aventura', 1);
+(3, 'Aventura', 1),
+(4, 'Ação', 1),
+(5, 'Comédia', 1),
+(6, 'Drama', 1),
+(7, 'Ficção científica', 1),
+(8, 'Romance', 1),
+(9, 'Terror', 1),
+(10, 'Suspense', 1),
+(11, 'Mistério', 1),
+(12, 'Documentário', 1),
+(13, 'Musical', 1),
+(14, 'Histórico', 1),
+(15, 'Policial', 1),
+(16, 'Esporte', 1),
+(17, 'Slice of Life', 1),
+(18, 'Isekai', 1),
+(19, 'Mecha', 1),
+(20, 'Psicológico', 1),
+(21, 'Sobrenatural', 1);
 
 -- --------------------------------------------------------
 
@@ -108,7 +126,8 @@ CREATE TABLE `obras` (
 
 INSERT INTO `obras` (`id`, `titulo`, `descricao`, `tipo`, `ano_lancamento`, `classificacao`, `duracao`, `estudio`, `capa`, `em_alta`, `lancamento`, `ativo`, `data_criacao`) VALUES
 (1, 'F1 O filme', 'F1: O Filme é um drama de ação dirigido por Joseph Kosinski e estrelado por Brad Pitt que retrata o universo da Fórmula 1 com grande realismo.', 'Anime', '2025', '12', '2 horas e 36 minutos', 'Apple Studios', '/img/obras/obra_6aaf415b212769.84322066.png', 1, 1, 1, '2026-09-20 02:13:47'),
-(3, 'As Crônicas de Nárnia: A Viagem do Peregrino da Alvorada', 'Lúcia e Edmundo Pevensie, junto com o chato primo Eustáquio, vão parar em Nárnia por meio de um quadro mágico. Eles embarcam no navio Peregrino da Alvorada com o Rei Caspian para achar sete fidalgos (lordes) desaparecidos e derrotar uma névoa mágica que ameaça Nárnia', 'Filme', '2010', '10', '1 hora e 53 minutos', '20th Century Fox', '/img/obras/obra_6aafce652a6911.11106112.png', 1, 1, 1, '2026-09-20 12:15:33');
+(3, 'As Crônicas de Nárnia: A Viagem do Peregrino da Alvorada', 'Lúcia e Edmundo Pevensie, junto com o chato primo Eustáquio, vão parar em Nárnia por meio de um quadro mágico. Eles embarcam no navio Peregrino da Alvorada com o Rei Caspian para achar sete fidalgos (lordes) desaparecidos e derrotar uma névoa mágica que ameaça Nárnia', 'Filme', '2010', '10', '1 hora e 53 minutos', '20th Century Fox', '/img/obras/obra_6aafce652a6911.11106112.png', 1, 1, 1, '2026-09-20 12:15:33'),
+(5, '007 Sem Tempo para Morrerç~~´´--==**--/++!!@@##$$%%¨¨', 'Um dos melhores filmes da franquiaç~~´´--==**--/++!!@@##$$%%¨¨', 'Filme', '1948', '12', '1 hora e 49 minutosç~~´´--==**--/++!!@@##$$%%¨¨', 'Filme 007', '/img/obras/obra_6ab83bb2b15d23.65169079.png', 1, 1, 1, '2026-09-26 21:40:02');
 
 -- --------------------------------------------------------
 
@@ -127,7 +146,13 @@ CREATE TABLE `obra_genero` (
 
 INSERT INTO `obra_genero` (`obra_id`, `genero_id`) VALUES
 (3, 2),
-(3, 3);
+(3, 3),
+(1, 4),
+(5, 9),
+(5, 10),
+(1, 16),
+(5, 20),
+(5, 21);
 
 -- --------------------------------------------------------
 
@@ -152,8 +177,9 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id`, `nome`, `email`, `senha`, `tipo`, `email_verificado`, `foto`, `bio`, `criado_em`) VALUES
-(1, 'jASS', 'jasbecker2@gmail.com', '$2y$10$BW19zpl/ckR2Pmi7IVkWtujOSmrYnqPjlNGT6RdYkQ/yugAzdTLnC', 'usuario', 0, '/img/perfis/perfil_6aafd798939591.62266258.jpg', 'TESTETE', '2026-09-19 23:44:22'),
-(2, 'jass', 'jasminibecker2@gmail.com', '$2y$10$EIrKqd8.25ViMuNHCzIXQOFlSgZhDbT1zK5VhvpQFVu9K8yUHAKju', 'admin', 0, NULL, NULL, '2026-09-20 12:40:50');
+(4, 'jasmini', 'jasminibecker2@gmail.com', '$2y$10$egJMVNMTGESzDz3pyRgg5eRTDEikS4rlHZ5sy2gXtyM7DEWbn1Jrq', 'admin', 0, NULL, NULL, '2026-09-26 21:24:57'),
+(5, 'Jasmini Becker Rohr', 'jasbecker2@gmail.com', '$2y$10$7AG3wZnPjJxY6Pk/037QG.7u8D90Cabv8dNeWhQXl2UtRbp5dQMAq', 'usuario', 0, '/img/perfis/perfil_6ab83912e75364.93721726.jpg', NULL, '2026-09-26 21:28:17'),
+(6, 'João Thiago da Silva de Borba', 'joao.thiago@adm.educadventista.org', '$2y$10$lQCBTG6Fdch/sDZi8ezJ7OqxiYthYwrV3igXtlbuKSMCUrjgbkbEy', 'usuario', 1, '/img/perfis/perfil_6ab83aa0e76609.49891284.jpg', 'Sou incrivel e', '2026-09-26 21:34:12');
 
 --
 -- Índices para tabelas despejadas
@@ -218,19 +244,19 @@ ALTER TABLE `codigos_email`
 -- AUTO_INCREMENT de tabela `generos`
 --
 ALTER TABLE `generos`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT de tabela `obras`
 --
 ALTER TABLE `obras`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de tabela `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Restrições para tabelas despejadas
