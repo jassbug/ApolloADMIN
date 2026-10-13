@@ -3977,3 +3977,362 @@ footer p {
     }
 
 }
+
+
+/* =========================================
+   CATALOGO APOLLO
+========================================= */
+
+.catalogo-pagina {
+    min-height: 100vh;
+    padding: 45px 0 70px;
+    color: #ffffff;
+    background: #08060e;
+}
+
+.catalogo-container {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* CABECALHO */
+
+.catalogo-cabecalho {
+    margin-bottom: 28px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid #292033;
+}
+
+.catalogo-etiqueta {
+    display: inline-block;
+    margin-bottom: 12px;
+    color: #b99cff;
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.catalogo-titulo {
+    margin-bottom: 12px;
+    color: #ffffff;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 800;
+}
+
+.catalogo-descricao {
+    max-width: 650px;
+    margin: 0;
+    color: #aaa1b8;
+    line-height: 1.7;
+}
+
+/* BARRA HORIZONTAL DE GENEROS */
+
+.catalogo-generos-barra {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    margin: 28px 0 38px;
+    padding: 0 0 10px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #7651d5 #15101e;
+}
+
+.catalogo-generos-barra::-webkit-scrollbar {
+    height: 6px;
+}
+
+.catalogo-generos-barra::-webkit-scrollbar-track {
+    background: #15101e;
+    border-radius: 10px;
+}
+
+.catalogo-generos-barra::-webkit-scrollbar-thumb {
+    background: #7651d5;
+    border-radius: 10px;
+}
+
+.catalogo-genero-botao {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    min-height: 44px;
+    padding: 10px 20px;
+    color: #d8c8ff;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    background: #15101e;
+    border: 1px solid #49365d;
+    border-radius: 12px;
+    transition: background-color .2s, border-color .2s;
+}
+
+.catalogo-genero-botao:hover {
+    color: #ffffff;
+    background: #261b37;
+    border-color: #8968e8;
+}
+
+.catalogo-genero-botao.ativo {
+    color: #ffffff;
+    background: #7651d5;
+    border-color: #7651d5;
+}
+
+/* CABECALHO DOS RESULTADOS */
+
+.catalogo-resultados {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.catalogo-resultados h2 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 1.35rem;
+    font-weight: 700;
+}
+
+.catalogo-subtitulo {
+    margin: 7px 0 0;
+    color: #aaa1b8;
+    font-size: .9rem;
+}
+
+.catalogo-contagem {
+    color: #b99cff;
+    font-size: .9rem;
+}
+
+/* GRADE DE OBRAS */
+
+.catalogo-grade {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 25px 18px;
+}
+
+.catalogo-card {
+    min-width: 0;
+    overflow: hidden;
+    background: #15101e;
+    border: 1px solid #30233f;
+    border-radius: 12px;
+}
+
+.catalogo-card-capa {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: #0f0b15;
+    aspect-ratio: 2 / 3;
+}
+
+.catalogo-card-capa img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #0f0b15;
+}
+
+.catalogo-sem-capa {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 15px;
+    color: #9382ae;
+    text-align: center;
+    background: linear-gradient(145deg, #21172f, #100b18);
+}
+
+.catalogo-sem-capa i {
+    font-size: 2.5rem;
+}
+
+.catalogo-selo {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 5px 9px;
+    color: #ffffff;
+    background: rgba(111, 76, 190, .94);
+    border-radius: 5px;
+    font-size: .7rem;
+    font-weight: 700;
+}
+
+/* INFORMACOES DAS OBRAS */
+
+.catalogo-card-info {
+    padding: 14px;
+}
+
+.catalogo-card-tipo {
+    margin-bottom: 7px;
+    color: #b99cff;
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+}
+
+.catalogo-card-titulo {
+    margin: 0 0 9px;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.catalogo-card-detalhes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    margin-bottom: 11px;
+    color: #aaa0b7;
+    font-size: .8rem;
+}
+
+.catalogo-classificacao {
+    padding: 2px 6px;
+    color: #d8c8ff;
+    border: 1px solid #49365d;
+    border-radius: 4px;
+}
+
+.catalogo-card-generos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.catalogo-genero-tag {
+    padding: 4px 8px;
+    color: #d8c8ff;
+    background: #261b37;
+    border: 1px solid #413052;
+    border-radius: 5px;
+    font-size: .7rem;
+}
+
+/* ESTADO SEM RESULTADOS */
+
+.catalogo-vazio {
+    padding: 65px 20px;
+    color: #b3a8c0;
+    text-align: center;
+    background: #15101e;
+    border: 1px dashed #49365d;
+    border-radius: 15px;
+}
+
+.catalogo-vazio > i {
+    display: block;
+    margin-bottom: 18px;
+    color: #a58ae8;
+    font-size: 3rem;
+}
+
+.catalogo-vazio h3 {
+    margin-bottom: 10px;
+    color: #ffffff;
+    font-size: 1.35rem;
+}
+
+.catalogo-vazio p {
+    margin-bottom: 20px;
+}
+
+.catalogo-botao-voltar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 18px;
+    color: #ffffff;
+    text-decoration: none;
+    background: #7651d5;
+    border: 1px solid #7651d5;
+    border-radius: 9px;
+}
+
+.catalogo-botao-voltar:hover {
+    color: #ffffff;
+    background: #8968e8;
+}
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 1200px) {
+    .catalogo-grade {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 900px) {
+    .catalogo-grade {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .catalogo-pagina {
+        padding-top: 30px;
+    }
+
+    .catalogo-container {
+        padding: 0 15px;
+    }
+
+    .catalogo-generos-barra {
+        gap: 8px;
+        margin: 22px 0 28px;
+    }
+
+    .catalogo-genero-botao {
+        min-width: 105px;
+        min-height: 42px;
+        padding: 9px 14px;
+        font-size: .9rem;
+    }
+
+    .catalogo-grade {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 15px 12px;
+    }
+
+    .catalogo-card-info {
+        padding: 10px;
+    }
+
+    .catalogo-card-titulo {
+        font-size: .9rem;
+    }
+
+    .catalogo-card-detalhes {
+        font-size: .75rem;
+    }
+
+    .catalogo-resultados h2 {
+        font-size: 1.15rem;
+    }
+}

@@ -1222,3 +1222,85 @@ function atualizarAviso(
         'mensagem' => 'Aviso atualizado com sucesso.'
     ];
 }
+
+
+/* =========================================
+   FUNCOES DO CATALOGO
+========================================= */
+
+// BUSCAR OBRAS DO CATALOGO
+function buscarObrasCatalogo($filtros = [])
+{
+    $conexao = conectarBanco();
+
+    $genero = $filtros['genero'] ?? '';
+
+    // VALIDAR GENERO
+    if (
+        $genero !== '' &&
+        (!ctype_digit((string) $genero) || (int) $genero <= 0)
+    ) {
+        $genero = '';
+    }
+
+    $sql = "
+        SELECT
+            o.id,
+            o.titulo,
+            o.tipo,
+            o.ano_lancamento,
+            o.classificacao,
+            o.capa,
+            o.em_alta
+        FROM obras o
+        WHERE o.ativo = 1
+    ";
+
+    $parametros = [];
+
+    // FILTRAR PELO GENERO SELECIONADO
+    if ($genero !== '') {
+        $sql .= "
+            AND EXISTS (
+                SELECT 1
+                FROM obra_genero og
+                WHERE og.obra_id = o.id
+                  AND og.genero_id = :genero
+            )
+        ";
+
+        $parametros[':genero'] = (int) $genero;
+    }
+
+    $sql .= " ORDER BY o.id DESC";
+
+    $consulta = $conexao->prepare($sql);
+    $consulta->execute($parametros);
+
+    $obras = $consulta->fetchAll();
+
+    // BUSCAR GENEROS DE CADA OBRA
+    foreach ($obras as &$obra) {
+        $sqlGeneros = "
+            SELECT g.id, g.nome
+            FROM generos g
+            INNER JOIN obra_genero og
+                ON og.genero_id = g.id
+            WHERE og.obra_id = :obra_id
+              AND g.ativo = 1
+            ORDER BY g.nome ASC
+        ";
+
+        $consultaGeneros = $conexao->prepare($sqlGeneros);
+
+        $consultaGeneros->execute([
+            ':obra_id' => $obra['id']
+        ]);
+
+        $obra['generos'] = $consultaGeneros->fetchAll();
+    }
+
+    unset($obra);
+
+    return $obras;
+}

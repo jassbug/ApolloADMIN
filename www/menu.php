@@ -19,31 +19,38 @@ $paginaAtual = basename($_SERVER['PHP_SELF']);
                 <i class="bi bi-list"></i>
             </button>
 
-            <a href="index.php" class="logo-apollo">
+            <a href="/index.php" class="logo-apollo">
                 APOLLO<span>.</span>
             </a>
 
         </div>
 
         <div class="links-menu d-none d-lg-flex">
-            <a class="<?= $paginaAtual === '../index.php' ? 'ativo' : '' ?>" href="www/index.php">
+
+            <a class="<?= $paginaAtual === 'index.php' ? 'ativo' : '' ?>"
+               href="/index.php">
                 Início
             </a>
 
-            <a class="<?= $paginaAtual === 'catalogo.php' ? 'ativo' : '' ?>" href="catalogo.php">
+            <a class="<?= $paginaAtual === 'catalogo.php' ? 'ativo' : '' ?>"
+               href="/catalogo.php">
                 Catálogo
             </a>
 
-            <a class="<?= $paginaAtual === 'Obras.php' ? 'ativo' : '' ?>" href="Obras.php">
+            <a class="<?= $paginaAtual === 'Obras.php' ? 'ativo' : '' ?>"
+               href="/Obras.php">
                 Obras
             </a>
 
-            <a class="<?= $paginaAtual === 'Generos.php' ? 'ativo' : '' ?>" href="Generos.php">
+            <a class="<?= $paginaAtual === 'Generos.php' ? 'ativo' : '' ?>"
+               href="/Generos.php">
                 Gêneros
             </a>
+
         </div>
 
-        <form class="busca-menu" action="catalogo.php" method="GET">
+        <form class="busca-menu" action="/catalogo.php" method="GET">
+
             <input
                 type="search"
                 name="busca"
@@ -53,6 +60,7 @@ $paginaAtual = basename($_SERVER['PHP_SELF']);
             <button type="submit" aria-label="Pesquisar">
                 <i class="bi bi-search"></i>
             </button>
+
         </form>
 
     </div>
@@ -68,7 +76,7 @@ $paginaAtual = basename($_SERVER['PHP_SELF']);
 
     <div class="offcanvas-header">
 
-        <a href="index.php" class="logo-apollo" id="tituloMenuLateral">
+        <a href="/index.php" class="logo-apollo" id="tituloMenuLateral">
             APOLLO<span>.</span>
         </a>
 
@@ -89,27 +97,32 @@ $paginaAtual = basename($_SERVER['PHP_SELF']);
 
         <nav class="links-laterais">
 
-            <a class="<?= $paginaAtual === 'index.php' ? 'ativo' : '' ?>" href="index.php">
+            <a class="<?= $paginaAtual === 'index.php' ? 'ativo' : '' ?>"
+               href="/index.php">
                 <i class="bi bi-house-door"></i>
                 Início
             </a>
 
-            <a class="<?= $paginaAtual === 'catalogo.php' ? 'ativo' : '' ?>" href="catalogo.php">
+            <a class="<?= $paginaAtual === 'catalogo.php' ? 'ativo' : '' ?>"
+               href="/catalogo.php">
                 <i class="bi bi-collection-play"></i>
                 Catálogo
             </a>
 
-            <a class="<?= $paginaAtual === 'Obras.php' ? 'ativo' : '' ?>" href="Obras.php">
+            <a class="<?= $paginaAtual === 'Obras.php' ? 'ativo' : '' ?>"
+               href="/Obras.php">
                 <i class="bi bi-film"></i>
                 Obras
             </a>
 
-            <a class="<?= $paginaAtual === 'Generos.php' ? 'ativo' : '' ?>" href="Generos.php">
+            <a class="<?= $paginaAtual === 'Generos.php' ? 'ativo' : '' ?>"
+               href="/Generos.php">
                 <i class="bi bi-grid"></i>
                 Gêneros
             </a>
 
-            <a class="<?= $paginaAtual === 'Categoria.php' ? 'ativo' : '' ?>" href="Categoria.php">
+            <a class="<?= $paginaAtual === 'Categoria.php' ? 'ativo' : '' ?>"
+               href="/Categoria.php">
                 <i class="bi bi-tags"></i>
                 Categorias
             </a>
@@ -118,44 +131,47 @@ $paginaAtual = basename($_SERVER['PHP_SELF']);
 
         <div class="linha-menu"></div>
 
-<p class="titulo-menu-lateral">SUA CONTA</p>
+        <p class="titulo-menu-lateral">SUA CONTA</p>
 
-<nav class="links-laterais">
+        <nav class="links-laterais">
 
-    <?php if (usuarioLogado()): ?>
+            <?php if (usuarioLogado()): ?>
 
-        <a href="/Usuario/perfil.php">
-            <i class="bi bi-person-circle"></i>
-            Meu perfil
-        </a>
+                <a class="<?= $paginaAtual === 'perfil.php' ? 'ativo' : '' ?>"
+                   href="/Usuario/perfil.php">
+                    <i class="bi bi-person-circle"></i>
+                    Meu perfil
+                </a>
 
-        <?php if (usuarioEhAdmin()): ?>
-            <a href="/adm/index.php">
-                <i class="bi bi-shield-lock"></i>
-                Controle do site
-            </a>
-        <?php endif; ?>
+                <?php if (usuarioEhAdmin()): ?>
 
-        <a href="/Autenticacao/sair.php">
-            <i class="bi bi-box-arrow-right"></i>
-            Sair
-        </a>
+                    <a href="/adm/index.php">
+                        <i class="bi bi-shield-lock"></i>
+                        Controle do site
+                    </a>
 
-    <?php else: ?>
+                <?php endif; ?>
 
-        <a href="/Autenticacao/login.php">
-            <i class="bi bi-box-arrow-in-right"></i>
-            Entrar
-        </a>
+                <a href="/Autenticacao/sair.php">
+                    <i class="bi bi-box-arrow-right"></i>
+                    Sair
+                </a>
 
-        <a href="/Autenticacao/cadastro.php">
-            <i class="bi bi-person-plus"></i>
-            Criar conta
-        </a>
+            <?php else: ?>
 
-    <?php endif; ?>
+                <a href="/Autenticacao/login.php">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    Entrar
+                </a>
 
-</nav>
+                <a href="/Autenticacao/cadastro.php">
+                    <i class="bi bi-person-plus"></i>
+                    Criar conta
+                </a>
+
+            <?php endif; ?>
+
+        </nav>
 
     </div>
 
