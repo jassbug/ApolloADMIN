@@ -1,8 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/autenticacao.php';
-
-// RECEBER O GENERO SELECIONADO
+// RECEBER O GÊNERO SELECIONADO
 $genero = $_GET['genero'] ?? '';
 
 if (
@@ -12,11 +11,15 @@ if (
     $genero = '';
 }
 
-// BUSCAR GENEROS E OBRAS
+// RECEBER O TEXTO DA BUSCA
+$busca = trim($_GET['busca'] ?? '');
+
+// BUSCAR GÊNEROS E OBRAS
 $generos = buscarGeneros();
 
 $obras = buscarObrasCatalogo([
-    'genero' => $genero
+    'genero' => $genero,
+    'busca' => $busca
 ]);
 ?>
 

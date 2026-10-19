@@ -1162,6 +1162,46 @@ function cadastrarAviso(
     ];
 }
 
+
+/**
+ * Exclui um aviso cadastrado.
+ */
+function excluirAviso($id)
+{
+    $id = (int) $id;
+
+    if ($id <= 0) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'Aviso inválido.'
+        ];
+    }
+
+    $conexao = conectarBanco();
+
+    $consulta = $conexao->prepare("
+        DELETE FROM avisos
+        WHERE id = :id
+    ");
+
+    $consulta->execute([
+        ':id' => $id
+    ]);
+
+    if ($consulta->rowCount() === 0) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'Aviso não encontrado.'
+        ];
+    }
+
+    return [
+        'sucesso' => true,
+        'mensagem' => 'Aviso excluído com sucesso.'
+    ];
+}
+
+
 /**
  * Atualiza um aviso existente.
  */
@@ -1234,6 +1274,7 @@ function buscarObrasCatalogo($filtros = [])
     $conexao = conectarBanco();
 
     $genero = $filtros['genero'] ?? '';
+    $busca = trim($filtros['busca'] ?? '');
 
     // VALIDAR GENERO
     if (
@@ -1257,6 +1298,11 @@ function buscarObrasCatalogo($filtros = [])
     ";
 
     $parametros = [];
+    // FILTRAR PELO TITULO PESQUISADO
+if ($busca !== '') {
+    $sql .= " AND o.titulo LIKE :busca";
+    $parametros[':busca'] = '%' . $busca . '%';
+}
 
     // FILTRAR PELO GENERO SELECIONADO
     if ($genero !== '') {
