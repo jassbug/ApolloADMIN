@@ -4336,3 +4336,172 @@ footer p {
         font-size: 1.15rem;
     }
 }
+
+
+/* ========================================
+   PÁGINA DE GÊNEROS — APOLLO
+======================================== */
+
+.generos-pagina {
+    min-height: calc(100vh - 80px);
+    padding: 48px 0 70px;
+}
+
+.generos-container {
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto;
+}
+
+/* CABEÇALHO */
+
+.generos-cabecalho {
+    margin-bottom: 35px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.generos-etiqueta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    color: #b99aff;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.generos-titulo {
+    margin-bottom: 12px;
+    font-size: clamp(30px, 4vw, 44px);
+    font-weight: 800;
+}
+
+.generos-descricao {
+    max-width: 650px;
+    color: #b8b1c9;
+    line-height: 1.7;
+}
+
+/* CONTAGEM */
+
+.generos-contagem {
+    margin-bottom: 22px;
+    color: #b8b1c9;
+    font-size: 14px;
+}
+
+/* GRADE DE GÊNEROS */
+
+.generos-grade {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+}
+
+/* CARTÕES */
+
+.generos-card {
+    display: flex;
+    min-height: 135px;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 22px;
+    border: 1px solid rgba(177, 137, 255, 0.22);
+    border-radius: 14px;
+    background: rgba(20, 12, 35, 0.72);
+    color: #f5f0ff;
+    text-decoration: none;
+    transition: transform 0.2s ease,
+                border-color 0.2s ease,
+                background 0.2s ease;
+}
+
+.generos-card:hover {
+    transform: translateY(-4px);
+    border-color: #a77aff;
+    background: rgba(76, 39, 125, 0.35);
+    color: #ffffff;
+}
+
+/* ÍCONES */
+
+.generos-card-icone {
+    display: flex;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+    border-radius: 12px;
+    background: rgba(157, 105, 255, 0.15);
+    color: #c6a6ff;
+    font-size: 22px;
+}
+
+/* NOMES */
+
+.generos-card-nome {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.generos-card-seta {
+    margin-left: 8px;
+    color: #b99aff;
+}
+
+/* ESTADO VAZIO */
+
+.generos-vazio {
+    padding: 55px 20px;
+    border: 1px solid rgba(177, 137, 255, 0.2);
+    border-radius: 14px;
+    text-align: center;
+}
+
+.generos-vazio > i {
+    color: #b99aff;
+    font-size: 42px;
+}
+
+.generos-vazio p {
+    color: #b8b1c9;
+}
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 900px) {
+    .generos-grade {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .generos-grade {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .generos-card {
+        min-height: 125px;
+        padding: 16px;
+    }
+
+    .generos-card-nome {
+        font-size: 15px;
+    }
+
+    .generos-container {
+        width: calc(100% - 28px);
+    }
+}
+
+@media (max-width: 360px) {
+    .generos-grade {
+        grid-template-columns: 1fr;
+    }
+}

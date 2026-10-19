@@ -1350,3 +1350,85 @@ if ($busca !== '') {
 
     return $obras;
 }
+
+/**
+ * Busca obras de um tipo específico, com filtros de gênero e pesquisa.
+ *
+ * @param string $tipo Tipo da obra: Filme, Série ou Anime.
+ * @param array $filtros Filtros opcionais de gênero e busca.
+ * @return array Obras encontradas.
+ */
+function buscarObrasPorTipo($tipo, $filtros = [])
+{
+    $conexao = conectarBanco();
+
+    $genero = $filtros['genero'] ?? '';
+    $busca = trim($filtros['busca'] ?? '');
+
+    $sql = "
+        SELECT
+            o.id,
+            o.titulo,
+            o.tipo,
+            o.ano_lancamento,
+            o.classificacao,
+            o.capa,
+            o.em_alta
+        FROM obras o
+        WHERE o.ativo = 1
+          AND LOWER(TRIM(o.tipo)) = LOWER(TRIM(:tipo))
+    ";
+
+    $parametros = [
+        ':tipo' => $tipo
+    ];
+
+    // Filtra pelo título pesquisado.
+    if ($busca !== '') {
+        $sql .= " AND o.titulo LIKE :busca";
+        $parametros[':busca'] = '%' . $busca . '%';
+    }
+
+    // Filtra pelo gênero selecionado.
+    if ($genero !== '') {
+        $sql .= "
+            AND EXISTS (
+                SELECT 1
+                FROM obra_genero og
+                WHERE og.obra_id = o.id
+                  AND og.genero_id = :genero
+            )
+        ";
+
+        $parametros[':genero'] = $genero;
+    }
+
+    $sql .= " ORDER BY o.id DESC";
+
+    $consulta = $conexao->prepare($sql);
+    $consulta->execute($parametros);
+
+    $obras = $consulta->fetchAll(PDO::FETCH_ASSOC);
+
+    // Busca os gêneros de cada obra encontrada.
+    foreach ($obras as &$obra) {
+        $sqlGeneros = "
+            SELECT g.id, g.nome
+            FROM generos g
+            INNER JOIN obra_genero og
+                ON og.genero_id = g.id
+            WHERE og.obra_id = :obra_id
+        ";
+
+        $consultaGeneros = $conexao->prepare($sqlGeneros);
+        $consultaGeneros->execute([
+            ':obra_id' => $obra['id']
+        ]);
+
+        $obra['generos'] = $consultaGeneros->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    unset($obra);
+
+    return $obras;
+}

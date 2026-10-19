@@ -1,6 +1,8 @@
 <?php
+
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/autenticacao.php';
+
 // RECEBER O GÊNERO SELECIONADO
 $genero = $_GET['genero'] ?? '';
 
@@ -14,23 +16,31 @@ if (
 // RECEBER O TEXTO DA BUSCA
 $busca = trim($_GET['busca'] ?? '');
 
-// BUSCAR GÊNEROS E OBRAS
+// BUSCAR GÊNEROS
 $generos = buscarGeneros();
 
+// BUSCAR OBRAS DO CATÁLOGO
 $obras = buscarObrasCatalogo([
     'genero' => $genero,
     'busca' => $busca
 ]);
+
+// MANTER SOMENTE ANIMES
+$obras = array_values(array_filter($obras, function ($obra) {
+    return mb_strtolower(trim($obra['tipo'])) === 'anime';
+}));
+
 ?>
 
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Catálogo | Apollo</title>
+    <title>Animes | Apollo</title>
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -42,6 +52,7 @@ $obras = buscarObrasCatalogo([
 
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="/css/catalogo.css">
+
 </head>
 
 <body>
@@ -52,32 +63,35 @@ $obras = buscarObrasCatalogo([
 
         <div class="catalogo-container">
 
+            <!-- CABEÇALHO -->
+
             <header class="catalogo-cabecalho">
 
                 <span class="catalogo-etiqueta">
-                    <i class="bi bi-stars"></i>
+                    <i class="bi bi-tv"></i>
                     Universo Apollo
                 </span>
 
                 <h1 class="catalogo-titulo">
-                    Explore o catálogo
+                    Animes
                 </h1>
 
                 <p class="catalogo-descricao">
-                    Descubra filmes, séries e animes.
-                    Escolha um gênero e encontre sua próxima história.
+                    Explore aventuras, personagens inesquecíveis e descubra
+                    sua próxima história favorita no universo dos animes.
                 </p>
 
             </header>
 
-            <!-- BARRA DE GENEROS -->
+            <!-- FILTRO POR GÊNERO -->
 
-            <nav class="catalogo-generos-barra" aria-label="Filtrar por gênero">
+            <nav
+                class="catalogo-generos-barra"
+                aria-label="Filtrar animes por gênero">
 
                 <a
-                    href="/catalogo.php"
-                    class="catalogo-genero-botao <?= $genero === '' ? 'ativo' : '' ?>"
-                    <?= $genero === '' ? 'aria-current="page"' : '' ?>>
+                    href="/animes.php<?= $busca !== '' ? '?busca=' . urlencode($busca) : '' ?>"
+                    class="catalogo-genero-botao <?= $genero === '' ? 'ativo' : '' ?>">
 
                     Todos
 
@@ -86,9 +100,8 @@ $obras = buscarObrasCatalogo([
                 <?php foreach ($generos as $itemGenero): ?>
 
                     <a
-                        href="/catalogo.php?genero=<?= (int) $itemGenero['id'] ?>"
-                        class="catalogo-genero-botao <?= $genero !== '' && (int) $genero === (int) $itemGenero['id'] ? 'ativo' : '' ?>"
-                        <?= $genero !== '' && (int) $genero === (int) $itemGenero['id'] ? 'aria-current="page"' : '' ?>>
+                        href="/animes.php?genero=<?= (int) $itemGenero['id'] ?><?= $busca !== '' ? '&busca=' . urlencode($busca) : '' ?>"
+                        class="catalogo-genero-botao <?= $genero !== '' && (int) $genero === (int) $itemGenero['id'] ? 'ativo' : '' ?>">
 
                         <?= e($itemGenero['nome']) ?>
 
@@ -105,11 +118,17 @@ $obras = buscarObrasCatalogo([
                 <div class="catalogo-resultados">
 
                     <div>
+
                         <h2 id="tituloResultados">
-                            <?php if ($genero !== ''): ?>
+
+                            <?php if ($busca !== ''): ?>
+
+                                Resultados para "<?= e($busca) ?>"
+
+                            <?php elseif ($genero !== ''): ?>
 
                                 <?php
-                                $nomeGeneroSelecionado = 'Gênero selecionado';
+                                $nomeGeneroSelecionado = 'Animes por gênero';
 
                                 foreach ($generos as $itemGenero) {
                                     if ((int) $itemGenero['id'] === (int) $genero) {
@@ -123,19 +142,24 @@ $obras = buscarObrasCatalogo([
 
                             <?php else: ?>
 
-                                Todas as obras
+                                Todos os animes
 
                             <?php endif; ?>
+
                         </h2>
 
                         <p class="catalogo-subtitulo">
-                            Confira as obras disponíveis no Apollo.
+                            Confira os animes disponíveis no Apollo.
                         </p>
+
                     </div>
 
                     <span class="catalogo-contagem">
+
                         <?= count($obras) ?>
-                        <?= count($obras) === 1 ? 'obra encontrada' : 'obras encontradas' ?>
+
+                        <?= count($obras) === 1 ? 'anime encontrado' : 'animes encontrados' ?>
+
                     </span>
 
                 </div>
@@ -147,6 +171,8 @@ $obras = buscarObrasCatalogo([
                         <?php foreach ($obras as $obra): ?>
 
                             <article class="catalogo-card">
+
+                                <!-- CAPA -->
 
                                 <div class="catalogo-card-capa">
 
@@ -160,8 +186,11 @@ $obras = buscarObrasCatalogo([
                                     <?php else: ?>
 
                                         <div class="catalogo-sem-capa">
-                                            <i class="bi bi-film"></i>
+
+                                            <i class="bi bi-tv"></i>
+
                                             <span>Capa indisponível</span>
+
                                         </div>
 
                                     <?php endif; ?>
@@ -169,13 +198,18 @@ $obras = buscarObrasCatalogo([
                                     <?php if (!empty($obra['em_alta'])): ?>
 
                                         <span class="catalogo-selo">
+
                                             <i class="bi bi-fire"></i>
+
                                             Em alta
+
                                         </span>
 
                                     <?php endif; ?>
 
                                 </div>
+
+                                <!-- INFORMAÇÕES -->
 
                                 <div class="catalogo-card-info">
 
@@ -192,8 +226,11 @@ $obras = buscarObrasCatalogo([
                                         <?php if (!empty($obra['ano_lancamento'])): ?>
 
                                             <span>
+
                                                 <i class="bi bi-calendar3"></i>
+
                                                 <?= (int) $obra['ano_lancamento'] ?>
+
                                             </span>
 
                                         <?php endif; ?>
@@ -201,7 +238,9 @@ $obras = buscarObrasCatalogo([
                                         <?php if (!empty($obra['classificacao'])): ?>
 
                                             <span class="catalogo-classificacao">
+
                                                 <?= e($obra['classificacao']) ?>
+
                                             </span>
 
                                         <?php endif; ?>
@@ -236,21 +275,23 @@ $obras = buscarObrasCatalogo([
 
                     <div class="catalogo-vazio">
 
-                        <i class="bi bi-film"></i>
+                        <i class="bi bi-tv"></i>
 
-                        <h3>Nenhuma obra encontrada</h3>
+                        <h3>Nenhum anime encontrado</h3>
 
                         <p>
-                            Não existem obras ativas para esse gênero no momento.
-                            Experimente escolher outro gênero.
+                            Não encontramos animes com os filtros selecionados.
+                            Experimente pesquisar outro título ou escolher
+                            um gênero diferente.
                         </p>
 
                         <a
-                            href="/catalogo.php"
+                            href="/animes.php"
                             class="catalogo-botao-voltar">
 
                             <i class="bi bi-arrow-left"></i>
-                            Ver todas as obras
+
+                            Ver todos os animes
 
                         </a>
 
@@ -269,4 +310,5 @@ $obras = buscarObrasCatalogo([
     </script>
 
 </body>
+
 </html>
