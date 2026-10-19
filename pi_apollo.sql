@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql
--- Tempo de geração: 13/10/2026 às 23:30
+-- Tempo de geração: 19/10/2026 às 17:01
 -- Versão do servidor: 8.3.0
--- Versão do PHP: 8.3.32
+-- Versão do PHP: 8.3.35
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -28,7 +28,7 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `avisos` (
-  `id` int UNSIGNED NOT NULL,
+  `id` int NOT NULL,
   `titulo` varchar(150) NOT NULL,
   `descricao` text NOT NULL,
   `imagem` varchar(500) NOT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE `avisos` (
 --
 
 INSERT INTO `avisos` (`id`, `titulo`, `descricao`, `imagem`, `link`, `ativo`, `data_criacao`) VALUES
-(1, 'As Crônicas de Nárnia: A Viagem do Peregrino da Alvorada', 'dfadadsdfs', '/img/avisos/aviso_6aafd67608dcf2.13242271.jpg', 'http://localhost:8080/Usuario/perfil.php', 1, '2026-09-20 12:49:58');
+(1, 'Percy Jackson e o mar de monstros', 'Na série Percy Jackson e os Olimpianos, do Disney+, Percy e seus amigos embarcam em uma perigosa aventura pelo Mar de Monstros para encontrar o lendário Velocino de Ouro e salvar o Acampamento Meio-Sangue. Durante a jornada, eles enfrentam criaturas mitológicas, desafios inesperados e inimigos poderosos, enquanto Percy descobre mais sobre suas origens e o destino que o aguarda.', '/img/avisos/aviso_6ad63b1da4a7d6.96099440.jpg', NULL, 1, '2026-10-19 15:45:33');
 
 -- --------------------------------------------------------
 
@@ -125,9 +125,14 @@ CREATE TABLE `obras` (
 --
 
 INSERT INTO `obras` (`id`, `titulo`, `descricao`, `tipo`, `ano_lancamento`, `classificacao`, `duracao`, `estudio`, `capa`, `em_alta`, `lancamento`, `ativo`, `data_criacao`) VALUES
-(1, 'F1 O filme', 'F1: O Filme é um drama de ação dirigido por Joseph Kosinski e estrelado por Brad Pitt que retrata o universo da Fórmula 1 com grande realismo.', 'Anime', '2025', '12', '2 horas e 36 minutos', 'Apple Studios', '/img/obras/obra_6aaf415b212769.84322066.png', 1, 1, 1, '2026-09-20 02:13:47'),
+(1, 'F1 O filme', 'F1: O Filme é um drama de ação dirigido por Joseph Kosinski e estrelado por Brad Pitt que retrata o universo da Fórmula 1 com grande realismo.', 'Filme', '2025', '12', '2 horas e 36 minutos', 'Apple Studios', '/img/obras/obra_6aaf415b212769.84322066.png', 1, 1, 1, '2026-09-20 02:13:47'),
 (3, 'As Crônicas de Nárnia: A Viagem do Peregrino da Alvorada', 'Lúcia e Edmundo Pevensie, junto com o chato primo Eustáquio, vão parar em Nárnia por meio de um quadro mágico. Eles embarcam no navio Peregrino da Alvorada com o Rei Caspian para achar sete fidalgos (lordes) desaparecidos e derrotar uma névoa mágica que ameaça Nárnia', 'Filme', '2010', '10', '1 hora e 53 minutos', '20th Century Fox', '/img/obras/obra_6aafce652a6911.11106112.png', 1, 1, 1, '2026-09-20 12:15:33'),
-(5, '007 Sem Tempo para Morrerç~~´´--==**--/++!!@@##$$%%¨¨', 'Um dos melhores filmes da franquiaç~~´´--==**--/++!!@@##$$%%¨¨', 'Filme', '1948', '12', '1 hora e 49 minutosç~~´´--==**--/++!!@@##$$%%¨¨', 'Filme 007', '/img/obras/obra_6ab83bb2b15d23.65169079.png', 1, 1, 1, '2026-09-26 21:40:02');
+(5, 'Percy Jackson e os Olimpianos', 'Percy Jackson e seus amigos retornam ao Acampamento Meio-Sangue e descobrem que ele está ameaçado após a árvore de Thalia, responsável por proteger o local, ser envenenada. Para salvar o acampamento, Percy precisa encontrar o lendário Velocino de Ouro, capaz de restaurar sua proteção. Ao lado de Annabeth, Grover e seu meio-irmão Tyson, ele embarca em uma perigosa jornada pelo Mar de Monstros, enfrentando criaturas mitológicas, desafios inesperados e inimigos poderosos. Durante a aventura, Percy também precisa descobrir mais sobre seu destino e provar sua coragem para impedir que uma grande ameaça destrua tudo aquilo que ele deseja proteger.', 'Série', '2025', '12', '2 Temporadas', 'Disney', '/img/obras/obra_6ad640b48e9402.08683144.jpg', 1, 1, 1, '2026-09-26 21:40:02'),
+(6, 'My Hero Academia', 'Em um mundo onde a maioria das pessoas possui superpoderes chamados Individualidades, Izuku Midoriya, conhecido como Deku, luta para se tornar o maior herói. Na temporada final, a batalha decisiva entre heróis e vilões atinge seu clímax, enquanto Deku enfrenta Shigaraki em um confronto que determinará o futuro da humanidade. Ao lado de seus aliados, ele precisa superar seus limites, proteger aqueles que ama e lutar para construir um mundo onde todos possam viver em segurança.', 'Anime', '2014', '14', '7 Temporadas', 'Studio Bones', '/img/obras/obra_6ad647de594703.16486143.jpg', 1, 0, 1, '2026-10-19 16:39:58'),
+(7, 'Witch Hat Atelier', 'Coco é uma garota fascinada por magia que sonha em se tornar uma bruxa. Após descobrir um segredo sobre como a magia realmente funciona, ela acaba entrando em um mundo cheio de encantamentos, mistérios e descobertas. Ao lado de outros aprendizes, Coco inicia uma jornada para dominar a magia e desvendar os segredos que cercam esse universo.', 'Anime', '2026', '12', '1 Temporada', 'BUG FILMS', '/img/obras/obra_6ad6486ea6da57.73412366.jpg', 1, 0, 1, '2026-10-19 16:42:22'),
+(8, 'Dandadan', 'Momo Ayase e Ken Takakura, conhecido como Okarun, se envolvem em aventuras sobrenaturais após discordarem sobre a existência de fantasmas e alienígenas. Ao descobrirem que ambos existem, os dois enfrentam criaturas bizarras, fenômenos paranormais e situações perigosas, desenvolvendo uma amizade marcada por ação, humor e mistérios.', 'Anime', '2024', '14', '2 Temporadas', 'Science SARU', '/img/obras/obra_6ad648bc85a260.47872897.jpg', 0, 0, 1, '2026-10-19 16:43:40'),
+(9, 'The Mentalist (O Mentalista)', 'Patrick Jane é um consultor independente que trabalha com a equipe de investigação criminal da CBI, na Califórnia. Com uma capacidade extraordinária de observação, dedução e leitura do comportamento humano, ele ajuda a solucionar assassinatos e crimes complexos. No entanto, sua principal motivação é encontrar Red John, o serial killer responsável pela morte de sua esposa e filha. Ao longo da série, Patrick utiliza sua inteligência e suas habilidades psicológicas para desvendar mistérios enquanto busca vingança.', 'Série', '2008', '14', '7 Temporadas', 'Warner Bros. Television', '/img/obras/obra_6ad649920cab72.06312312.jpg', 1, 0, 1, '2026-10-19 16:47:14'),
+(10, 'F1: Dirigir para Viver (Formula 1: Drive to Survive)', 'A série documental acompanha os bastidores da Fórmula 1, revelando os desafios, as rivalidades e as estratégias dos pilotos, das equipes e dos chefes de equipe ao longo das temporadas. Com acesso exclusivo aos bastidores, mostra a pressão das competições, as disputas por vitórias, as decisões estratégicas e os acontecimentos que marcam o campeonato mundial de automobilismo.', 'Série', '2019', '12', '8 Temporadas', 'Box to Box Films', '/img/obras/obra_6ad64a0b1ad2e3.35077133.jpg', 1, 0, 1, '2026-10-19 16:49:15');
 
 -- --------------------------------------------------------
 
@@ -147,12 +152,34 @@ CREATE TABLE `obra_genero` (
 INSERT INTO `obra_genero` (`obra_id`, `genero_id`) VALUES
 (3, 2),
 (3, 3),
+(5, 4),
+(5, 3),
+(5, 2),
+(6, 4),
+(6, 3),
+(6, 2),
+(6, 7),
+(7, 4),
+(7, 6),
+(7, 2),
+(7, 21),
+(8, 4),
+(8, 3),
+(8, 5),
+(8, 7),
+(8, 8),
+(8, 21),
+(9, 4),
+(9, 3),
+(9, 5),
+(9, 7),
+(9, 15),
+(9, 10),
+(10, 12),
+(10, 6),
+(10, 16),
 (1, 4),
-(5, 9),
-(5, 10),
-(1, 16),
-(5, 20),
-(5, 21);
+(1, 16);
 
 -- --------------------------------------------------------
 
@@ -199,30 +226,10 @@ ALTER TABLE `codigos_email`
   ADD KEY `fk_codigos_usuario` (`usuario_id`);
 
 --
--- Índices de tabela `generos`
---
-ALTER TABLE `generos`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Índices de tabela `obras`
 --
 ALTER TABLE `obras`
   ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `obra_genero`
---
-ALTER TABLE `obra_genero`
-  ADD PRIMARY KEY (`obra_id`,`genero_id`),
-  ADD KEY `fk_obra_genero_genero` (`genero_id`);
-
---
--- Índices de tabela `usuarios`
---
-ALTER TABLE `usuarios`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- AUTO_INCREMENT para tabelas despejadas
@@ -232,48 +239,13 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de tabela `avisos`
 --
 ALTER TABLE `avisos`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT de tabela `codigos_email`
---
-ALTER TABLE `codigos_email`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `generos`
---
-ALTER TABLE `generos`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de tabela `obras`
 --
 ALTER TABLE `obras`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT de tabela `usuarios`
---
-ALTER TABLE `usuarios`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
--- Restrições para tabelas despejadas
---
-
---
--- Restrições para tabelas `codigos_email`
---
-ALTER TABLE `codigos_email`
-  ADD CONSTRAINT `fk_codigos_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
-
---
--- Restrições para tabelas `obra_genero`
---
-ALTER TABLE `obra_genero`
-  ADD CONSTRAINT `fk_obra_genero_genero` FOREIGN KEY (`genero_id`) REFERENCES `generos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_obra_genero_obra` FOREIGN KEY (`obra_id`) REFERENCES `obras` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
