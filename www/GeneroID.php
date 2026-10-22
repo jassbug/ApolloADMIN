@@ -249,4 +249,3 @@ $nomeGenero = $generoSelecionado['nome'];
 
 </body>
 </html>
-```
