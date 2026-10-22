@@ -4505,3 +4505,36 @@ footer p {
         grid-template-columns: 1fr;
     }
 }
+
+/* PÁGINA DE OBRAS POR GÊNERO */
+
+.genero-grupo {
+    margin-top: 35px;
+}
+
+.genero-grupo-titulo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    color: #f5f0ff;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.genero-grupo-titulo span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+    border-radius: 20px;
+    background: rgba(157, 105, 255, 0.18);
+    color: #c6a6ff;
+    font-size: 13px;
+}
+
+.genero-grupo .catalogo-grade {
+    margin-bottom: 30px;
+}
