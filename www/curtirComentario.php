@@ -5,40 +5,70 @@ require_once __DIR__ . '/includes/autenticacao.php';
 
 // VERIFICAR SE O USUÁRIO ESTÁ LOGADO
 if (!usuarioLogado()) {
-    header('Location: /login.php');
+    header('Location: /index.php');
     exit;
 }
 
-// VERIFICAR O ENVIO DO FORMULÁRIO
+// VERIFICAR SE A REQUISIÇÃO É POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: /index.php');
     exit;
 }
 
-// BUSCAR O ID DO COMENTÁRIO
-$comentarioId = filter_input(INPUT_POST, 'comentario_id', FILTER_VALIDATE_INT);
+$conexao = conectarBanco();
+$usuarioId = idUsuarioLogado();
 
-if (!$comentarioId || $comentarioId <= 0) {
-    header('Location: /index.php');
+// IDENTIFICAR A AÇÃO
+$acao = $_POST['acao'] ?? 'curtir';
+
+// EXCLUIR COMENTÁRIO
+if ($acao === 'excluir') {
+
+    $obraId = filter_input(INPUT_POST, 'obra_id', FILTER_VALIDATE_INT);
+
+    if (!$obraId || $obraId <= 0) {
+        header('Location: /index.php');
+        exit;
+    }
+
+    // EXCLUIR SOMENTE O COMENTÁRIO DO USUÁRIO LOGADO
+    $consulta = $conexao->prepare("
+        DELETE FROM comentarios
+        WHERE obra_id = :obra_id
+          AND usuario_id = :usuario_id
+    ");
+
+    $consulta->execute([
+        ':obra_id' => $obraId,
+        ':usuario_id' => $usuarioId
+    ]);
+
+    header('Location: /obras.php?id=' . $obraId);
     exit;
 }
 
-$conexao = conectarBanco();
+// CURTIR OU REMOVER CURTIDA
+if ($acao === 'curtir') {
 
-try {
+    $comentarioId = filter_input(INPUT_POST, 'comentario_id', FILTER_VALIDATE_INT);
+
+    if (!$comentarioId || $comentarioId <= 0) {
+        header('Location: /index.php');
+        exit;
+    }
 
     // BUSCAR A OBRA DO COMENTÁRIO
-    $consultaComentario = $conexao->prepare("
+    $consultaObra = $conexao->prepare("
         SELECT obra_id
         FROM comentarios
-        WHERE id = :id
+        WHERE id = :comentario_id
     ");
 
-    $consultaComentario->execute([
-        ':id' => $comentarioId
+    $consultaObra->execute([
+        ':comentario_id' => $comentarioId
     ]);
 
-    $obraId = $consultaComentario->fetchColumn();
+    $obraId = $consultaObra->fetchColumn();
 
     if (!$obraId) {
         header('Location: /index.php');
@@ -55,7 +85,7 @@ try {
 
     $consultaCurtida->execute([
         ':comentario_id' => $comentarioId,
-        ':usuario_id' => idUsuarioLogado()
+        ':usuario_id' => $usuarioId
     ]);
 
     $curtida = $consultaCurtida->fetchColumn();
@@ -63,40 +93,37 @@ try {
     if ($curtida) {
 
         // REMOVER CURTIDA
-        $consultaRemover = $conexao->prepare("
+        $consulta = $conexao->prepare("
             DELETE FROM curtidas_comentarios
             WHERE comentario_id = :comentario_id
               AND usuario_id = :usuario_id
         ");
 
-        $consultaRemover->execute([
+        $consulta->execute([
             ':comentario_id' => $comentarioId,
-            ':usuario_id' => idUsuarioLogado()
+            ':usuario_id' => $usuarioId
         ]);
 
     } else {
 
         // ADICIONAR CURTIDA
-        $consultaAdicionar = $conexao->prepare("
+        $consulta = $conexao->prepare("
             INSERT INTO curtidas_comentarios
                 (comentario_id, usuario_id)
             VALUES
                 (:comentario_id, :usuario_id)
         ");
 
-        $consultaAdicionar->execute([
+        $consulta->execute([
             ':comentario_id' => $comentarioId,
-            ':usuario_id' => idUsuarioLogado()
+            ':usuario_id' => $usuarioId
         ]);
     }
 
-    header('Location: /Obras.php?id=' . $obraId);
-    exit;
-
-} catch (PDOException $erro) {
-
-    error_log('Erro ao curtir comentário: ' . $erro->getMessage());
-
-    header('Location: /Obras.php?id=' . $obraId);
+    header('Location: /obras.php?id=' . $obraId);
     exit;
 }
+
+// AÇÃO INVÁLIDA
+header('Location: /index.php');
+exit;

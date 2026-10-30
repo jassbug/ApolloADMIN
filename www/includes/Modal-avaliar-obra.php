@@ -7,6 +7,7 @@
         aria-labelledby="modal-avaliar-titulo"
     >
 
+        <!-- BOTÃO FECHAR -->
         <button
             type="button"
             class="modal-avaliar-fechar"
@@ -16,8 +17,12 @@
             &times;
         </button>
 
-        <h2 id="modal-avaliar-titulo">Avaliar obra</h2>
+        <!-- TÍTULO -->
+        <h2 id="modal-avaliar-titulo">
+            <?= $comentarioUsuario ? 'Editar comentário' : 'Avaliar obra' ?>
+        </h2>
 
+        <!-- FORMULÁRIO DE AVALIAÇÃO E COMENTÁRIO -->
         <form action="/avaliarObra.php" method="POST">
 
             <input
@@ -26,6 +31,7 @@
                 value="<?= (int) $obra['id'] ?>"
             >
 
+            <!-- NOTA -->
             <div class="modal-avaliar-nota">
 
                 <label for="nota-obra">Dê sua nota</label>
@@ -38,21 +44,27 @@
                     <option value="">Dar uma nota de 1 a 10</option>
 
                     <?php for ($nota = 1; $nota <= 10; $nota++): ?>
+
                         <option
                             value="<?= $nota ?>"
                             <?= isset($avaliacaoUsuario) && $avaliacaoUsuario === $nota ? 'selected' : '' ?>
                         >
                             <?= $nota ?>
                         </option>
+
                     <?php endfor; ?>
 
                 </select>
 
             </div>
 
+            <!-- COMENTÁRIO -->
             <div class="modal-avaliar-comentario">
 
-                <label for="comentario-obra" class="visualmente-oculto">
+                <label
+                    for="comentario-obra"
+                    class="visualmente-oculto"
+                >
                     Escrever comentário
                 </label>
 
@@ -65,11 +77,48 @@
 
             </div>
 
-            <button type="submit" class="modal-avaliar-salvar">
-                Salvar
+            <!-- SALVAR -->
+            <button
+                type="submit"
+                class="modal-avaliar-salvar"
+            >
+                <?= $comentarioUsuario ? 'Salvar alterações' : 'Salvar' ?>
             </button>
 
         </form>
+
+        <!-- EXCLUIR COMENTÁRIO -->
+        <?php if ($comentarioUsuario): ?>
+
+            <form
+                action="/curtirComentario.php"
+                method="POST"
+                onsubmit="return confirm('Tem certeza de que deseja excluir seu comentário?');"
+            >
+
+                <input
+                    type="hidden"
+                    name="acao"
+                    value="excluir"
+                >
+
+                <input
+                    type="hidden"
+                    name="obra_id"
+                    value="<?= (int) $obra['id'] ?>"
+                >
+
+                <button
+                    type="submit"
+                    class="modal-avaliar-excluir"
+                >
+                    <i class="bi bi-trash"></i>
+                    Excluir comentário
+                </button>
+
+            </form>
+
+        <?php endif; ?>
 
     </div>
 
