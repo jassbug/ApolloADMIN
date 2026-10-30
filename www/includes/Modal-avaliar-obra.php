@@ -61,7 +61,7 @@
                     id="comentario-obra"
                     placeholder="Escrever comentário"
                     maxlength="2000"
-                ></textarea>
+                ><?= e($comentarioUsuario['comentario'] ?? '') ?></textarea>
 
             </div>
 

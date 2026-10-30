@@ -1432,3 +1432,76 @@ function buscarObrasPorTipo($tipo, $filtros = [])
 
     return $obras;
 }
+
+//COMENTARIOS
+
+// BUSCAR COMENTÁRIO DO USUÁRIO EM UMA OBRA
+function buscarComentarioUsuarioPorObra($obraId)
+{
+    $conexao = conectarBanco();
+
+    $consulta = $conexao->prepare("
+        SELECT comentario
+        FROM comentarios
+        WHERE obra_id = :obra_id
+          AND usuario_id = :usuario_id
+        LIMIT 1
+    ");
+
+    $consulta->execute([
+        ':obra_id' => $obraId,
+        ':usuario_id' => idUsuarioLogado()
+    ]);
+
+    $comentario = $consulta->fetch(PDO::FETCH_ASSOC);
+
+    return $comentario ?: null;
+}
+
+
+// BUSCAR COMENTÁRIOS DA OBRA
+function buscarComentariosPorObra($obraId)
+{
+    $conexao = conectarBanco();
+
+    $usuarioId = usuarioLogado() ? idUsuarioLogado() : 0;
+
+    $consulta = $conexao->prepare("
+        SELECT
+            comentarios.id,
+            comentarios.comentario,
+            comentarios.data_criacao,
+            usuarios.nome,
+            usuarios.foto,
+
+            (
+                SELECT COUNT(*)
+                FROM curtidas_comentarios
+                WHERE curtidas_comentarios.comentario_id = comentarios.id
+            ) AS quantidade_curtidas,
+
+            EXISTS (
+                SELECT 1
+                FROM curtidas_comentarios
+                WHERE curtidas_comentarios.comentario_id = comentarios.id
+                  AND curtidas_comentarios.usuario_id = :usuario_id
+            ) AS usuario_curtiu
+
+        FROM comentarios
+
+        INNER JOIN usuarios
+            ON comentarios.usuario_id = usuarios.id
+
+        WHERE comentarios.obra_id = :obra_id
+
+        ORDER BY comentarios.data_criacao DESC
+    ");
+
+    $consulta->execute([
+        ':obra_id' => $obraId,
+        ':usuario_id' => $usuarioId
+    ]);
+
+    return $consulta->fetchAll(PDO::FETCH_ASSOC);
+}
+

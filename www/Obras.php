@@ -44,6 +44,7 @@ $quantidadeAvaliacoes = (int) ($resultadoAvaliacao['quantidade'] ?? 0);
 $avaliacaoUsuario = null;
 
 if (usuarioLogado()) {
+
     $consultaUsuario = $conexao->prepare("
         SELECT nota
         FROM avaliacoes
@@ -76,11 +77,23 @@ $classificacao = $obra['classificacao'] ?? '';
 $descricao = $obra['descricao'] ?? '';
 $capa = $obra['capa'] ?? '';
 
+// BUSCAR O COMENTÁRIO DO USUÁRIO LOGADO
+$comentarioUsuario = null;
+
+if (usuarioLogado()) {
+    $comentarioUsuario = buscarComentarioUsuarioPorObra($idObra);
+}
+
+// BUSCAR TODOS OS COMENTÁRIOS DA OBRA
+$comentarios = buscarComentariosPorObra($idObra);
+
 // BUSCAR O NOME DOS GÊNEROS
 $generosObra = [];
 
 if (!empty($obra['generos'])) {
+
     $idsGeneros = $obra['generos'];
+
     $marcadores = implode(',', array_fill(0, count($idsGeneros), '?'));
 
     $consultaGeneros = $conexao->prepare("
@@ -315,25 +328,135 @@ if (!empty($obra['generos'])) {
                     id="aba-comentarios"
                 >
 
-                    <div class="obra-mensagem-vazia">
+                    <?php if (!empty($comentarios)): ?>
 
-                        <i class="bi bi-chat-square-text"></i>
+                        <?php foreach ($comentarios as $comentario): ?>
 
-                        <h3>Comentários</h3>
+                            <div class="obra-comentario">
 
-                        <p>
-                            Os comentários desta obra aparecerão aqui.
-                        </p>
+                                <!-- FOTO DO USUÁRIO -->
+                                <div class="obra-comentario-foto">
 
-                        <button
-                            type="button"
-                            class="obra-botao"
-                            id="abrir-modal-comentario"
-                        >
-                            Escrever comentário
-                        </button>
+                                    <?php if (!empty($comentario['foto'])): ?>
 
-                    </div>
+                                        <img
+                                            src="<?= e($comentario['foto']) ?>"
+                                            alt="Foto de <?= e($comentario['nome']) ?>"
+                                        >
+
+                                    <?php else: ?>
+
+                                        <i class="bi bi-person-circle"></i>
+
+                                    <?php endif; ?>
+
+                                </div>
+
+                                <!-- TEXTO DO COMENTÁRIO -->
+                                <div class="obra-comentario-conteudo">
+
+                                    <h4>
+                                        <?= e($comentario['nome']) ?>
+                                    </h4>
+
+                                    <p>
+                                        <?= nl2br(e($comentario['comentario'])) ?>
+                                    </p>
+
+                                    <small>
+                                        <?= date(
+                                            'd/m/Y H:i',
+                                            strtotime($comentario['data_criacao'])
+                                        ) ?>
+                                    </small>
+
+                                </div>
+
+                                <!-- AÇÕES -->
+                                <div class="obra-comentario-acoes">
+
+                                    <!-- CURTIR -->
+                                    <?php if (usuarioLogado()): ?>
+
+                                        <form action="/curtirComentario.php" method="POST">
+
+                                            <input
+                                                type="hidden"
+                                                name="comentario_id"
+                                                value="<?= (int) $comentario['id'] ?>"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                class="obra-comentario-curtir <?= !empty($comentario['usuario_curtiu']) ? 'curtido' : '' ?>"
+                                                aria-label="Curtir comentário"
+                                            >
+                                                <i class="bi bi-heart-fill"></i>
+
+                                                <span>
+                                                    <?= (int) $comentario['quantidade_curtidas'] ?>
+                                                </span>
+                                            </button>
+
+                                        </form>
+
+                                    <?php else: ?>
+
+                                        <button
+                                            type="button"
+                                            class="obra-comentario-curtir"
+                                            disabled
+                                            title="Entre na sua conta para curtir"
+                                        >
+                                            <i class="bi bi-heart-fill"></i>
+
+                                            <span>
+                                                <?= (int) $comentario['quantidade_curtidas'] ?>
+                                            </span>
+                                        </button>
+
+                                    <?php endif; ?>
+
+                                    <!-- DENUNCIAR -->
+                                    <button
+                                        type="button"
+                                        class="obra-comentario-denunciar"
+                                        disabled
+                                        title="Funcionalidade em desenvolvimento"
+                                        aria-label="Denunciar comentário"
+                                    >
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        <?php endforeach; ?>
+
+                    <?php else: ?>
+
+                        <div class="obra-mensagem-vazia">
+
+                            <i class="bi bi-chat-square-text"></i>
+
+                            <h3>Comentários</h3>
+
+                            <p>
+                                Os comentários desta obra aparecerão aqui.
+                            </p>
+
+                        </div>
+
+                    <?php endif; ?>
+
+                    <button
+                        type="button"
+                        class="obra-botao"
+                        id="abrir-modal-comentario"
+                    >
+                        <?= $comentarioUsuario ? 'Editar comentário' : 'Escrever comentário' ?>
+                    </button>
 
                 </div>
 
