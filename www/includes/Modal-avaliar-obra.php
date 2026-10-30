@@ -1,4 +1,3 @@
-```php
 <div class="modal-avaliar-fundo" id="modal-avaliar-obra">
 
     <div
@@ -75,4 +74,3 @@
     </div>
 
 </div>
-```
