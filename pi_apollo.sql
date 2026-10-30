@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql
--- Tempo de geração: 22/10/2026 às 19:19
+-- Tempo de geração: 30/10/2026 às 17:13
 -- Versão do servidor: 8.3.0
 -- Versão do PHP: 8.3.36
 
@@ -35,6 +35,14 @@ CREATE TABLE `avaliacoes` (
   `data_criacao` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `data_atualizacao` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Despejando dados para a tabela `avaliacoes`
+--
+
+INSERT INTO `avaliacoes` (`id`, `obra_id`, `usuario_id`, `nota`, `data_criacao`, `data_atualizacao`) VALUES
+(1, 9, 4, 10, '2026-10-30 16:12:59', '2026-10-30 16:57:53'),
+(8, 9, 5, 6, '2026-10-30 16:39:45', '2026-10-30 16:39:45');
 
 -- --------------------------------------------------------
 
@@ -74,6 +82,50 @@ CREATE TABLE `codigos_email` (
   `usado_em` datetime DEFAULT NULL,
   `criado_em` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `comentarios`
+--
+
+CREATE TABLE `comentarios` (
+  `id` int UNSIGNED NOT NULL,
+  `obra_id` int UNSIGNED NOT NULL,
+  `usuario_id` int UNSIGNED NOT NULL,
+  `comentario` text NOT NULL,
+  `data_criacao` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Despejando dados para a tabela `comentarios`
+--
+
+INSERT INTO `comentarios` (`id`, `obra_id`, `usuario_id`, `comentario`, `data_criacao`) VALUES
+(8, 9, 5, 'top', '2026-10-30 16:39:45'),
+(12, 9, 4, 'Bom trabalho', '2026-10-30 16:57:54');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `curtidas_comentarios`
+--
+
+CREATE TABLE `curtidas_comentarios` (
+  `id` int UNSIGNED NOT NULL,
+  `comentario_id` int UNSIGNED NOT NULL,
+  `usuario_id` int UNSIGNED NOT NULL,
+  `data_criacao` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Despejando dados para a tabela `curtidas_comentarios`
+--
+
+INSERT INTO `curtidas_comentarios` (`id`, `comentario_id`, `usuario_id`, `data_criacao`) VALUES
+(3, 8, 5, '2026-10-30 16:40:46'),
+(4, 8, 4, '2026-10-30 16:46:29'),
+(5, 12, 4, '2026-10-30 16:58:05');
 
 -- --------------------------------------------------------
 
@@ -219,8 +271,8 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id`, `nome`, `email`, `senha`, `tipo`, `email_verificado`, `foto`, `bio`, `criado_em`) VALUES
-(4, 'jasmini', 'jasminibecker2@gmail.com', '$2y$10$egJMVNMTGESzDz3pyRgg5eRTDEikS4rlHZ5sy2gXtyM7DEWbn1Jrq', 'admin', 0, NULL, NULL, '2026-09-26 21:24:57'),
-(5, 'Jasmini Becker Rohr', 'jasbecker2@gmail.com', '$2y$10$7AG3wZnPjJxY6Pk/037QG.7u8D90Cabv8dNeWhQXl2UtRbp5dQMAq', 'usuario', 0, '/img/perfis/perfil_6ab83912e75364.93721726.jpg', NULL, '2026-09-26 21:28:17'),
+(4, 'jasmini', 'jasminibecker2@gmail.com', '$2y$10$egJMVNMTGESzDz3pyRgg5eRTDEikS4rlHZ5sy2gXtyM7DEWbn1Jrq', 'admin', 0, '/img/perfis/perfil_6ae4c7c42a6543.02465785.jpg', NULL, '2026-09-26 21:24:57'),
+(5, 'Jasmini Becker Rohr', 'jasbecker2@gmail.com', '$2y$10$7AG3wZnPjJxY6Pk/037QG.7u8D90Cabv8dNeWhQXl2UtRbp5dQMAq', 'usuario', 0, '/img/perfis/perfil_6ae4c888a94ac8.39082780.jpg', NULL, '2026-09-26 21:28:17'),
 (6, 'João Thiago da Silva de Borba', 'joao.thiago@adm.educadventista.org', '$2y$10$lQCBTG6Fdch/sDZi8ezJ7OqxiYthYwrV3igXtlbuKSMCUrjgbkbEy', 'usuario', 1, '/img/perfis/perfil_6ab83aa0e76609.49891284.jpg', 'Sou incrivel e', '2026-09-26 21:34:12');
 
 --
@@ -249,6 +301,23 @@ ALTER TABLE `codigos_email`
   ADD KEY `fk_codigos_usuario` (`usuario_id`);
 
 --
+-- Índices de tabela `comentarios`
+--
+ALTER TABLE `comentarios`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `comentario_unico` (`obra_id`,`usuario_id`),
+  ADD KEY `obra_id` (`obra_id`),
+  ADD KEY `usuario_id` (`usuario_id`);
+
+--
+-- Índices de tabela `curtidas_comentarios`
+--
+ALTER TABLE `curtidas_comentarios`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `curtida_unica` (`comentario_id`,`usuario_id`),
+  ADD KEY `fk_curtida_usuario` (`usuario_id`);
+
+--
 -- Índices de tabela `obras`
 --
 ALTER TABLE `obras`
@@ -268,13 +337,25 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de tabela `avaliacoes`
 --
 ALTER TABLE `avaliacoes`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT de tabela `avisos`
 --
 ALTER TABLE `avisos`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de tabela `comentarios`
+--
+ALTER TABLE `comentarios`
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
+-- AUTO_INCREMENT de tabela `curtidas_comentarios`
+--
+ALTER TABLE `curtidas_comentarios`
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de tabela `obras`
@@ -292,6 +373,20 @@ ALTER TABLE `obras`
 ALTER TABLE `avaliacoes`
   ADD CONSTRAINT `fk_avaliacao_obra` FOREIGN KEY (`obra_id`) REFERENCES `obras` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_avaliacao_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
+
+--
+-- Restrições para tabelas `comentarios`
+--
+ALTER TABLE `comentarios`
+  ADD CONSTRAINT `fk_comentario_obra` FOREIGN KEY (`obra_id`) REFERENCES `obras` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_comentario_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
+
+--
+-- Restrições para tabelas `curtidas_comentarios`
+--
+ALTER TABLE `curtidas_comentarios`
+  ADD CONSTRAINT `fk_curtida_comentario` FOREIGN KEY (`comentario_id`) REFERENCES `comentarios` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_curtida_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
