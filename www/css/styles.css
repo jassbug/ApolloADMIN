@@ -5835,3 +5835,58 @@ body.modal-aberto {
     }
 
 }
+
+
+/* DENÚNCIAS NOS COMENTÁRIOS */
+
+.admin-comentario-denunciado {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: rgba(255, 80, 80, 0.12);
+    color: #ff7777;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.admin-comentario-aviso-denuncia {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 15px;
+    margin: 18px 0;
+    border: 1px solid rgba(255, 80, 80, 0.35);
+    border-radius: 10px;
+    background: rgba(255, 80, 80, 0.10);
+    color: #ff7777;
+}
+
+.admin-comentario-aviso-denuncia i {
+    font-size: 22px;
+}
+
+.admin-comentario-aviso-denuncia strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.admin-comentario-aviso-denuncia p {
+    margin: 0;
+    color: #d8cbd0;
+    font-size: 13px;
+}
+
+.admin-comentario-sem-denuncia {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    margin: 18px 0;
+    border-radius: 10px;
+    background: rgba(80, 190, 130, 0.10);
+    color: #75d9a2;
+    font-size: 13px;
+}

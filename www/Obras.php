@@ -3,6 +3,20 @@
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/autenticacao.php';
 
+// TOKEN DE SEGURANÇA DAS DENÚNCIAS
+if (empty($_SESSION['csrf_denuncias'])) {
+    $_SESSION['csrf_denuncias'] = bin2hex(random_bytes(32));
+}
+
+// MENSAGEM DA DENÚNCIA
+$mensagemDenuncia = $_SESSION['mensagem_denuncia'] ?? '';
+$tipoDenuncia = $_SESSION['tipo_denuncia'] ?? '';
+
+unset(
+    $_SESSION['mensagem_denuncia'],
+    $_SESSION['tipo_denuncia']
+);
+
 // BUSCAR O ID DA OBRA
 $idObra = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
@@ -328,6 +342,15 @@ if (!empty($obra['generos'])) {
                     id="aba-comentarios"
                 >
 
+                    <!-- MENSAGEM DA DENÚNCIA -->
+                    <?php if ($mensagemDenuncia !== ''): ?>
+
+                        <div class="alert alert-<?= e($tipoDenuncia) ?>">
+                            <?= e($mensagemDenuncia) ?>
+                        </div>
+
+                    <?php endif; ?>
+
                     <?php if (!empty($comentarios)): ?>
 
                         <?php foreach ($comentarios as $comentario): ?>
@@ -418,15 +441,56 @@ if (!empty($obra['generos'])) {
                                     <?php endif; ?>
 
                                     <!-- DENUNCIAR -->
-                                    <button
-                                        type="button"
-                                        class="obra-comentario-denunciar"
-                                        disabled
-                                        title="Funcionalidade em desenvolvimento"
-                                        aria-label="Denunciar comentário"
-                                    >
-                                        <i class="bi bi-exclamation-triangle"></i>
-                                    </button>
+                                    <?php if (usuarioLogado()): ?>
+
+                                        <form
+                                            action="/denunciarComentario.php"
+                                            method="POST"
+                                        >
+
+                                            <input
+                                                type="hidden"
+                                                name="comentario_id"
+                                                value="<?= (int) $comentario['id'] ?>"
+                                            >
+
+                                            <input
+                                                type="hidden"
+                                                name="obra_id"
+                                                value="<?= (int) $idObra ?>"
+                                            >
+
+                                            <input
+                                                type="hidden"
+                                                name="csrf_token"
+                                                value="<?= e($_SESSION['csrf_denuncias']) ?>"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                class="obra-comentario-denunciar"
+                                                title="Denunciar comentário"
+                                                aria-label="Denunciar comentário"
+                                                onclick="return confirm('Deseja denunciar este comentário?');"
+                                            >
+                                                <i class="bi bi-exclamation-triangle"></i>
+                                            </button>
+
+                                        </form>
+
+                                    <?php else: ?>
+
+                                        <button
+                                            type="button"
+                                            class="obra-comentario-denunciar"
+                                            disabled
+                                            title="Entre na sua conta para denunciar"
+                                            aria-label="Denunciar comentário"
+                                        >
+                                            <i class="bi bi-exclamation-triangle"></i>
+                                        </button>
+
+                                    <?php endif; ?>
 
                                 </div>
 

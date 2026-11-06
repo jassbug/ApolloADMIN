@@ -1524,7 +1524,12 @@ function buscarComentariosAdmin($busca = '')
             usuarios.nome AS nome_usuario,
             usuarios.foto AS foto_usuario,
             obras.titulo AS titulo_obra,
-            obras.capa AS capa_obra
+            obras.capa AS capa_obra,
+            (
+                SELECT COUNT(*)
+                FROM denuncias_comentarios
+                WHERE denuncias_comentarios.comentario_id = comentarios.id
+            ) AS quantidade_denuncias
         FROM comentarios
         INNER JOIN usuarios
             ON comentarios.usuario_id = usuarios.id
@@ -1605,4 +1610,83 @@ function excluirComentarioAdmin($id)
     ]);
 
     return $consulta->rowCount() > 0;
+}
+
+// =====================================
+// DENÚNCIAS DE COMENTÁRIOS
+// =====================================
+
+// REGISTRAR DENÚNCIA
+function denunciarComentario($comentarioId, $usuarioId)
+{
+    $conexao = conectarBanco();
+
+    $comentarioId = (int) $comentarioId;
+    $usuarioId = (int) $usuarioId;
+
+    if ($comentarioId <= 0 || $usuarioId <= 0) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'Denúncia inválida.'
+        ];
+    }
+
+    // Verifica se o comentário existe.
+    $verificar = $conexao->prepare("
+        SELECT id
+        FROM comentarios
+        WHERE id = :id
+    ");
+
+    $verificar->execute([
+        ':id' => $comentarioId
+    ]);
+
+    if (!$verificar->fetch()) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'Comentário não encontrado.'
+        ];
+    }
+
+    // Verifica se o usuário já denunciou.
+    $verificar = $conexao->prepare("
+        SELECT id
+        FROM denuncias_comentarios
+        WHERE comentario_id = :comentario_id
+          AND usuario_id = :usuario_id
+    ");
+
+    $verificar->execute([
+        ':comentario_id' => $comentarioId,
+        ':usuario_id' => $usuarioId
+    ]);
+
+    if ($verificar->fetch()) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'Você já denunciou este comentário.'
+        ];
+    }
+
+    $consulta = $conexao->prepare("
+        INSERT INTO denuncias_comentarios (
+            comentario_id,
+            usuario_id
+        )
+        VALUES (
+            :comentario_id,
+            :usuario_id
+        )
+    ");
+
+    $consulta->execute([
+        ':comentario_id' => $comentarioId,
+        ':usuario_id' => $usuarioId
+    ]);
+
+    return [
+        'sucesso' => true,
+        'mensagem' => 'Denúncia enviada com sucesso.'
+    ];
 }

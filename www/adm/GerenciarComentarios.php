@@ -26,6 +26,7 @@ unset(
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['excluir_comentario'])) {
 
     $token = $_POST['csrf_token'] ?? '';
+
     $comentarioId = filter_input(
         INPUT_POST,
         'comentario_id',
@@ -50,11 +51,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['excluir_comentario'])
         try {
 
             if (excluirComentarioAdmin($comentarioId)) {
+
                 $_SESSION['mensagem_comentarios'] = 'Comentário excluído com sucesso.';
                 $_SESSION['tipo_mensagem_comentarios'] = 'success';
+
             } else {
+
                 $_SESSION['mensagem_comentarios'] = 'Comentário não encontrado.';
                 $_SESSION['tipo_mensagem_comentarios'] = 'warning';
+
             }
 
         } catch (PDOException $erro) {
@@ -63,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['excluir_comentario'])
 
             $_SESSION['mensagem_comentarios'] = 'Erro ao excluir o comentário.';
             $_SESSION['tipo_mensagem_comentarios'] = 'danger';
+
         }
     }
 
@@ -314,6 +320,24 @@ $totalComentarios = count($comentarios);
 
                             </div>
 
+                            <!-- AVISO DE DENÚNCIA NA LISTAGEM -->
+
+                            <?php if ((int) $comentario['quantidade_denuncias'] > 0): ?>
+
+                                <div class="admin-comentario-denunciado">
+
+                                    <i class="bi bi-exclamation-triangle-fill"></i>
+
+                                    <?= (int) $comentario['quantidade_denuncias'] ?>
+
+                                    <?= (int) $comentario['quantidade_denuncias'] === 1
+                                        ? 'denúncia'
+                                        : 'denúncias' ?>
+
+                                </div>
+
+                            <?php endif; ?>
+
                             <!-- ÍCONE DE VISUALIZAÇÃO -->
 
                             <div class="admin-comentario-acoes">
@@ -418,6 +442,46 @@ $totalComentarios = count($comentarios);
                     </strong>
 
                 </div>
+
+                <!-- AVISO DE DENÚNCIA NOS DETALHES -->
+
+                <?php if ((int) $comentarioDetalhes['quantidade_denuncias'] > 0): ?>
+
+                    <div class="admin-comentario-aviso-denuncia">
+
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+
+                        <div>
+
+                            <strong>Comentário denunciado</strong>
+
+                            <p>
+
+                                Este comentário recebeu
+
+                                <?= (int) $comentarioDetalhes['quantidade_denuncias'] ?>
+
+                                <?= (int) $comentarioDetalhes['quantidade_denuncias'] === 1
+                                    ? 'denúncia.'
+                                    : 'denúncias.' ?>
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                <?php else: ?>
+
+                    <div class="admin-comentario-sem-denuncia">
+
+                        <i class="bi bi-check-circle"></i>
+
+                        Nenhuma denúncia registrada.
+
+                    </div>
+
+                <?php endif; ?>
 
                 <div class="admin-comentario-detalhe-texto">
 
