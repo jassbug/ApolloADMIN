@@ -1,3 +1,110 @@
+<?php
+
+require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/autenticacao.php';
+
+exigirAdministrador();
+
+/* TOKEN DE SEGURANÇA */
+
+if (empty($_SESSION['csrf_comentarios'])) {
+    $_SESSION['csrf_comentarios'] = bin2hex(random_bytes(32));
+}
+
+/* MENSAGENS */
+
+$mensagem = $_SESSION['mensagem_comentarios'] ?? '';
+$tipoMensagem = $_SESSION['tipo_mensagem_comentarios'] ?? '';
+
+unset(
+    $_SESSION['mensagem_comentarios'],
+    $_SESSION['tipo_mensagem_comentarios']
+);
+
+/* EXCLUIR COMENTÁRIO */
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['excluir_comentario'])) {
+
+    $token = $_POST['csrf_token'] ?? '';
+    $comentarioId = filter_input(
+        INPUT_POST,
+        'comentario_id',
+        FILTER_VALIDATE_INT
+    );
+
+    if (
+        !$token ||
+        !hash_equals($_SESSION['csrf_comentarios'], $token)
+    ) {
+
+        $_SESSION['mensagem_comentarios'] = 'Solicitação inválida.';
+        $_SESSION['tipo_mensagem_comentarios'] = 'danger';
+
+    } elseif (!$comentarioId) {
+
+        $_SESSION['mensagem_comentarios'] = 'Comentário inválido.';
+        $_SESSION['tipo_mensagem_comentarios'] = 'danger';
+
+    } else {
+
+        try {
+
+            if (excluirComentarioAdmin($comentarioId)) {
+                $_SESSION['mensagem_comentarios'] = 'Comentário excluído com sucesso.';
+                $_SESSION['tipo_mensagem_comentarios'] = 'success';
+            } else {
+                $_SESSION['mensagem_comentarios'] = 'Comentário não encontrado.';
+                $_SESSION['tipo_mensagem_comentarios'] = 'warning';
+            }
+
+        } catch (PDOException $erro) {
+
+            error_log($erro->getMessage());
+
+            $_SESSION['mensagem_comentarios'] = 'Erro ao excluir o comentário.';
+            $_SESSION['tipo_mensagem_comentarios'] = 'danger';
+        }
+    }
+
+    header('Location: GerenciarComentarios.php');
+    exit;
+}
+
+/* BUSCA */
+
+$busca = trim($_GET['busca'] ?? '');
+
+$comentarios = buscarComentariosAdmin($busca);
+
+/* COMENTÁRIO SELECIONADO */
+
+$idSelecionado = filter_input(
+    INPUT_GET,
+    'id',
+    FILTER_VALIDATE_INT
+);
+
+$comentarioDetalhes = null;
+
+if ($idSelecionado) {
+    $comentarioDetalhes = buscarComentarioAdminPorId($idSelecionado);
+}
+
+if (!$comentarioDetalhes && !empty($comentarios)) {
+    $comentarioDetalhes = $comentarios[0];
+}
+
+/* FUNÇÃO DE EXIBIÇÃO */
+
+function escaparAdmin($valor)
+{
+    return htmlspecialchars((string) $valor, ENT_QUOTES, 'UTF-8');
+}
+
+$totalComentarios = count($comentarios);
+
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -7,17 +114,19 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Gerenciar Comentários - Apollo</title>
+    <title>Gerenciar comentários - Apollo</title>
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-        rel="stylesheet">
+        rel="stylesheet"
+    >
 
     <link rel="stylesheet" href="../css/styles.css">
 
     <link
         rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
 
 </head>
 
@@ -25,470 +134,361 @@
 
 <header>
 
-    <?php include '../menu.php'; ?>
+    <?php include __DIR__ . '/../menu.php'; ?>
 
 </header>
 
-<main class="container py-4">
+<main class="container-fluid admin-comentarios">
 
-    <h1 class="mb-4">
+    <!-- CABEÇALHO -->
 
-        Comentários
+    <div class="admin-comentarios-cabecalho">
 
-    </h1>
+        <div>
 
-    <div class="admin-comentarios">
+            <h1>
+                <i class="bi bi-chat-left-text"></i>
+                Gerenciar comentários
+            </h1>
 
-        <h3 class="mb-4">
+            <p>
+                Consulte e gerencie os comentários publicados no Apollo.
+            </p>
 
-            Gerenciar comentários
+        </div>
 
-        </h3>
+        <div class="admin-comentarios-total">
 
-        <!-- Filtros -->
+            <i class="bi bi-chat-dots"></i>
 
-        <div class="row g-3 mb-4">
+            <div>
 
-            <div class="col-md-4">
+                <strong><?= $totalComentarios ?></strong>
 
-                <input
-                    type="text"
-                    class="form-control"
-                    placeholder="Buscar">
-
-            </div>
-
-            <div class="col-md-3">
-
-                <select class="form-select">
-
-                    <option selected>
-
-                        Status
-
-                    </option>
-
-                    <option>
-
-                        Aprovado
-
-                    </option>
-
-                    <option>
-
-                        Pendente
-
-                    </option>
-
-                    <option>
-
-                        Denunciado
-
-                    </option>
-
-                    <option>
-
-                        Rejeitado
-
-                    </option>
-
-                </select>
-
-            </div>
-
-            <div class="col-md-5 text-md-end">
-
-                <button class="btn btn-outline-light">
-
-                    Limpar filtros
-
-                </button>
+                <span>Comentários encontrados</span>
 
             </div>
 
         </div>
 
-        <div class="row">
+    </div>
 
-            <!-- Tabela -->
+    <!-- MENSAGEM -->
 
-            <div class="col-lg-9">
+    <?php if ($mensagem !== ''): ?>
 
-                <div class="table-responsive">
+        <div class="alert alert-<?= escaparAdmin($tipoMensagem) ?>">
 
-                    <table class="table table-dark table-bordered align-middle">
+            <?= escaparAdmin($mensagem) ?>
 
-                        <thead>
+        </div>
 
-                            <tr>
+    <?php endif; ?>
 
-                                <th>Obra</th>
+    <!-- BUSCA -->
 
-                                <th>Usuário</th>
+    <form method="GET" class="admin-comentarios-filtros">
 
-                                <th>Comentário</th>
+        <div class="admin-comentarios-busca">
 
-                                <th>Status</th>
+            <i class="bi bi-search"></i>
 
-                                <th>Ações</th>
+            <input
+                type="text"
+                name="busca"
+                placeholder="Buscar por usuário, obra ou comentário..."
+                value="<?= escaparAdmin($busca) ?>"
+            >
 
-                            </tr>
+        </div>
 
-                        </thead>
+        <button type="submit" class="admin-comentarios-btn-buscar">
+            Buscar
+        </button>
 
-                        <tbody>
+        <a
+            href="GerenciarComentarios.php"
+            class="admin-comentarios-btn-limpar"
+        >
+            <i class="bi bi-arrow-counterclockwise"></i>
+            Limpar
+        </a>
 
-                            <tr>
+    </form>
 
-                                <td>
+    <!-- LISTAGEM E DETALHES -->
 
-                                    <div class="obra-comentario">
+    <div class="admin-comentarios-layout">
 
-                                        Obra
+        <section class="admin-comentarios-lista">
 
-                                    </div>
+            <div class="admin-comentarios-lista-titulo">
 
-                                </td>
+                <h2>Comentários cadastrados</h2>
 
-                                <td>
-
-                                    Usuário que comentou
-
-                                </td>
-
-                                <td>
-
-                                    Comentário
-
-                                </td>
-
-                                <td>
-
-                                    Pendente
-
-                                </td>
-
-                                <td>
-
-                                    <div class="acoes-comentario-admin">
-
-                                        <button
-                                            class="btn btn-outline-light"
-                                            title="Editar">
-
-                                            <i class="bi bi-pencil"></i>
-
-                                        </button>
-
-                                        <button
-                                            class="btn btn-outline-light"
-                                            title="Visualizar">
-
-                                            <i class="bi bi-eye"></i>
-
-                                        </button>
-
-                                        <button
-                                            class="btn btn-outline-danger"
-                                            title="Excluir">
-
-                                            <i class="bi bi-trash"></i>
-
-                                        </button>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
-                            <tr>
-
-                                <td>
-
-                                    <div class="obra-comentario">
-
-                                        Obra
-
-                                    </div>
-
-                                </td>
-
-                                <td>
-
-                                    Usuário que comentou
-
-                                </td>
-
-                                <td>
-
-                                    Comentário
-
-                                </td>
-
-                                <td>
-
-                                    Denunciado
-
-                                </td>
-
-                                <td>
-
-                                    <div class="acoes-comentario-admin">
-
-                                        <button class="btn btn-outline-light">
-
-                                            <i class="bi bi-pencil"></i>
-
-                                        </button>
-
-                                        <button class="btn btn-outline-light">
-
-                                            <i class="bi bi-eye"></i>
-
-                                        </button>
-
-                                        <button class="btn btn-outline-danger">
-
-                                            <i class="bi bi-trash"></i>
-
-                                        </button>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
-                            <tr>
-
-                                <td>
-
-                                    <div class="obra-comentario">
-
-                                        Obra
-
-                                    </div>
-
-                                </td>
-
-                                <td>
-
-                                    Usuário que comentou
-
-                                </td>
-
-                                <td>
-
-                                    Comentário
-
-                                </td>
-
-                                <td>
-
-                                    Aprovado
-
-                                </td>
-
-                                <td>
-
-                                    <div class="acoes-comentario-admin">
-
-                                        <button class="btn btn-outline-light">
-
-                                            <i class="bi bi-pencil"></i>
-
-                                        </button>
-
-                                        <button class="btn btn-outline-light">
-
-                                            <i class="bi bi-eye"></i>
-
-                                        </button>
-
-                                        <button class="btn btn-outline-danger">
-
-                                            <i class="bi bi-trash"></i>
-
-                                        </button>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
+                <span>
+                    <?= $totalComentarios ?> resultado(s)
+                </span>
 
             </div>
 
-            <!-- Detalhes -->
+            <?php if (!empty($comentarios)): ?>
 
-            <div class="col-lg-3">
+                <div class="admin-comentarios-tabela">
 
-                <div class="detalhes-comentario">
+                    <?php foreach ($comentarios as $comentario): ?>
 
-                    <h5>
+                        <a
+                            href="GerenciarComentarios.php?id=<?= (int) $comentario['id'] ?>&busca=<?= urlencode($busca) ?>"
+                            class="admin-comentario-item <?= $comentarioDetalhes && (int) $comentarioDetalhes['id'] === (int) $comentario['id'] ? 'selecionado' : '' ?>"
+                        >
 
-                        Detalhes
+                            <!-- OBRA -->
 
-                    </h5>
+                            <div class="admin-comentario-obra">
 
-                    <div class="detalhes-obra">
+                                <?php if (!empty($comentario['capa_obra'])): ?>
 
-                        <div class="obra-foto">
+                                    <img
+                                        src="<?= escaparAdmin($comentario['capa_obra']) ?>"
+                                        alt="Capa da obra"
+                                    >
 
-                            Obra
+                                <?php else: ?>
 
+                                    <div class="admin-comentario-sem-imagem">
+                                        <i class="bi bi-film"></i>
+                                    </div>
+
+                                <?php endif; ?>
+
+                                <span>
+                                    <?= escaparAdmin($comentario['titulo_obra']) ?>
+                                </span>
+
+                            </div>
+
+                            <!-- USUÁRIO -->
+
+                            <div class="admin-comentario-usuario">
+
+                                <?php if (!empty($comentario['foto_usuario'])): ?>
+
+                                    <img
+                                        src="<?= escaparAdmin($comentario['foto_usuario']) ?>"
+                                        alt="Foto do usuário"
+                                    >
+
+                                <?php else: ?>
+
+                                    <div class="admin-comentario-avatar">
+                                        <i class="bi bi-person"></i>
+                                    </div>
+
+                                <?php endif; ?>
+
+                                <span>
+                                    <?= escaparAdmin($comentario['nome_usuario']) ?>
+                                </span>
+
+                            </div>
+
+                            <!-- TEXTO -->
+
+                            <div class="admin-comentario-texto">
+
+                                <?= escaparAdmin($comentario['comentario']) ?>
+
+                            </div>
+
+                            <!-- DATA -->
+
+                            <div class="admin-comentario-data">
+
+                                <i class="bi bi-calendar3"></i>
+
+                                <?= date(
+                                    'd/m/Y H:i',
+                                    strtotime($comentario['data_criacao'])
+                                ) ?>
+
+                            </div>
+
+                            <!-- ÍCONE DE VISUALIZAÇÃO -->
+
+                            <div class="admin-comentario-acoes">
+
+                                <i class="bi bi-eye" title="Visualizar detalhes"></i>
+
+                            </div>
+
+                        </a>
+
+                    <?php endforeach; ?>
+
+                </div>
+
+            <?php else: ?>
+
+                <div class="admin-comentarios-vazio">
+
+                    <i class="bi bi-chat-square-text"></i>
+
+                    <h3>Nenhum comentário encontrado</h3>
+
+                    <p>
+                        Não existem comentários correspondentes à sua busca.
+                    </p>
+
+                </div>
+
+            <?php endif; ?>
+
+        </section>
+
+        <!-- PAINEL DE DETALHES -->
+
+        <aside class="admin-comentarios-detalhes">
+
+            <h2>Detalhes do comentário</h2>
+
+            <?php if ($comentarioDetalhes): ?>
+
+                <div class="admin-comentario-detalhe-obra">
+
+                    <?php if (!empty($comentarioDetalhes['capa_obra'])): ?>
+
+                        <img
+                            src="<?= escaparAdmin($comentarioDetalhes['capa_obra']) ?>"
+                            alt="Capa da obra"
+                        >
+
+                    <?php endif; ?>
+
+                    <div>
+
+                        <span>Obra</span>
+
+                        <strong>
+                            <?= escaparAdmin($comentarioDetalhes['titulo_obra']) ?>
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="admin-comentario-detalhe-usuario">
+
+                    <?php if (!empty($comentarioDetalhes['foto_usuario'])): ?>
+
+                        <img
+                            src="<?= escaparAdmin($comentarioDetalhes['foto_usuario']) ?>"
+                            alt="Foto do usuário"
+                        >
+
+                    <?php else: ?>
+
+                        <div class="admin-comentario-avatar">
+                            <i class="bi bi-person"></i>
                         </div>
 
-                        <p>
+                    <?php endif; ?>
 
-                            <strong>Nome:</strong>
+                    <div>
 
-                            Nome da obra
+                        <span>Usuário</span>
 
-                        </p>
-
-                        <p>
-
-                            <strong>Tipo:</strong>
-
-                            Tipo da obra
-
-                        </p>
+                        <strong>
+                            <?= escaparAdmin($comentarioDetalhes['nome_usuario']) ?>
+                        </strong>
 
                     </div>
-
-                    <div class="comentario-detalhes">
-
-                        <p>
-
-                            <strong>Nome do usuário</strong>
-
-                        </p>
-
-                        <p>
-
-                            Motivo da denúncia
-
-                        </p>
-
-                        <p>
-
-                            Comentário
-
-                        </p>
-
-                    </div>
-
-                    <h6 class="mt-3">
-
-                        Ações rápidas
-
-                    </h6>
-
-                    
-
-                    <button class="btn btn-outline-warning w-100 mb-2">
-
-                        Rejeitar denúncia
-
-                    </button>
-
-                    <button
-                        type="button"
-                        class="btn btn-outline-danger w-100"
-                        data-bs-toggle="modal"
-                        data-bs-target="#modalBanir">
-
-                        Banir usuário
-
-                    </button>
 
                 </div>
 
-            </div>
+                <div class="admin-comentario-detalhe-data">
 
-        </div>
+                    <span>Data do comentário</span>
+
+                    <strong>
+                        <?= date(
+                            'd/m/Y H:i',
+                            strtotime($comentarioDetalhes['data_criacao'])
+                        ) ?>
+                    </strong>
+
+                </div>
+
+                <div class="admin-comentario-detalhe-texto">
+
+                    <span>Conteúdo</span>
+
+                    <p>
+                        <?= nl2br(escaparAdmin($comentarioDetalhes['comentario'])) ?>
+                    </p>
+
+                </div>
+
+                <!-- EXCLUIR -->
+
+                <div class="admin-comentario-detalhe-acoes">
+
+                    <h3>Ações</h3>
+
+                    <form
+                        method="POST"
+                        onsubmit="return confirm('Tem certeza de que deseja excluir este comentário? Esta ação não pode ser desfeita.');"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="comentario_id"
+                            value="<?= (int) $comentarioDetalhes['id'] ?>"
+                        >
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="<?= escaparAdmin($_SESSION['csrf_comentarios']) ?>"
+                        >
+
+                        <button
+                            type="submit"
+                            name="excluir_comentario"
+                            class="admin-comentario-btn-excluir"
+                        >
+
+                            <i class="bi bi-trash3"></i>
+
+                            Excluir comentário
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            <?php else: ?>
+
+                <div class="admin-comentarios-detalhes-vazio">
+
+                    <i class="bi bi-chat-square-text"></i>
+
+                    <p>
+                        Selecione um comentário para visualizar seus detalhes.
+                    </p>
+
+                </div>
+
+            <?php endif; ?>
+
+        </aside>
 
     </div>
 
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Modal Banir Usuário -->
 
-<div class="modal fade" id="modalBanir" tabindex="-1">
-
-    <div class="modal-dialog modal-dialog-centered">
-
-        <div class="modal-content bg-dark text-white border border-danger">
-
-            <div class="modal-header">
-
-                <h5 class="modal-title">
-
-                    Banir usuário
-
-                </h5>
-
-                <button
-                    type="button"
-                    class="btn-close btn-close-white"
-                    data-bs-dismiss="modal">
-
-                </button>
-
-            </div>
-
-            <div class="modal-body">
-
-                <p>
-
-                    Tem certeza que deseja banir este usuário?
-
-                </p>
-
-                <p class="text-secondary">
-
-                    O usuário perderá o acesso à plataforma após o banimento.
-
-                </p>
-
-            </div>
-
-            <div class="modal-footer">
-
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal">
-
-                    Cancelar
-
-                </button>
-
-                <button
-                    type="button"
-                    class="btn btn-danger"
-                    data-bs-dismiss="modal">
-
-                    Confirmar banimento
-
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
 </body>
-
 </html>

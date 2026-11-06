@@ -1505,3 +1505,104 @@ function buscarComentariosPorObra($obraId)
     return $consulta->fetchAll(PDO::FETCH_ASSOC);
 }
 
+
+// =====================================
+// GERENCIAMENTO DE COMENTÁRIOS - ADMIN
+// =====================================
+
+function buscarComentariosAdmin($busca = '')
+{
+    $conexao = conectarBanco();
+
+    $sql = "
+        SELECT
+            comentarios.id,
+            comentarios.obra_id,
+            comentarios.usuario_id,
+            comentarios.comentario,
+            comentarios.data_criacao,
+            usuarios.nome AS nome_usuario,
+            usuarios.foto AS foto_usuario,
+            obras.titulo AS titulo_obra,
+            obras.capa AS capa_obra
+        FROM comentarios
+        INNER JOIN usuarios
+            ON comentarios.usuario_id = usuarios.id
+        INNER JOIN obras
+            ON comentarios.obra_id = obras.id
+    ";
+
+    $parametros = [];
+
+    if ($busca !== '') {
+        $sql .= "
+            WHERE usuarios.nome LIKE :busca_usuario
+               OR obras.titulo LIKE :busca_obra
+               OR comentarios.comentario LIKE :busca_comentario
+        ";
+
+        $termo = '%' . $busca . '%';
+
+        $parametros = [
+            ':busca_usuario' => $termo,
+            ':busca_obra' => $termo,
+            ':busca_comentario' => $termo
+        ];
+    }
+
+    $sql .= " ORDER BY comentarios.data_criacao DESC";
+
+    $consulta = $conexao->prepare($sql);
+    $consulta->execute($parametros);
+
+    return $consulta->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
+function buscarComentarioAdminPorId($id)
+{
+    $conexao = conectarBanco();
+
+    $consulta = $conexao->prepare("
+        SELECT
+            comentarios.id,
+            comentarios.obra_id,
+            comentarios.usuario_id,
+            comentarios.comentario,
+            comentarios.data_criacao,
+            usuarios.nome AS nome_usuario,
+            usuarios.foto AS foto_usuario,
+            obras.titulo AS titulo_obra,
+            obras.capa AS capa_obra
+        FROM comentarios
+        INNER JOIN usuarios
+            ON comentarios.usuario_id = usuarios.id
+        INNER JOIN obras
+            ON comentarios.obra_id = obras.id
+        WHERE comentarios.id = :id
+        LIMIT 1
+    ");
+
+    $consulta->execute([
+        ':id' => $id
+    ]);
+
+    return $consulta->fetch(PDO::FETCH_ASSOC) ?: null;
+}
+
+
+function excluirComentarioAdmin($id)
+{
+    $conexao = conectarBanco();
+
+    $consulta = $conexao->prepare("
+        DELETE FROM comentarios
+        WHERE id = :id
+    ");
+
+    $consulta->execute([
+        ':id' => $id
+    ]);
+
+    return $consulta->rowCount() > 0;
+}
