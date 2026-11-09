@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql
--- Tempo de geração: 30/10/2026 às 17:13
+-- Tempo de geração: 09/11/2026 às 12:18
 -- Versão do servidor: 8.3.0
 -- Versão do PHP: 8.3.36
 
@@ -126,6 +126,20 @@ INSERT INTO `curtidas_comentarios` (`id`, `comentario_id`, `usuario_id`, `data_c
 (3, 8, 5, '2026-10-30 16:40:46'),
 (4, 8, 4, '2026-10-30 16:46:29'),
 (5, 12, 4, '2026-10-30 16:58:05');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `denuncias_comentarios`
+--
+
+CREATE TABLE `denuncias_comentarios` (
+  `id` int UNSIGNED NOT NULL,
+  `comentario_id` int UNSIGNED NOT NULL,
+  `usuario_id` int UNSIGNED NOT NULL,
+  `data_criacao` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `analisada` tinyint(1) NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -318,6 +332,14 @@ ALTER TABLE `curtidas_comentarios`
   ADD KEY `fk_curtida_usuario` (`usuario_id`);
 
 --
+-- Índices de tabela `denuncias_comentarios`
+--
+ALTER TABLE `denuncias_comentarios`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `denuncia_unica` (`comentario_id`,`usuario_id`),
+  ADD KEY `usuario_id` (`usuario_id`);
+
+--
 -- Índices de tabela `obras`
 --
 ALTER TABLE `obras`
@@ -358,6 +380,12 @@ ALTER TABLE `curtidas_comentarios`
   MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
+-- AUTO_INCREMENT de tabela `denuncias_comentarios`
+--
+ALTER TABLE `denuncias_comentarios`
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de tabela `obras`
 --
 ALTER TABLE `obras`
@@ -387,6 +415,13 @@ ALTER TABLE `comentarios`
 ALTER TABLE `curtidas_comentarios`
   ADD CONSTRAINT `fk_curtida_comentario` FOREIGN KEY (`comentario_id`) REFERENCES `comentarios` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_curtida_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
+
+--
+-- Restrições para tabelas `denuncias_comentarios`
+--
+ALTER TABLE `denuncias_comentarios`
+  ADD CONSTRAINT `denuncias_comentarios_ibfk_1` FOREIGN KEY (`comentario_id`) REFERENCES `comentarios` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `denuncias_comentarios_ibfk_2` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
