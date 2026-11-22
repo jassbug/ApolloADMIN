@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql
--- Tempo de geração: 09/11/2026 às 12:18
+-- Tempo de geração: 22/11/2026 às 23:54
 -- Versão do servidor: 8.3.0
--- Versão do PHP: 8.3.36
+-- Versão do PHP: 8.3.32
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -42,7 +42,8 @@ CREATE TABLE `avaliacoes` (
 
 INSERT INTO `avaliacoes` (`id`, `obra_id`, `usuario_id`, `nota`, `data_criacao`, `data_atualizacao`) VALUES
 (1, 9, 4, 10, '2026-10-30 16:12:59', '2026-10-30 16:57:53'),
-(8, 9, 5, 6, '2026-10-30 16:39:45', '2026-10-30 16:39:45');
+(8, 9, 5, 6, '2026-10-30 16:39:45', '2026-10-30 16:39:45'),
+(13, 7, 5, 4, '2026-11-22 19:49:23', '2026-11-22 19:49:23');
 
 -- --------------------------------------------------------
 
@@ -102,8 +103,8 @@ CREATE TABLE `comentarios` (
 --
 
 INSERT INTO `comentarios` (`id`, `obra_id`, `usuario_id`, `comentario`, `data_criacao`) VALUES
-(8, 9, 5, 'top', '2026-10-30 16:39:45'),
-(12, 9, 4, 'Bom trabalho', '2026-10-30 16:57:54');
+(12, 9, 4, 'Bom trabalho', '2026-10-30 16:57:54'),
+(13, 7, 5, 'sss', '2026-11-22 19:49:23');
 
 -- --------------------------------------------------------
 
@@ -123,9 +124,8 @@ CREATE TABLE `curtidas_comentarios` (
 --
 
 INSERT INTO `curtidas_comentarios` (`id`, `comentario_id`, `usuario_id`, `data_criacao`) VALUES
-(3, 8, 5, '2026-10-30 16:40:46'),
-(4, 8, 4, '2026-10-30 16:46:29'),
-(5, 12, 4, '2026-10-30 16:58:05');
+(10, 12, 4, '2026-11-22 19:20:30'),
+(12, 12, 5, '2026-11-22 19:46:23');
 
 -- --------------------------------------------------------
 
@@ -140,6 +140,15 @@ CREATE TABLE `denuncias_comentarios` (
   `data_criacao` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `analisada` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Despejando dados para a tabela `denuncias_comentarios`
+--
+
+INSERT INTO `denuncias_comentarios` (`id`, `comentario_id`, `usuario_id`, `data_criacao`, `analisada`) VALUES
+(1, 12, 4, '2026-11-22 19:23:07', 1),
+(3, 12, 5, '2026-11-22 19:44:51', 1),
+(5, 13, 5, '2026-11-22 19:49:26', 1);
 
 -- --------------------------------------------------------
 
@@ -178,6 +187,41 @@ INSERT INTO `generos` (`id`, `nome`, `ativo`) VALUES
 (19, 'Mecha', 1),
 (20, 'Psicológico', 1),
 (21, 'Sobrenatural', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `itens_lista`
+--
+
+CREATE TABLE `itens_lista` (
+  `id` int UNSIGNED NOT NULL,
+  `lista_id` int UNSIGNED NOT NULL,
+  `obra_id` int UNSIGNED NOT NULL,
+  `data_adicao` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `listas_usuario`
+--
+
+CREATE TABLE `listas_usuario` (
+  `id` int UNSIGNED NOT NULL,
+  `usuario_id` int UNSIGNED NOT NULL,
+  `nome` varchar(100) NOT NULL,
+  `data_criacao` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Despejando dados para a tabela `listas_usuario`
+--
+
+INSERT INTO `listas_usuario` (`id`, `usuario_id`, `nome`, `data_criacao`) VALUES
+(1, 8, 'Favoritos', '2026-11-22 20:14:53'),
+(2, 8, 'Assistindo', '2026-11-22 20:14:53'),
+(4, 8, 'Concluídos', '2026-11-22 20:14:53');
 
 -- --------------------------------------------------------
 
@@ -287,7 +331,7 @@ CREATE TABLE `usuarios` (
 INSERT INTO `usuarios` (`id`, `nome`, `email`, `senha`, `tipo`, `email_verificado`, `foto`, `bio`, `criado_em`) VALUES
 (4, 'jasmini', 'jasminibecker2@gmail.com', '$2y$10$egJMVNMTGESzDz3pyRgg5eRTDEikS4rlHZ5sy2gXtyM7DEWbn1Jrq', 'admin', 0, '/img/perfis/perfil_6ae4c7c42a6543.02465785.jpg', NULL, '2026-09-26 21:24:57'),
 (5, 'Jasmini Becker Rohr', 'jasbecker2@gmail.com', '$2y$10$7AG3wZnPjJxY6Pk/037QG.7u8D90Cabv8dNeWhQXl2UtRbp5dQMAq', 'usuario', 0, '/img/perfis/perfil_6ae4c888a94ac8.39082780.jpg', NULL, '2026-09-26 21:28:17'),
-(6, 'João Thiago da Silva de Borba', 'joao.thiago@adm.educadventista.org', '$2y$10$lQCBTG6Fdch/sDZi8ezJ7OqxiYthYwrV3igXtlbuKSMCUrjgbkbEy', 'usuario', 1, '/img/perfis/perfil_6ab83aa0e76609.49891284.jpg', 'Sou incrivel e', '2026-09-26 21:34:12');
+(8, 'nicoli', 'nicoli1@gmail.com', '$2y$10$R2NOwKw3y4gkewMTcuGzXegzCm8OrD66IPzElJlH0QVmYDE6BARU6', 'usuario', 1, NULL, NULL, '2026-11-22 20:14:53');
 
 --
 -- Índices para tabelas despejadas
@@ -340,6 +384,21 @@ ALTER TABLE `denuncias_comentarios`
   ADD KEY `usuario_id` (`usuario_id`);
 
 --
+-- Índices de tabela `itens_lista`
+--
+ALTER TABLE `itens_lista`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `item_unico` (`lista_id`,`obra_id`),
+  ADD KEY `idx_itens_obra` (`obra_id`);
+
+--
+-- Índices de tabela `listas_usuario`
+--
+ALTER TABLE `listas_usuario`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_listas_usuario` (`usuario_id`);
+
+--
 -- Índices de tabela `obras`
 --
 ALTER TABLE `obras`
@@ -359,7 +418,7 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de tabela `avaliacoes`
 --
 ALTER TABLE `avaliacoes`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de tabela `avisos`
@@ -371,25 +430,43 @@ ALTER TABLE `avisos`
 -- AUTO_INCREMENT de tabela `comentarios`
 --
 ALTER TABLE `comentarios`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de tabela `curtidas_comentarios`
 --
 ALTER TABLE `curtidas_comentarios`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT de tabela `denuncias_comentarios`
 --
 ALTER TABLE `denuncias_comentarios`
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT de tabela `itens_lista`
+--
+ALTER TABLE `itens_lista`
   MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `listas_usuario`
+--
+ALTER TABLE `listas_usuario`
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de tabela `obras`
 --
 ALTER TABLE `obras`
   MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT de tabela `usuarios`
+--
+ALTER TABLE `usuarios`
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Restrições para tabelas despejadas
@@ -422,6 +499,19 @@ ALTER TABLE `curtidas_comentarios`
 ALTER TABLE `denuncias_comentarios`
   ADD CONSTRAINT `denuncias_comentarios_ibfk_1` FOREIGN KEY (`comentario_id`) REFERENCES `comentarios` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `denuncias_comentarios_ibfk_2` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
+
+--
+-- Restrições para tabelas `itens_lista`
+--
+ALTER TABLE `itens_lista`
+  ADD CONSTRAINT `fk_itens_lista` FOREIGN KEY (`lista_id`) REFERENCES `listas_usuario` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_itens_obra` FOREIGN KEY (`obra_id`) REFERENCES `obras` (`id`) ON DELETE CASCADE;
+
+--
+-- Restrições para tabelas `listas_usuario`
+--
+ALTER TABLE `listas_usuario`
+  ADD CONSTRAINT `fk_listas_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
