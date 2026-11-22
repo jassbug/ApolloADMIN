@@ -391,17 +391,17 @@ $totalComentarios = count($comentarios);
 
                             <!-- AVISO DE DENÚNCIA NA LISTAGEM -->
 
-                            <?php if ((int) $comentario['quantidade_denuncias'] > 0): ?>
+                             <?php if ((int) $comentario['denuncias_pendentes'] > 0): ?>
 
                                 <div class="admin-comentario-denunciado">
 
                                     <i class="bi bi-exclamation-triangle-fill"></i>
 
-                                    <?= (int) $comentario['quantidade_denuncias'] ?>
+                                    <?= (int) $comentario['denuncias_pendentes'] ?>
 
-                                    <?= (int) $comentario['quantidade_denuncias'] === 1
-                                        ? 'denúncia'
-                                        : 'denúncias' ?>
+                                    <?= (int) $comentario['denuncias_pendentes'] === 1
+                                        ? 'denúncia pendente'
+                                        : 'denúncias pendentes' ?>
 
                                 </div>
 
