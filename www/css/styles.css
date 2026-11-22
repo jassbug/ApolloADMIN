@@ -5956,3 +5956,236 @@ body.modal-aberto {
     background: #a83245;
     color: #ffffff;
 }
+
+
+/* =====================================
+   MINHAS LISTAS
+===================================== */
+
+.listas-box {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.lista-opcao {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    min-height: 145px;
+    padding: 22px;
+    background: linear-gradient(145deg, #1d1230, #130b1e);
+    border: 1px solid #38234c;
+    border-radius: 14px;
+    transition: 0.25s;
+}
+
+.lista-opcao:hover {
+    transform: translateY(-4px);
+    border-color: #9855e8;
+    box-shadow: 0 8px 25px rgba(120, 55, 190, 0.15);
+}
+
+.lista-opcao a {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 12px;
+    color: #ffffff;
+    text-decoration: none;
+    min-width: 0;
+}
+
+.lista-opcao a::before {
+    font-family: "bootstrap-icons";
+    font-size: 25px;
+    color: #a66aff;
+}
+
+.lista-opcao:nth-child(1) a::before {
+    content: "\f417";
+}
+
+.lista-opcao:nth-child(2) a::before {
+    content: "\f4f4";
+}
+
+.lista-opcao:nth-child(3) a::before {
+    content: "\f4f2";
+}
+
+.lista-opcao:nth-child(4) a::before {
+    content: "\f26b";
+}
+
+.lista-opcao strong {
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.lista-opcao span {
+    color: #a99bbd;
+    font-size: 13px;
+}
+
+.lista-opcao form {
+    margin: 0;
+}
+
+.lista-opcao .btn-outline-danger {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    opacity: 0.65;
+    transition: 0.2s;
+}
+
+.lista-opcao:hover .btn-outline-danger {
+    opacity: 1;
+}
+
+.lista-opcao .btn-outline-danger:hover {
+    background: #dc3545;
+    color: #ffffff;
+}
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 576px) {
+    .listas-box {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .lista-opcao {
+        min-height: 125px;
+    }
+}
+
+
+/* =====================================
+   BOTÃO CRIAR LISTA
+===================================== */
+
+.btn-criar-lista {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 12px 22px;
+    border: 1px solid #9654e8;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #873ed0, #6428a8);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    transition: 0.25s;
+    box-shadow: 0 4px 15px rgba(125, 55, 200, 0.18);
+}
+
+.btn-criar-lista:hover {
+    background: linear-gradient(135deg, #a45aee, #7939c2);
+    border-color: #bd8aff;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 7px 20px rgba(145, 75, 220, 0.3);
+}
+
+/* MODAL CRIAR LISTA */
+
+#modalLista .modal-content {
+    background: #160d21 !important;
+    border: 1px solid #543276 !important;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+#modalLista .modal-header,
+#modalLista .modal-footer {
+    border-color: #38234c;
+    padding: 18px 22px;
+}
+
+#modalLista .modal-title {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+#modalLista .modal-body {
+    padding: 22px;
+}
+
+#modalLista .form-label {
+    color: #d8c8eb;
+    font-size: 14px;
+}
+
+#modalLista input {
+    background: #21152e;
+    border: 1px solid #49305e;
+    border-radius: 8px;
+    color: #ffffff;
+    padding: 12px;
+}
+
+#modalLista input:focus {
+    background: #21152e;
+    border-color: #a45aee;
+    color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(164, 90, 238, 0.15);
+}
+
+#modalLista input::placeholder {
+    color: #9383a5;
+}
+
+#modalLista .btn-primary {
+    background: #813bc5;
+    border-color: #9654e8;
+}
+
+#modalLista .btn-primary:hover {
+    background: #984fe0;
+}
+
+
+
+/* BOTÃO CRIAR LISTA - APOLLO */
+
+button.btn-criar-lista {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 12px 22px !important;
+    background: linear-gradient(135deg, #873ed0, #6428a8) !important;
+    color: #ffffff !important;
+    border: 1px solid #9654e8 !important;
+    border-radius: 10px !important;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 15px rgba(125, 55, 200, 0.2);
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+button.btn-criar-lista:hover {
+    background: linear-gradient(135deg, #a45aee, #7939c2) !important;
+    border-color: #bd8aff !important;
+    color: #ffffff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 7px 20px rgba(145, 75, 220, 0.3);
+}
+
+button.btn-criar-lista i {
+    font-size: 15px;
+}

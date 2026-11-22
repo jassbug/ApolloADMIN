@@ -119,7 +119,7 @@ $tipoConta = $usuario['tipo'] === 'admin' ? 'Administrador' : 'Usuário';
                             Organize filmes, séries e animes para assistir depois.
                         </p>
 
-                        <a href="Listas.php" class="link-secao">
+                        <a href="MinhasListas.php" class="link-secao">
                             Ver minhas listas
                             <i class="bi bi-arrow-right"></i>
                         </a>

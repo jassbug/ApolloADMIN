@@ -60,7 +60,6 @@ function usuarioEhAdmin()
 
     return $usuario && $usuario['tipo'] === 'admin';
 }
-
 function cadastrarUsuario($nome, $email, $senha)
 {
     $nome = trim($nome);
@@ -108,21 +107,67 @@ function cadastrarUsuario($nome, $email, $senha)
 
     $senhaCriptografada = password_hash($senha, PASSWORD_DEFAULT);
 
-    $consulta = $conexao->prepare("
-        INSERT INTO usuarios (nome, email, senha, tipo)
-        VALUES (:nome, :email, :senha, 'usuario')
-    ");
+    try {
 
-    $consulta->execute([
-        ':nome' => $nome,
-        ':email' => $email,
-        ':senha' => $senhaCriptografada
-    ]);
+        $conexao->beginTransaction();
 
-    return [
-        'sucesso' => true,
-        'mensagem' => 'Cadastro realizado com sucesso.'
-    ];
+        // CADASTRAR USUÁRIO
+
+        $consulta = $conexao->prepare("
+            INSERT INTO usuarios (nome, email, senha, tipo)
+            VALUES (:nome, :email, :senha, 'usuario')
+        ");
+
+        $consulta->execute([
+            ':nome' => $nome,
+            ':email' => $email,
+            ':senha' => $senhaCriptografada
+        ]);
+
+        $usuarioId = $conexao->lastInsertId();
+
+        // CRIAR LISTAS PADRÃO
+
+        $listasPadrao = [
+            'Favoritos',
+            'Assistindo',
+            'Quero assistir',
+            'Concluídos'
+        ];
+
+        $consultaLista = $conexao->prepare("
+            INSERT INTO listas_usuario (usuario_id, nome)
+            VALUES (:usuario_id, :nome)
+        ");
+
+        foreach ($listasPadrao as $nomeLista) {
+
+            $consultaLista->execute([
+                ':usuario_id' => $usuarioId,
+                ':nome' => $nomeLista
+            ]);
+        }
+
+        $conexao->commit();
+
+        return [
+            'sucesso' => true,
+            'mensagem' => 'Cadastro realizado com sucesso.'
+        ];
+
+    } catch (PDOException $erro) {
+
+        if ($conexao->inTransaction()) {
+            $conexao->rollBack();
+        }
+
+        error_log($erro->getMessage());
+
+        return [
+            'sucesso' => false,
+            'mensagem' => 'Não foi possível realizar o cadastro.'
+        ];
+    }
 }
 
 function fazerLogin($email, $senha)
