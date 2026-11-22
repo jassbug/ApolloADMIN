@@ -1596,3 +1596,53 @@ function analisarDenunciasComentario($comentarioId)
     ]);
     return $consulta->rowCount();
 }
+
+
+/**
+ * Busca uma lista do usuário e as obras adicionadas nela.
+ */
+function buscarListaComObras($idLista, $idUsuario)
+{
+    $conexao = conectarBanco();
+    $consultaLista = $conexao->prepare("
+        SELECT id, nome
+        FROM listas_usuario
+        WHERE id = :id
+          AND usuario_id = :usuario_id
+    ");
+
+    $consultaLista->execute([
+        ':id' => $idLista,
+        ':usuario_id' => $idUsuario
+    ]);
+
+    $lista = $consultaLista->fetch();
+    if (!$lista) {
+        return null;
+    }
+
+    // Busca as obras adicionadas à lista.
+    $consultaObras = $conexao->prepare("
+        SELECT
+            o.id,
+            o.titulo,
+            o.capa
+        FROM itens_lista il
+        INNER JOIN obras o
+            ON o.id = il.obra_id
+        WHERE il.lista_id = :lista_id
+          AND o.ativo = 1
+        ORDER BY il.data_adicao DESC
+    ");
+
+    $consultaObras->execute([
+        ':lista_id' => $idLista
+    ]);
+
+    $obras = $consultaObras->fetchAll();
+
+    return [
+        'lista' => $lista,
+        'obras' => $obras
+    ];
+}
