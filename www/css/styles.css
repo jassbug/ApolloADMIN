@@ -5565,7 +5565,7 @@ body.modal-aberto {
 
 .admin-comentario-item {
     display: grid;
-    grid-template-columns: 1.1fr 1.1fr 1.5fr 130px 30px;
+    grid-template-columns: 1.1fr 1.1fr 1.5fr 130px auto 30px;
     align-items: center;
     gap: 12px;
     min-height: 90px;
@@ -5576,6 +5576,22 @@ body.modal-aberto {
     color: #ffffff;
     text-decoration: none;
     transition: 0.2s;
+}
+
+.admin-comentario-denunciado {
+    grid-column: auto;
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    max-width: 100%;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: rgba(255, 80, 80, 0.12);
+    color: #ff7777;
+    font-size: 12px;
+    font-weight: 600;
 }
 
 .admin-comentario-item:hover,

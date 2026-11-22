@@ -1572,7 +1572,6 @@ function buscarComentariosAdmin($busca = '')
     return $consulta->fetchAll(PDO::FETCH_ASSOC);
 }
 
-
 function buscarComentarioAdminPorId($id)
 {
     $conexao = conectarBanco();
@@ -1587,7 +1586,21 @@ function buscarComentarioAdminPorId($id)
             usuarios.nome AS nome_usuario,
             usuarios.foto AS foto_usuario,
             obras.titulo AS titulo_obra,
-            obras.capa AS capa_obra
+            obras.capa AS capa_obra,
+
+            (
+                SELECT COUNT(*)
+                FROM denuncias_comentarios
+                WHERE denuncias_comentarios.comentario_id = comentarios.id
+            ) AS quantidade_denuncias,
+
+            (
+                SELECT COUNT(*)
+                FROM denuncias_comentarios
+                WHERE denuncias_comentarios.comentario_id = comentarios.id
+                  AND denuncias_comentarios.analisada = 0
+            ) AS denuncias_pendentes
+
         FROM comentarios
         INNER JOIN usuarios
             ON comentarios.usuario_id = usuarios.id
@@ -1699,3 +1712,4 @@ function denunciarComentario($comentarioId, $usuarioId)
         'mensagem' => 'Denúncia enviada com sucesso.'
     ];
 }
+
