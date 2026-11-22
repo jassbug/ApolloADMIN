@@ -80,6 +80,75 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['excluir_comentario'])
 
 $busca = trim($_GET['busca'] ?? '');
 
+/* APROVAR OU REJEITAR DENÚNCIA */
+
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST' &&
+    (
+        isset($_POST['aprovar_denuncia']) ||
+        isset($_POST['rejeitar_denuncia'])
+    )
+) {
+
+    $token = $_POST['csrf_token'] ?? '';
+
+    $comentarioId = filter_input(
+        INPUT_POST,
+        'comentario_id',
+        FILTER_VALIDATE_INT
+    );
+
+    if (
+        !$token ||
+        !hash_equals($_SESSION['csrf_comentarios'], $token)
+    ) {
+
+        $_SESSION['mensagem_comentarios'] = 'Solicitação inválida.';
+        $_SESSION['tipo_mensagem_comentarios'] = 'danger';
+
+    } elseif (!$comentarioId) {
+
+        $_SESSION['mensagem_comentarios'] = 'Comentário inválido.';
+        $_SESSION['tipo_mensagem_comentarios'] = 'danger';
+
+    } else {
+
+        try {
+
+            if (isset($_POST['aprovar_denuncia'])) {
+
+                if (excluirComentarioAdmin($comentarioId)) {
+                    $_SESSION['mensagem_comentarios'] =
+                        'Denúncia aprovada e comentário excluído.';
+
+                    $_SESSION['tipo_mensagem_comentarios'] = 'success';
+                }
+
+            } else {
+
+                analisarDenunciasComentario($comentarioId);
+
+                $_SESSION['mensagem_comentarios'] =
+                    'Denúncia rejeitada. O comentário foi mantido.';
+
+                $_SESSION['tipo_mensagem_comentarios'] = 'success';
+            }
+
+        } catch (PDOException $erro) {
+
+            error_log($erro->getMessage());
+
+            $_SESSION['mensagem_comentarios'] =
+                'Não foi possível processar a denúncia.';
+
+            $_SESSION['tipo_mensagem_comentarios'] = 'danger';
+        }
+    }
+
+    header('Location: GerenciarComentarios.php');
+    exit;
+}
+
 $comentarios = buscarComentariosAdmin($busca);
 
 /* COMENTÁRIO SELECIONADO */
@@ -444,30 +513,32 @@ $totalComentarios = count($comentarios);
                 </div>
 
                 <!-- AVISO DE DENÚNCIA NOS DETALHES -->
-
-                <?php if ((int) $comentarioDetalhes['quantidade_denuncias'] > 0): ?>
+      
+                <?php if ((int) $comentarioDetalhes['denuncias_pendentes'] > 0): ?>
 
                     <div class="admin-comentario-aviso-denuncia">
 
                         <i class="bi bi-exclamation-triangle-fill"></i>
 
                         <div>
-
                             <strong>Comentário denunciado</strong>
 
                             <p>
-
-                                Este comentário recebeu
-
-                                <?= (int) $comentarioDetalhes['quantidade_denuncias'] ?>
-
-                                <?= (int) $comentarioDetalhes['quantidade_denuncias'] === 1
-                                    ? 'denúncia.'
-                                    : 'denúncias.' ?>
-
+                                Este comentário possui
+                                <?= (int) $comentarioDetalhes['denuncias_pendentes'] ?>
+                                denúncia(s) pendente(s) de análise.
                             </p>
-
                         </div>
+
+                    </div>
+
+                <?php elseif ((int) $comentarioDetalhes['quantidade_denuncias'] > 0): ?>
+
+                    <div class="admin-comentario-sem-denuncia">
+
+                        <i class="bi bi-check-circle"></i>
+
+                        Todas as denúncias foram analisadas.
 
                     </div>
 
@@ -484,6 +555,52 @@ $totalComentarios = count($comentarios);
                 <?php endif; ?>
 
                 <div class="admin-comentario-detalhe-texto">
+
+                <!-- AÇÕES DA DENÚNCIA -->
+
+                <?php if ((int) $comentarioDetalhes['denuncias_pendentes'] > 0): ?>
+
+                    <div class="admin-comentario-acoes-denuncia">
+
+                        <form method="POST"
+                            onsubmit="return confirm('Tem certeza de que deseja aprovar a denúncia e excluir este comentário?');">
+
+                            <input type="hidden"
+                                name="comentario_id"
+                                value="<?= (int) $comentarioDetalhes['id'] ?>">
+
+                            <input type="hidden"
+                                name="csrf_token"
+                                value="<?= escaparAdmin($_SESSION['csrf_comentarios']) ?>">
+
+                            <button type="submit" name="aprovar_denuncia">
+                                <i class="bi bi-check-circle"></i>
+                                Aprovar denúncia
+                            </button>
+
+                        </form>
+
+                        <form method="POST"
+                            onsubmit="return confirm('Tem certeza de que deseja rejeitar a denúncia?');">
+
+                            <input type="hidden"
+                                name="comentario_id"
+                                value="<?= (int) $comentarioDetalhes['id'] ?>">
+
+                            <input type="hidden"
+                                name="csrf_token"
+                                value="<?= escaparAdmin($_SESSION['csrf_comentarios']) ?>">
+
+                            <button type="submit" name="rejeitar_denuncia">
+                                <i class="bi bi-x-circle"></i>
+                                Rejeitar denúncia
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                <?php endif; ?>
 
                     <span>Conteúdo</span>
 

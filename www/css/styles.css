@@ -5906,3 +5906,53 @@ body.modal-aberto {
     color: #75d9a2;
     font-size: 13px;
 }
+
+/* AÇÕES DAS DENÚNCIAS */
+
+.admin-comentario-acoes-denuncia {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.admin-comentario-acoes-denuncia form {
+    width: 100%;
+    margin: 0;
+}
+
+.admin-comentario-acoes-denuncia button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 11px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.admin-comentario-acoes-denuncia form:first-child button {
+    background: rgba(80, 190, 130, 0.12);
+    border: 1px solid #4cbd83;
+    color: #75d9a2;
+}
+
+.admin-comentario-acoes-denuncia form:first-child button:hover {
+    background: #28794f;
+    color: #ffffff;
+}
+
+.admin-comentario-acoes-denuncia form:last-child button {
+    background: rgba(255, 80, 80, 0.10);
+    border: 1px solid #ff7777;
+    color: #ff7777;
+}
+
+.admin-comentario-acoes-denuncia form:last-child button:hover {
+    background: #a83245;
+    color: #ffffff;
+}
