@@ -1713,3 +1713,21 @@ function denunciarComentario($comentarioId, $usuarioId)
     ];
 }
 
+// MARCAR DENÚNCIAS COMO ANALISADAS
+function analisarDenunciasComentario($comentarioId)
+{
+    $conexao = conectarBanco();
+
+    $consulta = $conexao->prepare("
+        UPDATE denuncias_comentarios
+        SET analisada = 1
+        WHERE comentario_id = :comentario_id
+          AND analisada = 0
+    ");
+
+    $consulta->execute([
+        ':comentario_id' => (int) $comentarioId
+    ]);
+
+    return $consulta->rowCount();
+}
