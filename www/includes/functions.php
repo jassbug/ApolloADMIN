@@ -1,17 +1,22 @@
 <?php
-// DADOS DO BANCO
+/*
+CONFIGURAÇÃO DO BANCO DE DADOS
+*/
 $host = 'mysql';
 $banco = 'pi_apollo';
 $usuario = 'root';
 $senhaBanco = '1234';
-function conectarBanco(){
+
+/* ======================================================================
+   1. FUNÇÕES GERAIS
+   ====================================================================== */
+// CONECTAR AO BANCO
+function conectarBanco()
+{
     global $host, $banco, $usuario, $senhaBanco;
-
     static $conexao = null;
-
     if ($conexao === null) {
         $dsn = "mysql:host=$host;port=3306;dbname=$banco;charset=utf8mb4";
-
         $conexao = new PDO(
             $dsn,
             $usuario,
@@ -22,23 +27,25 @@ function conectarBanco(){
             ]
         );
     }
-
     return $conexao;
 }
 
-// Protege textos que vêm do banco antes de aparecerem na tela.
+// PROTEGER TEXTOS
 function e($texto)
 {
     return htmlspecialchars($texto ?? '', ENT_QUOTES, 'UTF-8');
 }
 
-/**
- * Busca os avisos ativos para exibição no site.
- */
+
+
+
+/* ======================================================================
+   2. FUNÇÕES COMPARTILHADAS
+   ====================================================================== */
+// BUSCAR AVISOS ATIVOS
 function buscarAvisos()
 {
     $conexao = conectarBanco();
-
     $sql = "
         SELECT
             id,
@@ -52,36 +59,11 @@ function buscarAvisos()
     ";
 
     $consulta = $conexao->query($sql);
-
     return $consulta->fetchAll();
 }
 
-/**
- * Busca todos os avisos cadastrados.
- */
-function buscarTodosAvisos()
-{
-    $conexao = conectarBanco();
 
-    $sql = "
-        SELECT
-            id,
-            titulo,
-            descricao,
-            imagem,
-            link,
-            ativo,
-            data_criacao
-        FROM avisos
-        ORDER BY id DESC
-    ";
-
-    $consulta = $conexao->query($sql);
-
-    return $consulta->fetchAll();
-}
-
-// Busca até quatro obras marcadas como “Em alta”.
+// BUSCAR OBRAS EM ALTA
 function buscarObrasEmAlta()
 {
     $conexao = conectarBanco();
@@ -96,15 +78,14 @@ function buscarObrasEmAlta()
     ";
 
     $consulta = $conexao->query($sql);
-
     return $consulta->fetchAll();
 }
 
-// Busca até quatro obras marcadas como lançamento.
+
+// BUSCAR LANÇAMENTOS
 function buscarLancamentos()
 {
     $conexao = conectarBanco();
-
     $sql = "
         SELECT id, titulo, tipo, capa
         FROM obras
@@ -115,106 +96,273 @@ function buscarLancamentos()
     ";
 
     $consulta = $conexao->query($sql);
-
     return $consulta->fetchAll();
 }
 
-// Busca os gêneros cadastrados.
+
+// BUSCAR GÊNEROS ATIVOS
 function buscarGeneros()
 {
     $conexao = conectarBanco();
-
     $sql = "
         SELECT id, nome
         FROM generos
         WHERE ativo = 1
         ORDER BY nome ASC
     ";
-
     $consulta = $conexao->query($sql);
-
     return $consulta->fetchAll();
 }
 
-// ============================================================
-// FUNÇÕES DO ADMINISTRADOR
-// ============================================================
 
-/**
- * Retorna a quantidade total de usuários cadastrados.
- */
+// BUSCAR OBRAS DO CATÁLOGO
+function buscarObrasCatalogo($filtros = [])
+{
+    $conexao = conectarBanco();
+    $genero = $filtros['genero'] ?? '';
+    $busca = trim($filtros['busca'] ?? '');
+    if (
+        $genero !== '' &&
+        (!ctype_digit((string) $genero) || (int) $genero <= 0)
+    ) {
+        $genero = '';
+    }
+    $sql = "
+        SELECT
+            o.id,
+            o.titulo,
+            o.tipo,
+            o.ano_lancamento,
+            o.classificacao,
+            o.capa,
+            o.em_alta
+        FROM obras o
+        WHERE o.ativo = 1
+    ";
+
+    $parametros = [];
+    if ($busca !== '') {
+        $sql .= " AND o.titulo LIKE :busca";
+        $parametros[':busca'] = '%' . $busca . '%';
+    }
+    if ($genero !== '') {
+        $sql .= "
+            AND EXISTS (
+                SELECT 1
+                FROM obra_genero og
+                WHERE og.obra_id = o.id
+                  AND og.genero_id = :genero
+            )
+        ";
+        $parametros[':genero'] = (int) $genero;
+    }
+    $sql .= " ORDER BY o.id DESC";
+    $consulta = $conexao->prepare($sql);
+    $consulta->execute($parametros);
+    $obras = $consulta->fetchAll();
+    foreach ($obras as &$obra) {
+        $consultaGeneros = $conexao->prepare("
+            SELECT g.id, g.nome
+            FROM generos g
+            INNER JOIN obra_genero og
+                ON og.genero_id = g.id
+            WHERE og.obra_id = :obra_id
+              AND g.ativo = 1
+            ORDER BY g.nome ASC
+        ");
+        $consultaGeneros->execute([
+            ':obra_id' => $obra['id']
+        ]);
+        $obra['generos'] = $consultaGeneros->fetchAll();
+    }
+
+    unset($obra);
+    return $obras;
+}
+
+// BUSCAR OBRAS POR TIPO
+function buscarObrasPorTipo($tipo, $filtros = [])
+{
+    $conexao = conectarBanco();
+    $genero = $filtros['genero'] ?? '';
+    $busca = trim($filtros['busca'] ?? '');
+    $sql = "
+        SELECT
+            o.id,
+            o.titulo,
+            o.tipo,
+            o.ano_lancamento,
+            o.classificacao,
+            o.capa,
+            o.em_alta
+        FROM obras o
+        WHERE o.ativo = 1
+          AND LOWER(TRIM(o.tipo)) = LOWER(TRIM(:tipo))
+    ";
+
+    $parametros = [
+        ':tipo' => $tipo
+    ];
+    if ($busca !== '') {
+        $sql .= " AND o.titulo LIKE :busca";
+        $parametros[':busca'] = '%' . $busca . '%';
+    }
+
+    if ($genero !== '') {
+        $sql .= "
+            AND EXISTS (
+                SELECT 1
+                FROM obra_genero og
+                WHERE og.obra_id = o.id
+                  AND og.genero_id = :genero
+            )
+        ";
+
+        $parametros[':genero'] = $genero;
+    }
+
+    $sql .= " ORDER BY o.id DESC";
+    $consulta = $conexao->prepare($sql);
+    $consulta->execute($parametros);
+    $obras = $consulta->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($obras as &$obra) {
+        $consultaGeneros = $conexao->prepare("
+            SELECT g.id, g.nome
+            FROM generos g
+            INNER JOIN obra_genero og
+                ON og.genero_id = g.id
+            WHERE og.obra_id = :obra_id
+        ");
+        $consultaGeneros->execute([
+            ':obra_id' => $obra['id']
+        ]);
+        $obra['generos'] = $consultaGeneros->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    unset($obra);
+    return $obras;
+}
+
+
+// BUSCAR COMENTÁRIOS DE UMA OBRA
+function buscarComentariosPorObra($obraId)
+{
+    $conexao = conectarBanco();
+    $usuarioId = usuarioLogado() ? idUsuarioLogado() : 0;
+    $consulta = $conexao->prepare("
+        SELECT
+            comentarios.id,
+            comentarios.comentario,
+            comentarios.data_criacao,
+            usuarios.nome,
+            usuarios.foto,
+            (
+                SELECT COUNT(*)
+                FROM curtidas_comentarios
+                WHERE curtidas_comentarios.comentario_id = comentarios.id
+            ) AS quantidade_curtidas,
+            EXISTS (
+                SELECT 1
+                FROM curtidas_comentarios
+                WHERE curtidas_comentarios.comentario_id = comentarios.id
+                  AND curtidas_comentarios.usuario_id = :usuario_id
+            ) AS usuario_curtiu
+        FROM comentarios
+        INNER JOIN usuarios
+            ON comentarios.usuario_id = usuarios.id
+        WHERE comentarios.obra_id = :obra_id
+        ORDER BY comentarios.data_criacao DESC
+    ");
+
+    $consulta->execute([
+        ':obra_id' => $obraId,
+        ':usuario_id' => $usuarioId
+    ]);
+
+    return $consulta->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
+
+
+/* ======================================================================
+   3. FUNÇÕES DO ADMINISTRADOR
+   ====================================================================== */
+
+// CONTAR USUÁRIOS
 function contarUsuarios()
 {
     $conexao = conectarBanco();
-
     $consulta = $conexao->query("
-        SELECT COUNT(*) 
+        SELECT COUNT(*)
         FROM usuarios
     ");
-
     return (int) $consulta->fetchColumn();
 }
 
 
-/**
- * Retorna a quantidade total de obras cadastradas.
- */
+// CONTAR OBRAS
 function contarObras()
 {
     $conexao = conectarBanco();
-
     $consulta = $conexao->query("
         SELECT COUNT(*)
         FROM obras
     ");
-
     return (int) $consulta->fetchColumn();
 }
 
 
-/**
- * Retorna a quantidade total de gêneros cadastrados.
- */
+// CONTAR GÊNEROS
 function contarGeneros()
 {
     $conexao = conectarBanco();
-
     $consulta = $conexao->query("
         SELECT COUNT(*)
         FROM generos
     ");
-
     return (int) $consulta->fetchColumn();
 }
 
 
-/**
- * Retorna a quantidade total de avisos cadastrados.
- */
+// CONTAR AVISOS
 function contarAvisos()
 {
     $conexao = conectarBanco();
-
     $consulta = $conexao->query("
         SELECT COUNT(*)
         FROM avisos
     ");
-
     return (int) $consulta->fetchColumn();
 }
 
 
-// ============================================================
-// FUNÇÕES DE OBRAS - ADMINISTRADOR
-// ============================================================
+// BUSCAR TODOS OS AVISOS
+function buscarTodosAvisos()
+{
+    $conexao = conectarBanco();
+    $sql = "
+        SELECT
+            id,
+            titulo,
+            descricao,
+            imagem,
+            link,
+            ativo,
+            data_criacao
+        FROM avisos
+        ORDER BY id DESC
+    ";
+    $consulta = $conexao->query($sql);
+    return $consulta->fetchAll();
+}
 
-/**
- * Busca todas as obras cadastradas.
- */
+
+// BUSCAR TODAS AS OBRAS
 function buscarTodasObras()
 {
     $conexao = conectarBanco();
-
     $sql = "
         SELECT
             o.id,
@@ -232,14 +380,10 @@ function buscarTodasObras()
         FROM obras o
         ORDER BY o.id DESC
     ";
-
     $consulta = $conexao->query($sql);
-
     $obras = $consulta->fetchAll();
-
     foreach ($obras as &$obra) {
-
-        $sqlGeneros = "
+        $consultaGeneros = $conexao->prepare("
             SELECT
                 g.id,
                 g.nome
@@ -248,29 +392,21 @@ function buscarTodasObras()
                 ON og.genero_id = g.id
             WHERE og.obra_id = :obra_id
             ORDER BY g.nome ASC
-        ";
-
-        $consultaGeneros = $conexao->prepare($sqlGeneros);
-
+        ");
         $consultaGeneros->execute([
             ':obra_id' => $obra['id']
         ]);
-
         $obra['generos'] = $consultaGeneros->fetchAll();
     }
-
     unset($obra);
-
     return $obras;
 }
 
-/**
- * Busca uma obra pelo ID.
- */
+
+// BUSCAR OBRA POR ID
 function buscarObraPorId($id)
 {
     $conexao = conectarBanco();
-
     $consulta = $conexao->prepare("
         SELECT
             id,
@@ -289,36 +425,27 @@ function buscarObraPorId($id)
         FROM obras
         WHERE id = :id
     ");
-
     $consulta->execute([
         ':id' => $id
     ]);
-
     $obra = $consulta->fetch();
-
     if (!$obra) {
         return null;
     }
-
     $consultaGeneros = $conexao->prepare("
         SELECT genero_id
         FROM obra_genero
         WHERE obra_id = :obra_id
     ");
-
     $consultaGeneros->execute([
         ':obra_id' => $id
     ]);
-
     $obra['generos'] = $consultaGeneros->fetchAll(PDO::FETCH_COLUMN);
-
     return $obra;
 }
 
 
-/**
- * Cadastra uma nova obra.
- */
+// CADASTRAR OBRA
 function cadastrarObra(
     $titulo,
     $descricao,
@@ -383,9 +510,6 @@ function cadastrarObra(
 
         $conexao->beginTransaction();
 
-        /*
-         * Insere a obra.
-         */
         $consulta = $conexao->prepare("
             INSERT INTO obras (
                 titulo,
@@ -430,9 +554,6 @@ function cadastrarObra(
 
         $obraId = $conexao->lastInsertId();
 
-        /*
-         * Relaciona a obra aos gêneros selecionados.
-         */
         if (!empty($generos)) {
 
             $consultaGenero = $conexao->prepare("
@@ -474,6 +595,8 @@ function cadastrarObra(
             $conexao->rollBack();
         }
 
+        error_log($erro->getMessage());
+
         return [
             'sucesso' => false,
             'mensagem' => 'Não foi possível cadastrar a obra.'
@@ -482,9 +605,7 @@ function cadastrarObra(
 }
 
 
-/**
- * Atualiza uma obra existente.
- */
+// ATUALIZAR OBRA
 function atualizarObra(
     $id,
     $titulo,
@@ -560,9 +681,6 @@ function atualizarObra(
 
         $conexao->beginTransaction();
 
-        /*
-         * Atualiza os dados principais.
-         */
         $consulta = $conexao->prepare("
             UPDATE obras
             SET
@@ -595,9 +713,6 @@ function atualizarObra(
             ':id' => $id
         ]);
 
-        /*
-         * Remove os gêneros antigos.
-         */
         $removerGeneros = $conexao->prepare("
             DELETE FROM obra_genero
             WHERE obra_id = :obra_id
@@ -607,9 +722,6 @@ function atualizarObra(
             ':obra_id' => $id
         ]);
 
-        /*
-         * Insere novamente os gêneros selecionados.
-         */
         if (!empty($generos)) {
 
             $consultaGenero = $conexao->prepare("
@@ -651,6 +763,8 @@ function atualizarObra(
             $conexao->rollBack();
         }
 
+        error_log($erro->getMessage());
+
         return [
             'sucesso' => false,
             'mensagem' => 'Não foi possível atualizar a obra.'
@@ -659,9 +773,7 @@ function atualizarObra(
 }
 
 
-/**
- * Exclui uma obra.
- */
+// EXCLUIR OBRA
 function excluirObra($id)
 {
     $id = (int) $id;
@@ -698,9 +810,7 @@ function excluirObra($id)
 }
 
 
-/**
- * Altera o status de uma obra.
- */
+// ALTERAR STATUS DA OBRA
 function alterarStatusObra($id, $ativo)
 {
     $id = (int) $id;
@@ -726,10 +836,8 @@ function alterarStatusObra($id, $ativo)
     ];
 }
 
-// ============================================================
-// GÊNEROS
-// ============================================================
 
+// BUSCAR TODOS OS GÊNEROS
 function buscarTodosGeneros()
 {
     $conexao = conectarBanco();
@@ -746,6 +854,7 @@ function buscarTodosGeneros()
 }
 
 
+// BUSCAR GÊNERO POR ID
 function buscarGeneroPorId($id)
 {
     $conexao = conectarBanco();
@@ -764,6 +873,7 @@ function buscarGeneroPorId($id)
 }
 
 
+// CADASTRAR GÊNERO
 function cadastrarGenero($nome)
 {
     $nome = trim($nome);
@@ -777,7 +887,6 @@ function cadastrarGenero($nome)
 
     $conexao = conectarBanco();
 
-    // Verifica se já existe
     $verificar = $conexao->prepare("
         SELECT id
         FROM generos
@@ -811,6 +920,7 @@ function cadastrarGenero($nome)
 }
 
 
+// ATUALIZAR GÊNERO
 function atualizarGenero($id, $nome)
 {
     $nome = trim($nome);
@@ -824,12 +934,11 @@ function atualizarGenero($id, $nome)
 
     $conexao = conectarBanco();
 
-    // Verifica se outro gênero já possui esse nome
     $verificar = $conexao->prepare("
         SELECT id
         FROM generos
         WHERE nome = :nome
-        AND id != :id
+          AND id != :id
     ");
 
     $verificar->execute([
@@ -862,6 +971,7 @@ function atualizarGenero($id, $nome)
 }
 
 
+// ALTERAR STATUS DO GÊNERO
 function alterarStatusGenero($id)
 {
     $conexao = conectarBanco();
@@ -883,6 +993,7 @@ function alterarStatusGenero($id)
 }
 
 
+// EXCLUIR GÊNERO
 function excluirGenero($id)
 {
     $conexao = conectarBanco();
@@ -913,10 +1024,7 @@ function excluirGenero($id)
 }
 
 
-
-/**
- * Busca todos os usuários cadastrados.
- */
+// BUSCAR TODOS OS USUÁRIOS
 function buscarTodosUsuarios()
 {
     $conexao = conectarBanco();
@@ -941,9 +1049,7 @@ function buscarTodosUsuarios()
 }
 
 
-/**
- * Busca um usuário pelo ID.
- */
+// BUSCAR USUÁRIO POR ID
 function buscarUsuarioPorId($id)
 {
     $id = (int) $id;
@@ -975,9 +1081,8 @@ function buscarUsuarioPorId($id)
     return $consulta->fetch();
 }
 
-/**
- * Atualiza os dados de um usuário.
- */
+
+// ATUALIZAR USUÁRIO
 function atualizarUsuario(
     $id,
     $nome,
@@ -1067,9 +1172,8 @@ function atualizarUsuario(
     ];
 }
 
-/**
- * Exclui um usuário.
- */
+
+// EXCLUIR USUÁRIO
 function excluirUsuario($id)
 {
     $id = (int) $id;
@@ -1105,9 +1209,8 @@ function excluirUsuario($id)
     ];
 }
 
-/**
- * Cadastra um novo aviso.
- */
+
+// CADASTRAR AVISO
 function cadastrarAviso(
     $titulo,
     $descricao,
@@ -1163,9 +1266,7 @@ function cadastrarAviso(
 }
 
 
-/**
- * Exclui um aviso cadastrado.
- */
+// EXCLUIR AVISO
 function excluirAviso($id)
 {
     $id = (int) $id;
@@ -1202,9 +1303,7 @@ function excluirAviso($id)
 }
 
 
-/**
- * Atualiza um aviso existente.
- */
+// ATUALIZAR AVISO
 function atualizarAviso(
     $id,
     $titulo,
@@ -1264,176 +1363,10 @@ function atualizarAviso(
 }
 
 
-/* =========================================
-   FUNCOES DO CATALOGO
-========================================= */
 
-// BUSCAR OBRAS DO CATALOGO
-function buscarObrasCatalogo($filtros = [])
-{
-    $conexao = conectarBanco();
-
-    $genero = $filtros['genero'] ?? '';
-    $busca = trim($filtros['busca'] ?? '');
-
-    // VALIDAR GENERO
-    if (
-        $genero !== '' &&
-        (!ctype_digit((string) $genero) || (int) $genero <= 0)
-    ) {
-        $genero = '';
-    }
-
-    $sql = "
-        SELECT
-            o.id,
-            o.titulo,
-            o.tipo,
-            o.ano_lancamento,
-            o.classificacao,
-            o.capa,
-            o.em_alta
-        FROM obras o
-        WHERE o.ativo = 1
-    ";
-
-    $parametros = [];
-    // FILTRAR PELO TITULO PESQUISADO
-if ($busca !== '') {
-    $sql .= " AND o.titulo LIKE :busca";
-    $parametros[':busca'] = '%' . $busca . '%';
-}
-
-    // FILTRAR PELO GENERO SELECIONADO
-    if ($genero !== '') {
-        $sql .= "
-            AND EXISTS (
-                SELECT 1
-                FROM obra_genero og
-                WHERE og.obra_id = o.id
-                  AND og.genero_id = :genero
-            )
-        ";
-
-        $parametros[':genero'] = (int) $genero;
-    }
-
-    $sql .= " ORDER BY o.id DESC";
-
-    $consulta = $conexao->prepare($sql);
-    $consulta->execute($parametros);
-
-    $obras = $consulta->fetchAll();
-
-    // BUSCAR GENEROS DE CADA OBRA
-    foreach ($obras as &$obra) {
-        $sqlGeneros = "
-            SELECT g.id, g.nome
-            FROM generos g
-            INNER JOIN obra_genero og
-                ON og.genero_id = g.id
-            WHERE og.obra_id = :obra_id
-              AND g.ativo = 1
-            ORDER BY g.nome ASC
-        ";
-
-        $consultaGeneros = $conexao->prepare($sqlGeneros);
-
-        $consultaGeneros->execute([
-            ':obra_id' => $obra['id']
-        ]);
-
-        $obra['generos'] = $consultaGeneros->fetchAll();
-    }
-
-    unset($obra);
-
-    return $obras;
-}
-
-/**
- * Busca obras de um tipo específico, com filtros de gênero e pesquisa.
- *
- * @param string $tipo Tipo da obra: Filme, Série ou Anime.
- * @param array $filtros Filtros opcionais de gênero e busca.
- * @return array Obras encontradas.
- */
-function buscarObrasPorTipo($tipo, $filtros = [])
-{
-    $conexao = conectarBanco();
-
-    $genero = $filtros['genero'] ?? '';
-    $busca = trim($filtros['busca'] ?? '');
-
-    $sql = "
-        SELECT
-            o.id,
-            o.titulo,
-            o.tipo,
-            o.ano_lancamento,
-            o.classificacao,
-            o.capa,
-            o.em_alta
-        FROM obras o
-        WHERE o.ativo = 1
-          AND LOWER(TRIM(o.tipo)) = LOWER(TRIM(:tipo))
-    ";
-
-    $parametros = [
-        ':tipo' => $tipo
-    ];
-
-    // Filtra pelo título pesquisado.
-    if ($busca !== '') {
-        $sql .= " AND o.titulo LIKE :busca";
-        $parametros[':busca'] = '%' . $busca . '%';
-    }
-
-    // Filtra pelo gênero selecionado.
-    if ($genero !== '') {
-        $sql .= "
-            AND EXISTS (
-                SELECT 1
-                FROM obra_genero og
-                WHERE og.obra_id = o.id
-                  AND og.genero_id = :genero
-            )
-        ";
-
-        $parametros[':genero'] = $genero;
-    }
-
-    $sql .= " ORDER BY o.id DESC";
-
-    $consulta = $conexao->prepare($sql);
-    $consulta->execute($parametros);
-
-    $obras = $consulta->fetchAll(PDO::FETCH_ASSOC);
-
-    // Busca os gêneros de cada obra encontrada.
-    foreach ($obras as &$obra) {
-        $sqlGeneros = "
-            SELECT g.id, g.nome
-            FROM generos g
-            INNER JOIN obra_genero og
-                ON og.genero_id = g.id
-            WHERE og.obra_id = :obra_id
-        ";
-
-        $consultaGeneros = $conexao->prepare($sqlGeneros);
-        $consultaGeneros->execute([
-            ':obra_id' => $obra['id']
-        ]);
-
-        $obra['generos'] = $consultaGeneros->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    unset($obra);
-
-    return $obras;
-}
-
-//COMENTARIOS
+/* ======================================================================
+   4. FUNÇÕES DO USUÁRIO
+   ====================================================================== */
 
 // BUSCAR COMENTÁRIO DO USUÁRIO EM UMA OBRA
 function buscarComentarioUsuarioPorObra($obraId)
@@ -1459,186 +1392,7 @@ function buscarComentarioUsuarioPorObra($obraId)
 }
 
 
-// BUSCAR COMENTÁRIOS DA OBRA
-function buscarComentariosPorObra($obraId)
-{
-    $conexao = conectarBanco();
-
-    $usuarioId = usuarioLogado() ? idUsuarioLogado() : 0;
-
-    $consulta = $conexao->prepare("
-        SELECT
-            comentarios.id,
-            comentarios.comentario,
-            comentarios.data_criacao,
-            usuarios.nome,
-            usuarios.foto,
-
-            (
-                SELECT COUNT(*)
-                FROM curtidas_comentarios
-                WHERE curtidas_comentarios.comentario_id = comentarios.id
-            ) AS quantidade_curtidas,
-
-            EXISTS (
-                SELECT 1
-                FROM curtidas_comentarios
-                WHERE curtidas_comentarios.comentario_id = comentarios.id
-                  AND curtidas_comentarios.usuario_id = :usuario_id
-            ) AS usuario_curtiu
-
-        FROM comentarios
-
-        INNER JOIN usuarios
-            ON comentarios.usuario_id = usuarios.id
-
-        WHERE comentarios.obra_id = :obra_id
-
-        ORDER BY comentarios.data_criacao DESC
-    ");
-
-    $consulta->execute([
-        ':obra_id' => $obraId,
-        ':usuario_id' => $usuarioId
-    ]);
-
-    return $consulta->fetchAll(PDO::FETCH_ASSOC);
-}
-
-
-// =====================================
-// GERENCIAMENTO DE COMENTÁRIOS - ADMIN
-// =====================================
-
-function buscarComentariosAdmin($busca = '')
-{
-    $conexao = conectarBanco();
-
-    $sql = "
-        SELECT
-            comentarios.id,
-            comentarios.obra_id,
-            comentarios.usuario_id,
-            comentarios.comentario,
-            comentarios.data_criacao,
-            usuarios.nome AS nome_usuario,
-            usuarios.foto AS foto_usuario,
-            obras.titulo AS titulo_obra,
-            obras.capa AS capa_obra,
-            obras.titulo AS titulo_obra,
-            obras.capa AS capa_obra,
-            (
-                SELECT COUNT(*)
-                FROM denuncias_comentarios
-                WHERE denuncias_comentarios.comentario_id = comentarios.id
-            ) AS quantidade_denuncias,
-
-            (
-                SELECT COUNT(*)
-                FROM denuncias_comentarios
-                WHERE denuncias_comentarios.comentario_id = comentarios.id
-                AND denuncias_comentarios.analisada = 0
-            ) AS denuncias_pendentes
-        FROM comentarios
-        INNER JOIN usuarios
-            ON comentarios.usuario_id = usuarios.id
-        INNER JOIN obras
-            ON comentarios.obra_id = obras.id
-    ";
-
-    $parametros = [];
-
-    if ($busca !== '') {
-        $sql .= "
-            WHERE usuarios.nome LIKE :busca_usuario
-               OR obras.titulo LIKE :busca_obra
-               OR comentarios.comentario LIKE :busca_comentario
-        ";
-
-        $termo = '%' . $busca . '%';
-
-        $parametros = [
-            ':busca_usuario' => $termo,
-            ':busca_obra' => $termo,
-            ':busca_comentario' => $termo
-        ];
-    }
-
-    $sql .= " ORDER BY comentarios.data_criacao DESC";
-
-    $consulta = $conexao->prepare($sql);
-    $consulta->execute($parametros);
-
-    return $consulta->fetchAll(PDO::FETCH_ASSOC);
-}
-
-function buscarComentarioAdminPorId($id)
-{
-    $conexao = conectarBanco();
-
-    $consulta = $conexao->prepare("
-        SELECT
-            comentarios.id,
-            comentarios.obra_id,
-            comentarios.usuario_id,
-            comentarios.comentario,
-            comentarios.data_criacao,
-            usuarios.nome AS nome_usuario,
-            usuarios.foto AS foto_usuario,
-            obras.titulo AS titulo_obra,
-            obras.capa AS capa_obra,
-
-            (
-                SELECT COUNT(*)
-                FROM denuncias_comentarios
-                WHERE denuncias_comentarios.comentario_id = comentarios.id
-            ) AS quantidade_denuncias,
-
-            (
-                SELECT COUNT(*)
-                FROM denuncias_comentarios
-                WHERE denuncias_comentarios.comentario_id = comentarios.id
-                  AND denuncias_comentarios.analisada = 0
-            ) AS denuncias_pendentes
-
-        FROM comentarios
-        INNER JOIN usuarios
-            ON comentarios.usuario_id = usuarios.id
-        INNER JOIN obras
-            ON comentarios.obra_id = obras.id
-        WHERE comentarios.id = :id
-        LIMIT 1
-    ");
-
-    $consulta->execute([
-        ':id' => $id
-    ]);
-
-    return $consulta->fetch(PDO::FETCH_ASSOC) ?: null;
-}
-
-
-function excluirComentarioAdmin($id)
-{
-    $conexao = conectarBanco();
-
-    $consulta = $conexao->prepare("
-        DELETE FROM comentarios
-        WHERE id = :id
-    ");
-
-    $consulta->execute([
-        ':id' => $id
-    ]);
-
-    return $consulta->rowCount() > 0;
-}
-
-// =====================================
-// DENÚNCIAS DE COMENTÁRIOS
-// =====================================
-
-// REGISTRAR DENÚNCIA
+// REGISTRAR DENÚNCIA DE COMENTÁRIO
 function denunciarComentario($comentarioId, $usuarioId)
 {
     $conexao = conectarBanco();
@@ -1653,7 +1407,6 @@ function denunciarComentario($comentarioId, $usuarioId)
         ];
     }
 
-    // Verifica se o comentário existe.
     $verificar = $conexao->prepare("
         SELECT id
         FROM comentarios
@@ -1671,7 +1424,6 @@ function denunciarComentario($comentarioId, $usuarioId)
         ];
     }
 
-    // Verifica se o usuário já denunciou.
     $verificar = $conexao->prepare("
         SELECT id
         FROM denuncias_comentarios
@@ -1713,21 +1465,134 @@ function denunciarComentario($comentarioId, $usuarioId)
     ];
 }
 
+
+
+/* ======================================================================
+   5. FUNÇÕES DE MODERAÇÃO DE COMENTÁRIOS
+   ====================================================================== */
+// BUSCAR COMENTÁRIOS PARA O ADMINISTRADOR
+function buscarComentariosAdmin($busca = '')
+{
+    $conexao = conectarBanco();
+    $sql = "
+        SELECT
+            comentarios.id,
+            comentarios.obra_id,
+            comentarios.usuario_id,
+            comentarios.comentario,
+            comentarios.data_criacao,
+            usuarios.nome AS nome_usuario,
+            usuarios.foto AS foto_usuario,
+            obras.titulo AS titulo_obra,
+            obras.capa AS capa_obra,
+            (
+                SELECT COUNT(*)
+                FROM denuncias_comentarios
+                WHERE denuncias_comentarios.comentario_id = comentarios.id
+            ) AS quantidade_denuncias,
+            (
+                SELECT COUNT(*)
+                FROM denuncias_comentarios
+                WHERE denuncias_comentarios.comentario_id = comentarios.id
+                  AND denuncias_comentarios.analisada = 0
+            ) AS denuncias_pendentes
+
+        FROM comentarios
+        INNER JOIN usuarios
+            ON comentarios.usuario_id = usuarios.id
+        INNER JOIN obras
+            ON comentarios.obra_id = obras.id
+    ";
+
+    $parametros = [];
+    if ($busca !== '') {
+        $sql .= "
+            WHERE usuarios.nome LIKE :busca_usuario
+               OR obras.titulo LIKE :busca_obra
+               OR comentarios.comentario LIKE :busca_comentario
+        ";
+        $termo = '%' . $busca . '%';
+
+        $parametros = [
+            ':busca_usuario' => $termo,
+            ':busca_obra' => $termo,
+            ':busca_comentario' => $termo
+        ];
+    }
+    $sql .= " ORDER BY comentarios.data_criacao DESC";
+    $consulta = $conexao->prepare($sql);
+    $consulta->execute($parametros);
+    return $consulta->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
+// BUSCAR UM COMENTÁRIO PARA O ADMINISTRADOR
+function buscarComentarioAdminPorId($id)
+{
+    $conexao = conectarBanco();
+    $consulta = $conexao->prepare("
+        SELECT
+            comentarios.id,
+            comentarios.obra_id,
+            comentarios.usuario_id,
+            comentarios.comentario,
+            comentarios.data_criacao,
+            usuarios.nome AS nome_usuario,
+            usuarios.foto AS foto_usuario,
+            obras.titulo AS titulo_obra,
+            obras.capa AS capa_obra,
+            (
+                SELECT COUNT(*)
+                FROM denuncias_comentarios
+                WHERE denuncias_comentarios.comentario_id = comentarios.id
+            ) AS quantidade_denuncias,
+            (
+                SELECT COUNT(*)
+                FROM denuncias_comentarios
+                WHERE denuncias_comentarios.comentario_id = comentarios.id
+                  AND denuncias_comentarios.analisada = 0
+            ) AS denuncias_pendentes
+        FROM comentarios
+        INNER JOIN usuarios
+            ON comentarios.usuario_id = usuarios.id
+        INNER JOIN obras
+            ON comentarios.obra_id = obras.id
+        WHERE comentarios.id = :id
+        LIMIT 1
+    ");
+    $consulta->execute([
+        ':id' => $id
+    ]);
+    return $consulta->fetch(PDO::FETCH_ASSOC) ?: null;
+}
+
+
+// EXCLUIR COMENTÁRIO PELO ADMINISTRADOR
+function excluirComentarioAdmin($id)
+{
+    $conexao = conectarBanco();
+    $consulta = $conexao->prepare("
+        DELETE FROM comentarios
+        WHERE id = :id
+    ");
+    $consulta->execute([
+        ':id' => $id
+    ]);
+    return $consulta->rowCount() > 0;
+}
+
 // MARCAR DENÚNCIAS COMO ANALISADAS
 function analisarDenunciasComentario($comentarioId)
 {
     $conexao = conectarBanco();
-
     $consulta = $conexao->prepare("
         UPDATE denuncias_comentarios
         SET analisada = 1
         WHERE comentario_id = :comentario_id
           AND analisada = 0
     ");
-
     $consulta->execute([
         ':comentario_id' => (int) $comentarioId
     ]);
-
     return $consulta->rowCount();
 }
