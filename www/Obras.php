@@ -8,6 +8,11 @@ if (empty($_SESSION['csrf_denuncias'])) {
     $_SESSION['csrf_denuncias'] = bin2hex(random_bytes(32));
 }
 
+// TOKEN DE SEGURANÇA DAS LISTAS
+if (empty($_SESSION['csrf_listas'])) {
+    $_SESSION['csrf_listas'] = bin2hex(random_bytes(32));
+}
+
 // MENSAGEM DA DENÚNCIA
 $mensagemDenuncia = $_SESSION['mensagem_denuncia'] ?? '';
 $tipoDenuncia = $_SESSION['tipo_denuncia'] ?? '';
@@ -16,6 +21,10 @@ unset(
     $_SESSION['mensagem_denuncia'],
     $_SESSION['tipo_denuncia']
 );
+
+// MENSAGEM DAS LISTAS
+$mensagemLista = $_SESSION['mensagem_lista'] ?? '';
+unset($_SESSION['mensagem_lista']);
 
 // BUSCAR O ID DA OBRA
 $idObra = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
@@ -32,6 +41,48 @@ $obra = buscarObraPorId($idObra);
 if (!$obra || (int) $obra['ativo'] !== 1) {
     header('Location: /index.php');
     exit;
+}
+// PROCESSAR ATUALIZAÇÃO DAS LISTAS DA OBRA
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['adicionar_listas'])) {
+
+    if (!usuarioLogado()) {
+        header('Location: /login.php');
+        exit;
+    }
+
+    // VERIFICAR O TOKEN DE SEGURANÇA
+    if (
+        !isset($_POST['csrf_token']) ||
+        !hash_equals($_SESSION['csrf_listas'], $_POST['csrf_token'])
+    ) {
+        die('Solicitação inválida.');
+    }
+
+    // BUSCAR AS LISTAS SELECIONADAS
+    $listasSelecionadas = $_POST['listas'] ?? [];
+
+    if (!is_array($listasSelecionadas)) {
+        $listasSelecionadas = [];
+    }
+
+    // ATUALIZAR AS LISTAS
+    $resultado = atualizarObraNasListas($idObra, $listasSelecionadas);
+
+    if ($resultado) {
+        $_SESSION['mensagem_lista'] = 'Suas listas foram atualizadas com sucesso!';
+    } else {
+        $_SESSION['mensagem_lista'] = 'Não foi possível atualizar suas listas.';
+    }
+
+    header('Location: /Obras.php?id=' . $idObra);
+    exit;
+}
+
+// BUSCAR AS LISTAS DO USUÁRIO E VERIFICAR ONDE A OBRA ESTÁ
+$listasUsuario = [];
+
+if (usuarioLogado()) {
+    $listasUsuario = buscarListasUsuarioComObra($idObra);
 }
 
 $conexao = conectarBanco();
@@ -279,11 +330,12 @@ if (!empty($obra['generos'])) {
 
                     <!-- BOTÕES -->
                     <div class="obra-botoes">
-
                         <button
                             type="button"
                             class="obra-botao"
                             id="botao-minha-lista"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalMinhaLista"
                         >
                             <i class="bi bi-plus-circle"></i>
                             Minha lista
@@ -312,7 +364,11 @@ if (!empty($obra['generos'])) {
                 </div>
 
             </section>
-
+            <?php if ($mensagemLista !== ''): ?>
+                <div class="alert alert-info">
+                    <?= e($mensagemLista) ?>
+                </div>
+            <?php endif; ?>                
             <!-- ABAS -->
             <section class="obra-secao">
 
@@ -579,8 +635,127 @@ if (!empty($obra['generos'])) {
 
     </main>
 
+    <!-- MODAL MINHA LISTA -->
+<div
+    class="modal fade modal-apollo"
+    id="modalMinhaLista"
+    tabindex="-1"
+    aria-labelledby="tituloModalMinhaLista"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title" id="tituloModalMinhaLista">
+                    <i class="bi bi-bookmark-plus"></i>
+                    Adicionar à minha lista
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Fechar"
+                ></button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <?php if (!usuarioLogado()): ?>
+
+                    <p>
+                        Entre na sua conta para adicionar esta obra às suas listas.
+                    </p>
+
+                    <a href="/login.php" class="btn btn-primary">
+                        Entrar na conta
+                    </a>
+
+                <?php elseif (!empty($listasUsuario)): ?>
+
+                    <p>Selecione uma ou mais listas:</p>
+
+                    <form action="/Obras.php?id=<?= (int) $idObra ?>" method="POST">
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="<?= e($_SESSION['csrf_listas']) ?>"
+                        >
+
+                        <?php foreach ($listasUsuario as $lista): ?>
+
+                            <div class="form-check mb-2">
+
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    name="listas[]"
+                                    value="<?= (int) $lista['id'] ?>"
+                                    id="lista-<?= (int) $lista['id'] ?>"
+                                    <?= !empty($lista['selecionada']) ? 'checked' : '' ?>
+                                >
+
+                                <label
+                                    class="form-check-label"
+                                    for="lista-<?= (int) $lista['id'] ?>"
+                                >
+                                    <?= e($lista['nome']) ?>
+                                </label>
+
+                            </div>
+
+                        <?php endforeach; ?>
+
+                        <div class="modal-footer px-0 pb-0">
+
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal"
+                            >
+                                Cancelar
+                            </button>
+
+                            <button
+                                type="submit"
+                                name="adicionar_listas"
+                                value="1"
+                                class="btn btn-primary"
+                            >
+                                Adicionar
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                <?php else: ?>
+
+                    <p>
+                        Você ainda não criou nenhuma lista.
+                    </p>
+
+                    <a href="/Usuario/MinhasListas.php" class="btn btn-primary">
+                        Criar minha primeira lista
+                    </a>
+
+                <?php endif; ?>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
     <!-- MODAL DE AVALIAÇÃO -->
     <?php require __DIR__ . '/includes/Modal-avaliar-obra.php'; ?>
+    
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 

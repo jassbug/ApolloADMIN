@@ -1646,3 +1646,182 @@ function buscarListaComObras($idLista, $idUsuario)
         'obras' => $obras
     ];
 }
+
+
+// BUSCAR AS LISTAS DO USUÁRIO LOGADO
+function buscarListasUsuario()
+{
+    $conexao = conectarBanco();
+
+    $consulta = $conexao->prepare("
+        SELECT id, nome
+        FROM listas_usuario
+        WHERE usuario_id = :usuario_id
+        ORDER BY nome ASC
+    ");
+
+    $consulta->execute([
+        ':usuario_id' => idUsuarioLogado()
+    ]);
+
+    return $consulta->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
+// ADICIONAR UMA OBRA A UMA LISTA
+function adicionarObraALista($obraId, $listaId)
+{
+    $conexao = conectarBanco();
+
+    // Verifica se a lista pertence ao usuário logado.
+    $consultaLista = $conexao->prepare("
+        SELECT id
+        FROM listas_usuario
+        WHERE id = :lista_id
+          AND usuario_id = :usuario_id
+    ");
+
+    $consultaLista->execute([
+        ':lista_id' => $listaId,
+        ':usuario_id' => idUsuarioLogado()
+    ]);
+
+    if (!$consultaLista->fetch()) {
+        return 'lista_invalida';
+    }
+
+    // Verifica se a obra existe e está ativa.
+    $consultaObra = $conexao->prepare("
+        SELECT id
+        FROM obras
+        WHERE id = :obra_id
+          AND ativo = 1
+    ");
+
+    $consultaObra->execute([
+        ':obra_id' => $obraId
+    ]);
+
+    if (!$consultaObra->fetch()) {
+        return 'obra_invalida';
+    }
+
+    // Tenta adicionar a obra à lista.
+    // INSERT IGNORE evita duplicações.
+    $inserir = $conexao->prepare("
+        INSERT IGNORE INTO itens_lista (lista_id, obra_id)
+        VALUES (:lista_id, :obra_id)
+    ");
+
+    $inserir->execute([
+        ':lista_id' => $listaId,
+        ':obra_id' => $obraId
+    ]);
+
+    if ($inserir->rowCount() > 0) {
+        return 'sucesso';
+    }
+
+    return 'ja_adicionada';
+}
+
+// BUSCAR AS LISTAS DO USUÁRIO E VERIFICAR ONDE A OBRA ESTÁ
+function buscarListasUsuarioComObra($obraId)
+{
+    $conexao = conectarBanco();
+
+    $consulta = $conexao->prepare("
+        SELECT
+            l.id,
+            l.nome,
+            CASE
+                WHEN il.id IS NOT NULL THEN 1
+                ELSE 0
+            END AS selecionada
+        FROM listas_usuario l
+        LEFT JOIN itens_lista il
+            ON il.lista_id = l.id
+            AND il.obra_id = :obra_id
+        WHERE l.usuario_id = :usuario_id
+        ORDER BY l.nome ASC
+    ");
+
+    $consulta->execute([
+        ':obra_id' => $obraId,
+        ':usuario_id' => idUsuarioLogado()
+    ]);
+
+    return $consulta->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// ATUALIZAR AS LISTAS DE UMA OBRA CONFORME A SELEÇÃO DO USUÁRIO
+function atualizarObraNasListas($obraId, $listasSelecionadas)
+{
+    $conexao = conectarBanco();
+    $usuarioId = idUsuarioLogado();
+
+    // Buscar somente as listas pertencentes ao usuário
+    $consulta = $conexao->prepare("
+        SELECT id
+        FROM listas_usuario
+        WHERE usuario_id = :usuario_id
+    ");
+
+    $consulta->execute([
+        ':usuario_id' => $usuarioId
+    ]);
+
+    $listasUsuario = $consulta->fetchAll(PDO::FETCH_COLUMN);
+
+    // Validar as listas selecionadas
+    $listasSelecionadas = array_map('intval', $listasSelecionadas);
+    $listasSelecionadas = array_intersect($listasSelecionadas, $listasUsuario);
+    $listasSelecionadas = array_unique($listasSelecionadas);
+
+    $conexao->beginTransaction();
+
+    try {
+
+        // Remover a obra das listas que foram desmarcadas
+        foreach ($listasUsuario as $idLista) {
+
+            if (!in_array((int) $idLista, $listasSelecionadas, true)) {
+
+                $remover = $conexao->prepare("
+                    DELETE FROM itens_lista
+                    WHERE lista_id = :lista_id
+                      AND obra_id = :obra_id
+                ");
+
+                $remover->execute([
+                    ':lista_id' => $idLista,
+                    ':obra_id' => $obraId
+                ]);
+            }
+        }
+
+        // Adicionar a obra às listas que foram marcadas
+        foreach ($listasSelecionadas as $idLista) {
+
+            $adicionar = $conexao->prepare("
+                INSERT IGNORE INTO itens_lista (lista_id, obra_id)
+                VALUES (:lista_id, :obra_id)
+            ");
+
+            $adicionar->execute([
+                ':lista_id' => $idLista,
+                ':obra_id' => $obraId
+            ]);
+        }
+
+        $conexao->commit();
+
+        return true;
+
+    } catch (Exception $erro) {
+
+        $conexao->rollBack();
+
+        return false;
+    }
+}

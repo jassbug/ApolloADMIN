@@ -6189,3 +6189,150 @@ button.btn-criar-lista:hover {
 button.btn-criar-lista i {
     font-size: 15px;
 }
+
+
+/* ============================================================
+   MODAL MINHA LISTA - APOLLO
+   ============================================================ */
+
+#modalMinhaLista .modal-content {
+    background: #120d1d !important;
+    color: #f8f7ff;
+    border: 1px solid rgba(167, 139, 250, 0.35);
+    border-radius: 18px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65);
+}
+
+#modalMinhaLista .modal-header {
+    padding: 24px 28px;
+    background: #1b122b;
+    border-bottom: 1px solid rgba(167, 139, 250, 0.2);
+}
+
+#modalMinhaLista .modal-title {
+    color: #d8ccff;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+#modalMinhaLista .modal-title i {
+    margin-right: 8px;
+    color: #a78bfa;
+}
+
+#modalMinhaLista .btn-close {
+    filter: invert(1);
+    opacity: 0.8;
+}
+
+#modalMinhaLista .modal-body {
+    padding: 28px;
+    background: #120d1d;
+    color: #f8f7ff;
+}
+
+#modalMinhaLista .modal-body p {
+    margin-bottom: 20px;
+    color: #c8bfd9;
+    font-size: 0.95rem;
+}
+
+/* LISTAS */
+
+#modalMinhaLista .form-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 12px;
+    padding: 13px 15px 13px 42px;
+    background: #1b1428;
+    border: 1px solid rgba(167, 139, 250, 0.16);
+    border-radius: 10px;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+#modalMinhaLista .form-check:hover {
+    background: #24183a;
+    border-color: rgba(167, 139, 250, 0.5);
+}
+
+#modalMinhaLista .form-check-input {
+    margin-left: -27px;
+    background-color: #09070f;
+    border: 1px solid #8b78b8;
+    cursor: pointer;
+}
+
+#modalMinhaLista .form-check-input:checked {
+    background-color: #653cff;
+    border-color: #a78bfa;
+}
+
+#modalMinhaLista .form-check-input:focus {
+    border-color: #a78bfa;
+    box-shadow: 0 0 0 0.2rem rgba(101, 60, 255, 0.2);
+}
+
+#modalMinhaLista .form-check-label {
+    color: #f8f7ff;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+/* RODAPÉ E BOTÕES */
+
+#modalMinhaLista .modal-footer {
+    display: flex;
+    gap: 12px;
+    padding: 20px 0 0;
+    margin-top: 22px;
+    border-top: 1px solid rgba(167, 139, 250, 0.2);
+}
+
+#modalMinhaLista .modal-footer .btn {
+    padding: 10px 22px;
+    border-radius: 9px;
+    font-weight: 600;
+}
+
+#modalMinhaLista .btn-primary {
+    color: #ffffff;
+    background: linear-gradient(135deg, #653cff, #8b5cf6);
+    border: none;
+}
+
+#modalMinhaLista .btn-primary:hover {
+    background: linear-gradient(135deg, #7855ff, #a78bfa);
+}
+
+#modalMinhaLista .btn-secondary {
+    color: #d8ccff;
+    background: #241a35;
+    border: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+#modalMinhaLista .btn-secondary:hover {
+    background: #302047;
+}
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 576px) {
+    #modalMinhaLista .modal-header,
+    #modalMinhaLista .modal-body {
+        padding: 20px;
+    }
+
+    #modalMinhaLista .modal-title {
+        font-size: 1.25rem;
+    }
+
+    #modalMinhaLista .modal-footer {
+        flex-direction: column-reverse;
+    }
+
+    #modalMinhaLista .modal-footer .btn {
+        width: 100%;
+    }
+}
