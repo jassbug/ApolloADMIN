@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql
--- Tempo de geração: 22/11/2026 às 23:54
+-- Tempo de geração: 23/11/2026 às 23:57
 -- Versão do servidor: 8.3.0
 -- Versão do PHP: 8.3.32
 
@@ -41,9 +41,10 @@ CREATE TABLE `avaliacoes` (
 --
 
 INSERT INTO `avaliacoes` (`id`, `obra_id`, `usuario_id`, `nota`, `data_criacao`, `data_atualizacao`) VALUES
-(1, 9, 4, 10, '2026-10-30 16:12:59', '2026-10-30 16:57:53'),
+(1, 9, 4, 2, '2026-10-30 16:12:59', '2026-11-22 23:55:46'),
 (8, 9, 5, 6, '2026-10-30 16:39:45', '2026-10-30 16:39:45'),
-(13, 7, 5, 4, '2026-11-22 19:49:23', '2026-11-22 19:49:23');
+(13, 7, 5, 4, '2026-11-22 19:49:23', '2026-11-22 19:49:23'),
+(17, 10, 4, 6, '2026-11-23 23:52:50', '2026-11-23 23:52:59');
 
 -- --------------------------------------------------------
 
@@ -60,13 +61,6 @@ CREATE TABLE `avisos` (
   `ativo` tinyint(1) NOT NULL DEFAULT '1',
   `data_criacao` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Despejando dados para a tabela `avisos`
---
-
-INSERT INTO `avisos` (`id`, `titulo`, `descricao`, `imagem`, `link`, `ativo`, `data_criacao`) VALUES
-(1, 'Percy Jackson e o mar de monstros', 'Na série Percy Jackson e os Olimpianos, do Disney+, Percy e seus amigos embarcam em uma perigosa aventura pelo Mar de Monstros para encontrar o lendário Velocino de Ouro e salvar o Acampamento Meio-Sangue. Durante a jornada, eles enfrentam criaturas mitológicas, desafios inesperados e inimigos poderosos, enquanto Percy descobre mais sobre suas origens e o destino que o aguarda.', '/img/avisos/aviso_6ad63b1da4a7d6.96099440.jpg', NULL, 1, '2026-10-19 15:45:33');
 
 -- --------------------------------------------------------
 
@@ -103,8 +97,9 @@ CREATE TABLE `comentarios` (
 --
 
 INSERT INTO `comentarios` (`id`, `obra_id`, `usuario_id`, `comentario`, `data_criacao`) VALUES
-(12, 9, 4, 'Bom trabalho', '2026-10-30 16:57:54'),
-(13, 7, 5, 'sss', '2026-11-22 19:49:23');
+(13, 7, 5, 'sss', '2026-11-22 19:49:23'),
+(15, 9, 4, 'hh', '2026-11-22 23:55:46'),
+(16, 10, 4, 'jjj', '2026-11-23 23:52:59');
 
 -- --------------------------------------------------------
 
@@ -124,8 +119,7 @@ CREATE TABLE `curtidas_comentarios` (
 --
 
 INSERT INTO `curtidas_comentarios` (`id`, `comentario_id`, `usuario_id`, `data_criacao`) VALUES
-(10, 12, 4, '2026-11-22 19:20:30'),
-(12, 12, 5, '2026-11-22 19:46:23');
+(13, 15, 4, '2026-11-22 23:55:48');
 
 -- --------------------------------------------------------
 
@@ -146,9 +140,29 @@ CREATE TABLE `denuncias_comentarios` (
 --
 
 INSERT INTO `denuncias_comentarios` (`id`, `comentario_id`, `usuario_id`, `data_criacao`, `analisada`) VALUES
-(1, 12, 4, '2026-11-22 19:23:07', 1),
-(3, 12, 5, '2026-11-22 19:44:51', 1),
-(5, 13, 5, '2026-11-22 19:49:26', 1);
+(5, 13, 5, '2026-11-22 19:49:26', 1),
+(6, 15, 4, '2026-11-22 23:55:51', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `favoritos`
+--
+
+CREATE TABLE `favoritos` (
+  `id` int UNSIGNED NOT NULL,
+  `usuario_id` int UNSIGNED NOT NULL,
+  `obra_id` int UNSIGNED NOT NULL,
+  `data_criacao` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Despejando dados para a tabela `favoritos`
+--
+
+INSERT INTO `favoritos` (`id`, `usuario_id`, `obra_id`, `data_criacao`) VALUES
+(2, 4, 10, '2026-11-23 23:52:25'),
+(3, 4, 9, '2026-11-23 23:53:04');
 
 -- --------------------------------------------------------
 
@@ -201,6 +215,15 @@ CREATE TABLE `itens_lista` (
   `data_adicao` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Despejando dados para a tabela `itens_lista`
+--
+
+INSERT INTO `itens_lista` (`id`, `lista_id`, `obra_id`, `data_adicao`) VALUES
+(9, 10, 10, '2026-11-23 23:40:02'),
+(14, 11, 9, '2026-11-23 23:41:31'),
+(15, 10, 9, '2026-11-23 23:41:31');
+
 -- --------------------------------------------------------
 
 --
@@ -221,7 +244,10 @@ CREATE TABLE `listas_usuario` (
 INSERT INTO `listas_usuario` (`id`, `usuario_id`, `nome`, `data_criacao`) VALUES
 (1, 8, 'Favoritos', '2026-11-22 20:14:53'),
 (2, 8, 'Assistindo', '2026-11-22 20:14:53'),
-(4, 8, 'Concluídos', '2026-11-22 20:14:53');
+(4, 8, 'Concluídos', '2026-11-22 20:14:53'),
+(9, 4, 'jasmini', '2026-11-23 23:26:51'),
+(10, 4, 'teste', '2026-11-23 23:33:38'),
+(11, 4, 'series', '2026-11-23 23:33:44');
 
 -- --------------------------------------------------------
 
@@ -384,6 +410,14 @@ ALTER TABLE `denuncias_comentarios`
   ADD KEY `usuario_id` (`usuario_id`);
 
 --
+-- Índices de tabela `favoritos`
+--
+ALTER TABLE `favoritos`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `favorito_unico` (`usuario_id`,`obra_id`),
+  ADD KEY `fk_favorito_obra` (`obra_id`);
+
+--
 -- Índices de tabela `itens_lista`
 --
 ALTER TABLE `itens_lista`
@@ -418,7 +452,7 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de tabela `avaliacoes`
 --
 ALTER TABLE `avaliacoes`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT de tabela `avisos`
@@ -430,31 +464,37 @@ ALTER TABLE `avisos`
 -- AUTO_INCREMENT de tabela `comentarios`
 --
 ALTER TABLE `comentarios`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT de tabela `curtidas_comentarios`
 --
 ALTER TABLE `curtidas_comentarios`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de tabela `denuncias_comentarios`
 --
 ALTER TABLE `denuncias_comentarios`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT de tabela `favoritos`
+--
+ALTER TABLE `favoritos`
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `itens_lista`
 --
 ALTER TABLE `itens_lista`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de tabela `listas_usuario`
 --
 ALTER TABLE `listas_usuario`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de tabela `obras`
@@ -499,6 +539,13 @@ ALTER TABLE `curtidas_comentarios`
 ALTER TABLE `denuncias_comentarios`
   ADD CONSTRAINT `denuncias_comentarios_ibfk_1` FOREIGN KEY (`comentario_id`) REFERENCES `comentarios` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `denuncias_comentarios_ibfk_2` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
+
+--
+-- Restrições para tabelas `favoritos`
+--
+ALTER TABLE `favoritos`
+  ADD CONSTRAINT `fk_favorito_obra` FOREIGN KEY (`obra_id`) REFERENCES `obras` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_favorito_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
 
 --
 -- Restrições para tabelas `itens_lista`

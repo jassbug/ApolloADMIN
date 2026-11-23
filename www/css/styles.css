@@ -6336,3 +6336,127 @@ button.btn-criar-lista i {
         width: 100%;
     }
 }
+
+/* ============================================================
+   PÁGINA MEUS FAVORITOS - APOLLO
+   ============================================================ */
+
+.pagina-favoritos {
+    min-height: calc(100vh - 78px);
+    padding-top: 65px;
+    padding-bottom: 70px;
+}
+
+.cabecalho-favoritos {
+    margin-bottom: 38px;
+}
+
+.cabecalho-favoritos h1 {
+    margin-bottom: 12px;
+    color: white;
+    font-family: "Space Grotesk", sans-serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 700;
+    letter-spacing: -0.12rem;
+}
+
+.cabecalho-favoritos > p:last-child {
+    color: var(--cinza);
+    font-size: 0.95rem;
+}
+
+/* CARTÕES */
+
+.card-favorito {
+    overflow: hidden;
+    color: var(--branco);
+    border: 1px solid rgba(167, 139, 250, 0.22);
+    border-radius: 14px;
+    background: linear-gradient(
+        145deg,
+        rgba(37, 20, 62, 0.95),
+        rgba(16, 10, 27, 0.97)
+    );
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.20);
+    transition: 0.3s;
+}
+
+.card-favorito:hover {
+    border-color: rgba(167, 139, 250, 0.65);
+    transform: translateY(-5px);
+}
+
+.card-favorito img {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    object-fit: contain;
+    display: block;
+    background: #0f0f0f;
+}
+
+.card-favorito .card-body {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.card-favorito .card-title {
+    min-height: 58px;
+    margin-bottom: 12px;
+    color: white;
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.card-favorito .card-text {
+    color: var(--cinza);
+    font-size: 0.85rem;
+}
+
+.card-favorito .link-secao {
+    margin-top: auto;
+}
+
+/* ESTADO VAZIO */
+
+.favoritos-vazio {
+    padding: 65px 25px;
+    text-align: center;
+    border: 1px dashed rgba(167, 139, 250, 0.28);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.favoritos-vazio > i {
+    color: var(--roxo-claro);
+    font-size: 3rem;
+}
+
+.favoritos-vazio h2 {
+    margin: 18px 0 10px;
+    color: white;
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 1.6rem;
+}
+
+.favoritos-vazio p {
+    max-width: 480px;
+    margin: 0 auto 24px;
+    color: var(--cinza);
+    line-height: 1.7;
+}
+
+@media (max-width: 576px) {
+    .pagina-favoritos {
+        padding-top: 42px;
+    }
+
+    .card-favorito .card-body {
+        padding: 14px;
+    }
+
+    .card-favorito .card-title {
+        font-size: 1rem;
+    }
+}

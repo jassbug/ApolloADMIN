@@ -13,6 +13,11 @@ if (empty($_SESSION['csrf_listas'])) {
     $_SESSION['csrf_listas'] = bin2hex(random_bytes(32));
 }
 
+// TOKEN DE SEGURANÇA DOS FAVORITOS
+if (empty($_SESSION['csrf_favoritos'])) {
+    $_SESSION['csrf_favoritos'] = bin2hex(random_bytes(32));
+}
+
 // MENSAGEM DA DENÚNCIA
 $mensagemDenuncia = $_SESSION['mensagem_denuncia'] ?? '';
 $tipoDenuncia = $_SESSION['tipo_denuncia'] ?? '';
@@ -25,6 +30,10 @@ unset(
 // MENSAGEM DAS LISTAS
 $mensagemLista = $_SESSION['mensagem_lista'] ?? '';
 unset($_SESSION['mensagem_lista']);
+
+// MENSAGEM DOS FAVORITOS
+$mensagemFavorito = $_SESSION['mensagem_favorito'] ?? '';
+unset($_SESSION['mensagem_favorito']);
 
 // BUSCAR O ID DA OBRA
 $idObra = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
@@ -42,6 +51,37 @@ if (!$obra || (int) $obra['ativo'] !== 1) {
     header('Location: /index.php');
     exit;
 }
+
+// PROCESSAR FAVORITOS
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['alternar_favorito'])) {
+
+    if (!usuarioLogado()) {
+        header('Location: /login.php');
+        exit;
+    }
+
+    // VERIFICAR O TOKEN DE SEGURANÇA
+    if (
+        !isset($_POST['csrf_token_favoritos']) ||
+        !hash_equals($_SESSION['csrf_favoritos'], $_POST['csrf_token_favoritos'])
+    ) {
+        die('Solicitação inválida.');
+    }
+
+    // VERIFICAR SE A OBRA JÁ ESTÁ FAVORITADA
+    if (obraEstaFavoritada($idObra)) {
+        removerFavorito($idObra);
+        $_SESSION['mensagem_favorito'] = 'Obra removida dos favoritos.';
+    } else {
+        adicionarFavorito($idObra);
+        $_SESSION['mensagem_favorito'] = 'Obra adicionada aos favoritos!';
+    }
+
+    header('Location: /Obras.php?id=' . $idObra);
+    exit;
+}
+
+
 // PROCESSAR ATUALIZAÇÃO DAS LISTAS DA OBRA
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['adicionar_listas'])) {
 
@@ -83,6 +123,13 @@ $listasUsuario = [];
 
 if (usuarioLogado()) {
     $listasUsuario = buscarListasUsuarioComObra($idObra);
+}
+
+// VERIFICAR SE A OBRA ESTÁ NOS FAVORITOS
+$obraFavoritada = false;
+
+if (usuarioLogado()) {
+    $obraFavoritada = obraEstaFavoritada($idObra);
 }
 
 $conexao = conectarBanco();
@@ -341,14 +388,31 @@ if (!empty($obra['generos'])) {
                             Minha lista
                         </button>
 
+                        <form action="/Obras.php?id=<?= (int) $idObra ?>" method="POST">
+
+                        <input
+                            type="hidden"
+                            name="csrf_token_favoritos"
+                            value="<?= e($_SESSION['csrf_favoritos']) ?>"
+                        >
+
                         <button
-                            type="button"
+                            type="submit"
+                            name="alternar_favorito"
+                            value="1"
                             class="obra-botao"
                             id="botao-favoritar"
                         >
-                            <i class="bi bi-heart"></i>
-                            Favoritar
+                            <?php if ($obraFavoritada): ?>
+                                <i class="bi bi-heart-fill"></i>
+                                Remover dos favoritos
+                            <?php else: ?>
+                                <i class="bi bi-heart"></i>
+                                Favoritar
+                            <?php endif; ?>
                         </button>
+
+                    </form>
 
                         <button
                             type="button"
@@ -368,7 +432,14 @@ if (!empty($obra['generos'])) {
                 <div class="alert alert-info">
                     <?= e($mensagemLista) ?>
                 </div>
-            <?php endif; ?>                
+            <?php endif; ?>       
+            
+            <?php if ($mensagemFavorito !== ''): ?>
+                <div class="alert alert-info">
+                    <?= e($mensagemFavorito) ?>
+                </div>
+            <?php endif; ?>
+            
             <!-- ABAS -->
             <section class="obra-secao">
 

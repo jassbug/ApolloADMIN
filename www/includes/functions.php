@@ -1825,3 +1825,88 @@ function atualizarObraNasListas($obraId, $listasSelecionadas)
         return false;
     }
 }
+
+// ============================================================
+// FAVORITOS
+// ============================================================
+
+// ADICIONAR UMA OBRA AOS FAVORITOS
+function adicionarFavorito($obraId)
+{
+    $conexao = conectarBanco();
+
+    $consulta = $conexao->prepare("
+        INSERT IGNORE INTO favoritos (usuario_id, obra_id)
+        VALUES (:usuario_id, :obra_id)
+    ");
+
+    $consulta->execute([
+        ':usuario_id' => idUsuarioLogado(),
+        ':obra_id' => $obraId
+    ]);
+
+    return $consulta->rowCount() > 0;
+}
+
+
+// REMOVER UMA OBRA DOS FAVORITOS
+function removerFavorito($obraId)
+{
+    $conexao = conectarBanco();
+
+    $consulta = $conexao->prepare("
+        DELETE FROM favoritos
+        WHERE usuario_id = :usuario_id
+          AND obra_id = :obra_id
+    ");
+
+    $consulta->execute([
+        ':usuario_id' => idUsuarioLogado(),
+        ':obra_id' => $obraId
+    ]);
+
+    return $consulta->rowCount() > 0;
+}
+
+
+// VERIFICAR SE UMA OBRA ESTÁ NOS FAVORITOS
+function obraEstaFavoritada($obraId)
+{
+    $conexao = conectarBanco();
+
+    $consulta = $conexao->prepare("
+        SELECT id
+        FROM favoritos
+        WHERE usuario_id = :usuario_id
+          AND obra_id = :obra_id
+    ");
+
+    $consulta->execute([
+        ':usuario_id' => idUsuarioLogado(),
+        ':obra_id' => $obraId
+    ]);
+
+    return $consulta->fetch() !== false;
+}
+
+
+// BUSCAR TODAS AS OBRAS FAVORITADAS PELO USUÁRIO
+function buscarFavoritosUsuario()
+{
+    $conexao = conectarBanco();
+
+    $consulta = $conexao->prepare("
+        SELECT obras.*
+        FROM favoritos
+        INNER JOIN obras ON favoritos.obra_id = obras.id
+        WHERE favoritos.usuario_id = :usuario_id
+          AND obras.ativo = 1
+        ORDER BY favoritos.data_criacao DESC
+    ");
+
+    $consulta->execute([
+        ':usuario_id' => idUsuarioLogado()
+    ]);
+
+    return $consulta->fetchAll(PDO::FETCH_ASSOC);
+}
