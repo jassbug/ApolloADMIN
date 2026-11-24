@@ -56,7 +56,7 @@ if (!$obra || (int) $obra['ativo'] !== 1) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['alternar_favorito'])) {
 
     if (!usuarioLogado()) {
-        header('Location: /login.php');
+        header('Location:/Autenticacao/Login.php');
         exit;
     }
 
@@ -439,7 +439,7 @@ if (!empty($obra['generos'])) {
                     <?= e($mensagemFavorito) ?>
                 </div>
             <?php endif; ?>
-            
+
             <!-- ABAS -->
             <section class="obra-secao">
 
@@ -742,7 +742,7 @@ if (!empty($obra['generos'])) {
                         Entre na sua conta para adicionar esta obra às suas listas.
                     </p>
 
-                    <a href="/login.php" class="btn btn-primary">
+                    <a href="/Autenticacao/Login.php" class="btn botao-roxo">
                         Entrar na conta
                     </a>
 
