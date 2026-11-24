@@ -16,7 +16,7 @@ if (
 // RECEBER O TEXTO DA BUSCA
 $busca = trim($_GET['busca'] ?? '');
 
-// BUSCAR OS GÊNEROS DISPONÍVEIS
+// BUSCAR GÊNEROS
 $generos = buscarGeneros();
 
 // BUSCAR SOMENTE SÉRIES
@@ -84,7 +84,7 @@ $obras = buscarObrasPorTipo('Série', [
 
             </header>
 
-            <!-- FILTROS DE GÊNERO -->
+            <!-- FILTRO POR GÊNERO -->
 
             <nav
                 class="catalogo-generos-barra"
@@ -129,20 +129,14 @@ $obras = buscarObrasPorTipo('Série', [
                             <?php elseif ($genero !== ''): ?>
 
                                 <?php
-
                                 $nomeGeneroSelecionado = 'Séries por gênero';
 
                                 foreach ($generos as $itemGenero) {
-
-                                    if (
-                                        (int) $itemGenero['id'] ===
-                                        (int) $genero
-                                    ) {
+                                    if ((int) $itemGenero['id'] === (int) $genero) {
                                         $nomeGeneroSelecionado = $itemGenero['nome'];
                                         break;
                                     }
                                 }
-
                                 ?>
 
                                 <?= e($nomeGeneroSelecionado) ?>
@@ -156,9 +150,7 @@ $obras = buscarObrasPorTipo('Série', [
                         </h2>
 
                         <p class="catalogo-subtitulo">
-
                             Confira as séries disponíveis no Apollo.
-
                         </p>
 
                     </div>
@@ -183,120 +175,59 @@ $obras = buscarObrasPorTipo('Série', [
 
                         <?php foreach ($obras as $obra): ?>
 
-                            <article class="catalogo-card">
+                            <a
+                                href="/Obras.php?id=<?= (int) $obra['id'] ?>"
+                                class="catalogo-card-link"
+                                aria-label="Ver obra: <?= e($obra['titulo']) ?>">
 
-                                <!-- CAPA -->
+                                <article class="catalogo-card">
 
-                                <div class="catalogo-card-capa">
+                                    <!-- CAPA -->
 
-                                    <?php if (!empty($obra['capa'])): ?>
+                                    <div class="catalogo-card-capa">
 
-                                        <img
-                                            src="<?= e($obra['capa']) ?>"
-                                            alt="Capa de <?= e($obra['titulo']) ?>"
-                                            loading="lazy">
+                                        <?php if (!empty($obra['capa'])): ?>
 
-                                    <?php else: ?>
+                                            <img
+                                                src="<?= e($obra['capa']) ?>"
+                                                alt="Capa de <?= e($obra['titulo']) ?>"
+                                                loading="lazy">
 
-                                        <div class="catalogo-sem-capa">
+                                        <?php else: ?>
 
-                                            <i class="bi bi-collection-play"></i>
+                                            <div class="catalogo-sem-capa">
 
-                                            <span>
-                                                Capa indisponível
-                                            </span>
+                                                <i class="bi bi-collection-play"></i>
 
-                                        </div>
-
-                                    <?php endif; ?>
-
-                                    <?php if (!empty($obra['em_alta'])): ?>
-
-                                        <span class="catalogo-selo">
-
-                                            <i class="bi bi-fire"></i>
-
-                                            Em alta
-
-                                        </span>
-
-                                    <?php endif; ?>
-
-                                </div>
-
-                                <!-- INFORMAÇÕES -->
-
-                                <div class="catalogo-card-info">
-
-                                    <div class="catalogo-card-tipo">
-
-                                        <?= e($obra['tipo']) ?>
-
-                                    </div>
-
-                                    <h3 class="catalogo-card-titulo">
-
-                                        <?= e($obra['titulo']) ?>
-
-                                    </h3>
-
-                                    <div class="catalogo-card-detalhes">
-
-                                        <?php if (!empty($obra['ano_lancamento'])): ?>
-
-                                            <span>
-
-                                                <i class="bi bi-calendar3"></i>
-
-                                                <?= (int) $obra['ano_lancamento'] ?>
-
-                                            </span>
-
-                                        <?php endif; ?>
-
-                                        <?php if (!empty($obra['classificacao'])): ?>
-
-                                            <span class="catalogo-classificacao">
-
-                                                <?= e($obra['classificacao']) ?>
-
-                                            </span>
-
-                                        <?php endif; ?>
-
-                                    </div>
-
-                                    <!-- GÊNEROS DA SÉRIE -->
-
-                                    <?php if (!empty($obra['generos'])): ?>
-
-                                        <div class="catalogo-card-generos">
-
-                                            <?php foreach ($obra['generos'] as $itemGenero): ?>
-
-                                                <span class="catalogo-genero-tag">
-
-                                                    <?= e($itemGenero['nome']) ?>
-
+                                                <span>
+                                                    Capa indisponível
                                                 </span>
 
-                                            <?php endforeach; ?>
+                                            </div>
 
-                                        </div>
+                                        <?php endif; ?>
 
-                                    <?php endif; ?>
+                                    </div>
 
-                                </div>
+                                    <!-- NOME DA OBRA -->
 
-                            </article>
+                                    <div class="catalogo-card-info">
+
+                                        <h3 class="catalogo-card-titulo">
+                                            <?= e($obra['titulo']) ?>
+                                        </h3>
+
+                                    </div>
+
+                                </article>
+
+                            </a>
 
                         <?php endforeach; ?>
 
                     </div>
 
                 <?php else: ?>
-
-                    <!-- ESTADO VAZIO -->
 
                     <div class="catalogo-vazio">
 

@@ -11,7 +11,7 @@ $senhaBanco = '1234';
    1. FUNÇÕES GERAIS
    ====================================================================== */
 // CONECTAR AO BANCO
-function conectarBanco()
+function conectarBanco(): PDO
 {
     global $host, $banco, $usuario, $senhaBanco;
     static $conexao = null;

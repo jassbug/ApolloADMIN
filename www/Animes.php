@@ -170,102 +170,51 @@ $obras = array_values(array_filter($obras, function ($obra) {
 
                         <?php foreach ($obras as $obra): ?>
 
-                            <article class="catalogo-card">
+                            <a
+                                href="/Obras.php?id=<?= (int) $obra['id'] ?>"
+                                class="catalogo-card-link"
+                                aria-label="Ver obra: <?= e($obra['titulo']) ?>">
 
-                                <!-- CAPA -->
+                                <article class="catalogo-card">
 
-                                <div class="catalogo-card-capa">
+                                    <!-- CAPA -->
 
-                                    <?php if (!empty($obra['capa'])): ?>
+                                    <div class="catalogo-card-capa">
 
-                                        <img
-                                            src="<?= e($obra['capa']) ?>"
-                                            alt="Capa de <?= e($obra['titulo']) ?>"
-                                            loading="lazy">
+                                        <?php if (!empty($obra['capa'])): ?>
 
-                                    <?php else: ?>
+                                            <img
+                                                src="<?= e($obra['capa']) ?>"
+                                                alt="Capa de <?= e($obra['titulo']) ?>"
+                                                loading="lazy">
 
-                                        <div class="catalogo-sem-capa">
+                                        <?php else: ?>
 
-                                            <i class="bi bi-tv"></i>
+                                            <div class="catalogo-sem-capa">
 
-                                            <span>Capa indisponível</span>
+                                                <i class="bi bi-tv"></i>
 
-                                        </div>
+                                                <span>Capa indisponível</span>
 
-                                    <?php endif; ?>
-
-                                    <?php if (!empty($obra['em_alta'])): ?>
-
-                                        <span class="catalogo-selo">
-
-                                            <i class="bi bi-fire"></i>
-
-                                            Em alta
-
-                                        </span>
-
-                                    <?php endif; ?>
-
-                                </div>
-
-                                <!-- INFORMAÇÕES -->
-
-                                <div class="catalogo-card-info">
-
-                                    <div class="catalogo-card-tipo">
-                                        <?= e($obra['tipo']) ?>
-                                    </div>
-
-                                    <h3 class="catalogo-card-titulo">
-                                        <?= e($obra['titulo']) ?>
-                                    </h3>
-
-                                    <div class="catalogo-card-detalhes">
-
-                                        <?php if (!empty($obra['ano_lancamento'])): ?>
-
-                                            <span>
-
-                                                <i class="bi bi-calendar3"></i>
-
-                                                <?= (int) $obra['ano_lancamento'] ?>
-
-                                            </span>
-
-                                        <?php endif; ?>
-
-                                        <?php if (!empty($obra['classificacao'])): ?>
-
-                                            <span class="catalogo-classificacao">
-
-                                                <?= e($obra['classificacao']) ?>
-
-                                            </span>
+                                            </div>
 
                                         <?php endif; ?>
 
                                     </div>
 
-                                    <?php if (!empty($obra['generos'])): ?>
+                                    <!-- NOME DA OBRA -->
 
-                                        <div class="catalogo-card-generos">
+                                    <div class="catalogo-card-info">
 
-                                            <?php foreach ($obra['generos'] as $itemGenero): ?>
+                                        <h3 class="catalogo-card-titulo">
+                                            <?= e($obra['titulo']) ?>
+                                        </h3>
 
-                                                <span class="catalogo-genero-tag">
-                                                    <?= e($itemGenero['nome']) ?>
-                                                </span>
+                                    </div>
 
-                                            <?php endforeach; ?>
+                                </article>
 
-                                        </div>
-
-                                    <?php endif; ?>
-
-                                </div>
-
-                            </article>
+                            </a>
 
                         <?php endforeach; ?>
 
