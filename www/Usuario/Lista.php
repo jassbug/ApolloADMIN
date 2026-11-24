@@ -3,10 +3,10 @@
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/autenticacao.php';
 
-// Verificar se o usuário está logado.
+// VERIFICAR SE O USUÁRIO ESTÁ LOGADO
 exigirLogin();
 
-// Buscar o ID da lista pela URL.
+// BUSCAR O ID DA LISTA PELA URL
 $idLista = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
 if (!$idLista || $idLista <= 0) {
@@ -14,10 +14,10 @@ if (!$idLista || $idLista <= 0) {
     exit;
 }
 
-// Buscar a lista e suas obras.
+// BUSCAR A LISTA E SUAS OBRAS
 $resultado = buscarListaComObras($idLista, idUsuarioLogado());
 
-// Verificar se a lista existe e pertence ao usuário.
+// VERIFICAR SE A LISTA EXISTE E PERTENCE AO USUÁRIO
 if (!$resultado) {
     header('Location: MinhasListas.php');
     exit;
@@ -36,79 +36,138 @@ $obras = $resultado['obras'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title><?= e($lista['nome']) ?> - Apollo</title>
+    <title><?= e($lista['nome']) ?> | Apollo</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <link rel="stylesheet" href="../css/styles.css">
-
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 </head>
 
 <body>
 
-<header>
-
     <?php include '../menu.php'; ?>
 
-</header>
+    <main class="container pagina-lista">
 
-<main class="container py-5">
+        <!-- CABEÇALHO DA LISTA -->
 
-    <div class="d-flex justify-content-between align-items-center mb-5">
+        <header class="cabecalho-lista">
 
-        <h1>
-            <?= e($lista['nome']) ?>
-        </h1>
+            <div>
 
-        <a href="MinhasListas.php" class="btn btn-primary">
+                <span class="etiqueta-lista">
+                    <i class="bi bi-bookmark-heart"></i>
+                    MINHA COLEÇÃO
+                </span>
 
-            <i class="bi bi-arrow-left me-2"></i>
+                <h1>
+                    <?= e($lista['nome']) ?>
+                </h1>
 
-            Voltar
-
-        </a>
-
-    </div>
-
-    <div class="row g-4">
-
-        <?php if (empty($obras)): ?>
-
-            <div class="col-12">
-
-                <p>Esta lista ainda não possui obras.</p>
+                <p>
+                    <?= count($obras) ?>
+                    <?= count($obras) === 1 ? 'obra salva' : 'obras salvas' ?>
+                </p>
 
             </div>
 
-        <?php else: ?>
+            <a href="MinhasListas.php" class="botao-voltar-lista">
 
-            <?php foreach ($obras as $obra): ?>
+                <i class="bi bi-arrow-left"></i>
 
-                <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6">
+                Voltar
 
-                    <a href="../Obras.php?id=<?= (int) $obra['id'] ?>"
-                        class="obra-lista">
+            </a>
 
-                        <img
-                            src="<?= e($obra['capa']) ?>"
-                            alt="<?= e($obra['titulo']) ?>">
+        </header>
+
+        <!-- OBRAS DA LISTA -->
+
+        <?php if (!empty($obras)): ?>
+
+            <section class="grade-lista">
+
+                <?php foreach ($obras as $obra): ?>
+
+                    <a
+                        href="../Obras.php?id=<?= (int) $obra['id'] ?>"
+                        class="card-lista-link"
+                        aria-label="Ver obra: <?= e($obra['titulo']) ?>">
+
+                        <article class="card-lista">
+
+                            <div class="card-lista-capa">
+
+                                <?php if (!empty($obra['capa'])): ?>
+
+                                    <img
+                                        src="<?= e($obra['capa']) ?>"
+                                        alt="Capa de <?= e($obra['titulo']) ?>"
+                                        loading="lazy">
+
+                                <?php else: ?>
+
+                                    <div class="lista-sem-capa">
+
+                                        <i class="bi bi-image"></i>
+
+                                        <span>Capa indisponível</span>
+
+                                    </div>
+
+                                <?php endif; ?>
+
+                            </div>
+
+                            <div class="card-lista-info">
+
+                                <h2>
+                                    <?= e($obra['titulo']) ?>
+                                </h2>
+
+                            </div>
+
+                        </article>
 
                     </a>
 
-                </div>
+                <?php endforeach; ?>
 
-            <?php endforeach; ?>
+            </section>
+
+        <?php else: ?>
+
+            <section class="lista-vazia">
+
+                <i class="bi bi-bookmark-heart"></i>
+
+                <h2>Esta lista ainda está vazia</h2>
+
+                <p>
+                    Explore o Apollo e adicione obras à sua coleção.
+                </p>
+
+                <a href="/index.php" class="botao-explorar-lista">
+                    Explorar obras
+                </a>
+
+            </section>
 
         <?php endif; ?>
 
-    </div>
+    </main>
 
-</main>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js">
+    </script>
 
 </body>
+
 </html>

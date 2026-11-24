@@ -6526,3 +6526,247 @@ button.btn-criar-lista i {
     line-height: 1.4;
 }
  
+
+
+/* ============================================================
+   PÁGINA DE LISTA ESPECÍFICA - APOLLO
+   ============================================================ */
+
+.pagina-lista {
+    min-height: calc(100vh - 80px);
+    padding-top: 55px;
+    padding-bottom: 70px;
+}
+
+/* CABEÇALHO */
+
+.cabecalho-lista {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.etiqueta-lista {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    color: var(--roxo-claro);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+}
+
+.cabecalho-lista h1 {
+    margin: 0;
+    color: var(--branco);
+    font-family: "Space Grotesk", sans-serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+}
+
+.cabecalho-lista p {
+    margin-top: 10px;
+    margin-bottom: 0;
+    color: var(--cinza);
+    font-size: 0.9rem;
+}
+
+/* BOTÃO VOLTAR */
+
+.botao-voltar-lista {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 17px;
+    color: var(--branco);
+    text-decoration: none;
+    border: 1px solid rgba(167, 139, 250, 0.35);
+    border-radius: 9px;
+    background: rgba(101, 60, 255, 0.12);
+    transition: 0.3s;
+}
+
+.botao-voltar-lista:hover {
+    color: white;
+    border-color: var(--roxo-claro);
+    background: var(--roxo);
+}
+
+/* GRADE DE OBRAS */
+
+.grade-lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 220px));
+    gap: 25px;
+}
+
+/* LINK DO CARD */
+
+.card-lista-link {
+    display: block;
+    min-width: 0;
+    color: inherit;
+    text-decoration: none;
+}
+
+.card-lista-link:hover {
+    color: inherit;
+}
+
+/* CARD */
+
+.card-lista {
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid rgba(167, 139, 250, 0.25);
+    border-radius: 13px;
+    background: linear-gradient(
+        145deg,
+        rgba(37, 20, 62, 0.95),
+        rgba(16, 10, 27, 0.97)
+    );
+    transition: 0.3s;
+}
+
+.card-lista-link:hover .card-lista {
+    transform: translateY(-5px);
+    border-color: var(--roxo-claro);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
+}
+
+/* CAPA */
+
+.card-lista-capa {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    overflow: hidden;
+    background: #0f0f0f;
+}
+
+.card-lista-capa img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* TÍTULO */
+
+.card-lista-info {
+    display: flex;
+    align-items: center;
+    min-height: 75px;
+    padding: 15px;
+}
+
+.card-lista-info h2 {
+    display: -webkit-box;
+    overflow: hidden;
+    margin: 0;
+    color: var(--branco);
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.4;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+}
+
+/* CAPA INDISPONÍVEL */
+
+.lista-sem-capa {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    height: 100%;
+    color: var(--cinza);
+}
+
+.lista-sem-capa i {
+    font-size: 2rem;
+}
+
+/* LISTA VAZIA */
+
+.lista-vazia {
+    padding: 65px 25px;
+    text-align: center;
+    border: 1px dashed rgba(167, 139, 250, 0.3);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.lista-vazia > i {
+    color: var(--roxo-claro);
+    font-size: 3rem;
+}
+
+.lista-vazia h2 {
+    margin: 18px 0 10px;
+    color: var(--branco);
+    font-family: "Space Grotesk", sans-serif;
+}
+
+.lista-vazia p {
+    margin-bottom: 24px;
+    color: var(--cinza);
+}
+
+.botao-explorar-lista {
+    display: inline-block;
+    padding: 11px 20px;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    background: var(--roxo);
+}
+
+.botao-explorar-lista:hover {
+    color: white;
+    background: #7957ff;
+}
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 576px) {
+
+    .cabecalho-lista {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .grade-lista {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 15px;
+    }
+
+    .card-lista-info {
+        padding: 12px;
+    }
+
+}
+
+/* AJUSTES DO CABEÇALHO DA LISTA */
+
+.cabecalho-lista {
+    background: transparent;
+}
+
+/* TÍTULOS DOS CARDS */
+
+.card-lista-info {
+    min-height: 90px;
+    align-items: flex-start;
+}
+
+.card-lista-info h2 {
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+}
