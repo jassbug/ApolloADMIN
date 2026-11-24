@@ -13,11 +13,18 @@ $nome = '';
 $email = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
     $nome = $_POST['nome'] ?? '';
     $email = $_POST['email'] ?? '';
     $senha = $_POST['senha'] ?? '';
+    $confirmarSenha = $_POST['confirmar_senha'] ?? '';
 
-    $resultado = cadastrarUsuario($nome, $email, $senha);
+    $resultado = cadastrarUsuario(
+        $nome,
+        $email,
+        $senha,
+        $confirmarSenha
+    );
 
     if ($resultado['sucesso']) {
         header('Location: /Autenticacao/login.php?cadastro=sucesso');
@@ -40,7 +47,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Criar conta | Apollo</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 
@@ -65,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </p>
 
             <?php if (!empty($mensagem)): ?>
-                <div class="mensagem-autenticacao <?= $tipoMensagem ?>">
+                <div class="mensagem-autenticacao <?= e($tipoMensagem) ?>">
                     <i class="bi bi-exclamation-circle"></i>
                     <?= e($mensagem) ?>
                 </div>
@@ -78,12 +87,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div>
                         <i class="bi bi-person"></i>
+
                         <input
                             type="text"
                             id="nome"
                             name="nome"
                             value="<?= e($nome) ?>"
                             placeholder="Seu nome"
+                            maxlength="120"
                             required>
                     </div>
                 </div>
@@ -93,12 +104,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div>
                         <i class="bi bi-envelope"></i>
+
                         <input
                             type="email"
                             id="email"
                             name="email"
                             value="<?= e($email) ?>"
                             placeholder="voce@email.com"
+                            maxlength="150"
                             required>
                     </div>
                 </div>
@@ -108,11 +121,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div>
                         <i class="bi bi-lock"></i>
+
                         <input
                             type="password"
                             id="senha"
                             name="senha"
                             placeholder="Mínimo de 6 caracteres"
+                            minlength="6"
+                            required>
+                    </div>
+                </div>
+
+                <div class="campo-formulario">
+                    <label for="confirmar_senha">Confirmar senha</label>
+
+                    <div>
+                        <i class="bi bi-shield-lock"></i>
+
+                        <input
+                            type="password"
+                            id="confirmar_senha"
+                            name="confirmar_senha"
+                            placeholder="Digite sua senha novamente"
                             minlength="6"
                             required>
                     </div>

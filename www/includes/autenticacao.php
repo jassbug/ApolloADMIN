@@ -60,25 +60,64 @@ function usuarioEhAdmin()
 
     return $usuario && $usuario['tipo'] === 'admin';
 }
-function cadastrarUsuario($nome, $email, $senha)
+
+function cadastrarUsuario($nome, $email, $senha, $confirmarSenha)
 {
+    // VALIDAR OS TIPOS DOS DADOS RECEBIDOS
+    if (
+        !is_string($nome) ||
+        !is_string($email) ||
+        !is_string($senha) ||
+        !is_string($confirmarSenha)
+    ) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'Dados inválidos.'
+        ];
+    }
+
+    // LIMPAR OS DADOS
     $nome = trim($nome);
     $email = trim($email);
 
-    if (empty($nome) || empty($email) || empty($senha)) {
+    // VERIFICAR CAMPOS OBRIGATÓRIOS
+    if (
+        $nome === '' ||
+        $email === '' ||
+        $senha === '' ||
+        $confirmarSenha === ''
+    ) {
         return [
             'sucesso' => false,
             'mensagem' => 'Preencha todos os campos.'
         ];
     }
 
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    // VALIDAR O NOME
+    if (strlen($nome) > 120) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'O nome deve ter no máximo 120 caracteres.'
+        ];
+    }
+
+    // VALIDAR O E-MAIL
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 150) {
         return [
             'sucesso' => false,
             'mensagem' => 'Digite um e-mail válido.'
         ];
     }
 
+    // VERIFICAR SE AS SENHAS SÃO IGUAIS
+    if (!hash_equals($senha, $confirmarSenha)) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'As senhas não coincidem.'
+        ];
+    }
+
+    // VALIDAR O TAMANHO DA SENHA
     if (strlen($senha) < 6) {
         return [
             'sucesso' => false,
@@ -86,8 +125,16 @@ function cadastrarUsuario($nome, $email, $senha)
         ];
     }
 
+    if (strlen($senha) > 72) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'A senha deve ter no máximo 72 bytes.'
+        ];
+    }
+
     $conexao = conectarBanco();
 
+    // VERIFICAR SE O E-MAIL JÁ ESTÁ CADASTRADO
     $verificarEmail = $conexao->prepare("
         SELECT id
         FROM usuarios
@@ -105,6 +152,7 @@ function cadastrarUsuario($nome, $email, $senha)
         ];
     }
 
+    // CRIPTOGRAFAR A SENHA
     $senhaCriptografada = password_hash($senha, PASSWORD_DEFAULT);
 
     try {
@@ -112,7 +160,6 @@ function cadastrarUsuario($nome, $email, $senha)
         $conexao->beginTransaction();
 
         // CADASTRAR USUÁRIO
-
         $consulta = $conexao->prepare("
             INSERT INTO usuarios (nome, email, senha, tipo)
             VALUES (:nome, :email, :senha, 'usuario')
@@ -127,7 +174,6 @@ function cadastrarUsuario($nome, $email, $senha)
         $usuarioId = $conexao->lastInsertId();
 
         // CRIAR LISTAS PADRÃO
-
         $listasPadrao = [
             'Favoritos',
             'Assistindo',
@@ -141,7 +187,6 @@ function cadastrarUsuario($nome, $email, $senha)
         ");
 
         foreach ($listasPadrao as $nomeLista) {
-
             $consultaLista->execute([
                 ':usuario_id' => $usuarioId,
                 ':nome' => $nomeLista
