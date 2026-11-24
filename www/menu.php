@@ -66,14 +66,15 @@ $paginaAtual = basename($_SERVER['PHP_SELF']);
         <!-- BARRA DE BUSCA -->
         <form
             class="busca-menu"
-            action="/catalogo.php"
+            action="/busca.php"
             method="GET">
 
             <input
                 type="search"
                 name="busca"
                 placeholder="Busque uma obra..."
-                aria-label="Buscar obra">
+                aria-label="Buscar obra"
+                value="<?= isset($_GET['busca']) ? e($_GET['busca']) : '' ?>">
 
             <button
                 type="submit"
