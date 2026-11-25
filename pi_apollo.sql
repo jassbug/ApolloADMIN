@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql
--- Tempo de geração: 23/11/2026 às 23:57
+-- Tempo de geração: 25/11/2026 às 00:19
 -- Versão do servidor: 8.3.0
 -- Versão do PHP: 8.3.32
 
@@ -42,8 +42,6 @@ CREATE TABLE `avaliacoes` (
 
 INSERT INTO `avaliacoes` (`id`, `obra_id`, `usuario_id`, `nota`, `data_criacao`, `data_atualizacao`) VALUES
 (1, 9, 4, 2, '2026-10-30 16:12:59', '2026-11-22 23:55:46'),
-(8, 9, 5, 6, '2026-10-30 16:39:45', '2026-10-30 16:39:45'),
-(13, 7, 5, 4, '2026-11-22 19:49:23', '2026-11-22 19:49:23'),
 (17, 10, 4, 6, '2026-11-23 23:52:50', '2026-11-23 23:52:59');
 
 -- --------------------------------------------------------
@@ -61,6 +59,14 @@ CREATE TABLE `avisos` (
   `ativo` tinyint(1) NOT NULL DEFAULT '1',
   `data_criacao` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Despejando dados para a tabela `avisos`
+--
+
+INSERT INTO `avisos` (`id`, `titulo`, `descricao`, `imagem`, `link`, `ativo`, `data_criacao`) VALUES
+(2, 'Percy Jackson e os Olimpianos', 'A terceira temporada está em lançamento, a  história acompanha Percy, Grover, Thalia e as Caçadoras em uma missão para resgatar Annabeth e a deusa Ártemis, impedindo os planos de Cronos e do titã Atlas.', '/img/avisos/aviso_6b0627de90c771.49630826.png', 'http://localhost:8080/Obras.php?id=5', 1, '2026-11-24 23:58:02'),
+(3, 'Vingadores: Doutor Destino', 'Vingadores: Doutor Destino (Avengers: Doomsday) estreia nos cinemas do Brasil em 16 de dezembro de 2026 e reúne heróis de três universos contra a ameaça multiversal de Victor von Doom, interpretado por Robert Downey Jr.', '/img/avisos/aviso_6b062861738971.73769363.png', 'http://localhost:8080/Obras.php?id=11', 1, '2026-11-25 00:14:25');
 
 -- --------------------------------------------------------
 
@@ -97,7 +103,6 @@ CREATE TABLE `comentarios` (
 --
 
 INSERT INTO `comentarios` (`id`, `obra_id`, `usuario_id`, `comentario`, `data_criacao`) VALUES
-(13, 7, 5, 'sss', '2026-11-22 19:49:23'),
 (15, 9, 4, 'hh', '2026-11-22 23:55:46'),
 (16, 10, 4, 'jjj', '2026-11-23 23:52:59');
 
@@ -140,7 +145,6 @@ CREATE TABLE `denuncias_comentarios` (
 --
 
 INSERT INTO `denuncias_comentarios` (`id`, `comentario_id`, `usuario_id`, `data_criacao`, `analisada`) VALUES
-(5, 13, 5, '2026-11-22 19:49:26', 1),
 (6, 15, 4, '2026-11-22 23:55:51', 1);
 
 -- --------------------------------------------------------
@@ -162,7 +166,8 @@ CREATE TABLE `favoritos` (
 
 INSERT INTO `favoritos` (`id`, `usuario_id`, `obra_id`, `data_criacao`) VALUES
 (2, 4, 10, '2026-11-23 23:52:25'),
-(3, 4, 9, '2026-11-23 23:53:04');
+(3, 4, 9, '2026-11-23 23:53:04'),
+(4, 4, 7, '2026-11-24 00:10:35');
 
 -- --------------------------------------------------------
 
@@ -183,7 +188,6 @@ CREATE TABLE `generos` (
 INSERT INTO `generos` (`id`, `nome`, `ativo`) VALUES
 (2, 'Fantasia', 1),
 (3, 'Aventura', 1),
-(4, 'Ação', 1),
 (5, 'Comédia', 1),
 (6, 'Drama', 1),
 (7, 'Ficção científica', 1),
@@ -194,13 +198,14 @@ INSERT INTO `generos` (`id`, `nome`, `ativo`) VALUES
 (12, 'Documentário', 1),
 (13, 'Musical', 1),
 (14, 'Histórico', 1),
-(15, 'Policial', 1),
 (16, 'Esporte', 1),
 (17, 'Slice of Life', 1),
 (18, 'Isekai', 1),
 (19, 'Mecha', 1),
 (20, 'Psicológico', 1),
-(21, 'Sobrenatural', 1);
+(21, 'Sobrenatural', 1),
+(23, 'Ação', 1),
+(25, 'Policial', 1);
 
 -- --------------------------------------------------------
 
@@ -222,7 +227,8 @@ CREATE TABLE `itens_lista` (
 INSERT INTO `itens_lista` (`id`, `lista_id`, `obra_id`, `data_adicao`) VALUES
 (9, 10, 10, '2026-11-23 23:40:02'),
 (14, 11, 9, '2026-11-23 23:41:31'),
-(15, 10, 9, '2026-11-23 23:41:31');
+(15, 10, 9, '2026-11-23 23:41:31'),
+(16, 9, 7, '2026-11-24 00:10:40');
 
 -- --------------------------------------------------------
 
@@ -247,7 +253,11 @@ INSERT INTO `listas_usuario` (`id`, `usuario_id`, `nome`, `data_criacao`) VALUES
 (4, 8, 'Concluídos', '2026-11-22 20:14:53'),
 (9, 4, 'jasmini', '2026-11-23 23:26:51'),
 (10, 4, 'teste', '2026-11-23 23:33:38'),
-(11, 4, 'series', '2026-11-23 23:33:44');
+(11, 4, 'series', '2026-11-23 23:33:44'),
+(12, 9, 'Favoritos', '2026-11-24 23:55:18'),
+(13, 9, 'Assistindo', '2026-11-24 23:55:18'),
+(14, 9, 'Quero assistir', '2026-11-24 23:55:18'),
+(15, 9, 'Concluídos', '2026-11-24 23:55:18');
 
 -- --------------------------------------------------------
 
@@ -283,7 +293,8 @@ INSERT INTO `obras` (`id`, `titulo`, `descricao`, `tipo`, `ano_lancamento`, `cla
 (7, 'Witch Hat Atelier', 'Coco é uma garota fascinada por magia que sonha em se tornar uma bruxa. Após descobrir um segredo sobre como a magia realmente funciona, ela acaba entrando em um mundo cheio de encantamentos, mistérios e descobertas. Ao lado de outros aprendizes, Coco inicia uma jornada para dominar a magia e desvendar os segredos que cercam esse universo.', 'Anime', '2026', '12', '1 Temporada', 'BUG FILMS', '/img/obras/obra_6ad6486ea6da57.73412366.jpg', 1, 0, 1, '2026-10-19 16:42:22'),
 (8, 'Dandadan', 'Momo Ayase e Ken Takakura, conhecido como Okarun, se envolvem em aventuras sobrenaturais após discordarem sobre a existência de fantasmas e alienígenas. Ao descobrirem que ambos existem, os dois enfrentam criaturas bizarras, fenômenos paranormais e situações perigosas, desenvolvendo uma amizade marcada por ação, humor e mistérios.', 'Anime', '2024', '14', '2 Temporadas', 'Science SARU', '/img/obras/obra_6ad648bc85a260.47872897.jpg', 0, 0, 1, '2026-10-19 16:43:40'),
 (9, 'The Mentalist (O Mentalista)', 'Patrick Jane é um consultor independente que trabalha com a equipe de investigação criminal da CBI, na Califórnia. Com uma capacidade extraordinária de observação, dedução e leitura do comportamento humano, ele ajuda a solucionar assassinatos e crimes complexos. No entanto, sua principal motivação é encontrar Red John, o serial killer responsável pela morte de sua esposa e filha. Ao longo da série, Patrick utiliza sua inteligência e suas habilidades psicológicas para desvendar mistérios enquanto busca vingança.', 'Série', '2008', '14', '7 Temporadas', 'Warner Bros. Television', '/img/obras/obra_6ad649920cab72.06312312.jpg', 1, 0, 1, '2026-10-19 16:47:14'),
-(10, 'F1: Dirigir para Viver (Formula 1: Drive to Survive)', 'A série documental acompanha os bastidores da Fórmula 1, revelando os desafios, as rivalidades e as estratégias dos pilotos, das equipes e dos chefes de equipe ao longo das temporadas. Com acesso exclusivo aos bastidores, mostra a pressão das competições, as disputas por vitórias, as decisões estratégicas e os acontecimentos que marcam o campeonato mundial de automobilismo.', 'Série', '2019', '12', '8 Temporadas', 'Box to Box Films', '/img/obras/obra_6ad64a0b1ad2e3.35077133.jpg', 1, 0, 1, '2026-10-19 16:49:15');
+(10, 'F1: Dirigir para Viver (Formula 1: Drive to Survive)', 'A série documental acompanha os bastidores da Fórmula 1, revelando os desafios, as rivalidades e as estratégias dos pilotos, das equipes e dos chefes de equipe ao longo das temporadas. Com acesso exclusivo aos bastidores, mostra a pressão das competições, as disputas por vitórias, as decisões estratégicas e os acontecimentos que marcam o campeonato mundial de automobilismo.', 'Série', '2019', '12', '8 Temporadas', 'Box to Box Films', '/img/obras/obra_6ad64a0b1ad2e3.35077133.jpg', 1, 0, 1, '2026-10-19 16:49:15'),
+(11, 'Vingadores: Doutor Destino', 'O filme coloca heróis de três realidades em rota de colisão enquanto a Saga do Multiverso caminha para seu desfecho, com as Incursões ameaçando destruir universos inteiros.', 'Filme', '2026', '14', '2h29min', 'Marvel Studios', '/img/obras/obra_6b06290d8b6d95.13488374.png', 1, 0, 1, '2026-11-25 00:17:17');
 
 -- --------------------------------------------------------
 
@@ -320,17 +331,21 @@ INSERT INTO `obra_genero` (`obra_id`, `genero_id`) VALUES
 (8, 7),
 (8, 8),
 (8, 21),
-(9, 4),
-(9, 3),
-(9, 5),
-(9, 7),
-(9, 15),
-(9, 10),
 (10, 12),
 (10, 6),
 (10, 16),
 (1, 4),
-(1, 16);
+(1, 16),
+(9, 3),
+(9, 5),
+(9, 7),
+(9, 25),
+(9, 10),
+(11, 23),
+(11, 3),
+(11, 6),
+(11, 2),
+(11, 11);
 
 -- --------------------------------------------------------
 
@@ -355,9 +370,9 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id`, `nome`, `email`, `senha`, `tipo`, `email_verificado`, `foto`, `bio`, `criado_em`) VALUES
-(4, 'jasmini', 'jasminibecker2@gmail.com', '$2y$10$egJMVNMTGESzDz3pyRgg5eRTDEikS4rlHZ5sy2gXtyM7DEWbn1Jrq', 'admin', 0, '/img/perfis/perfil_6ae4c7c42a6543.02465785.jpg', NULL, '2026-09-26 21:24:57'),
-(5, 'Jasmini Becker Rohr', 'jasbecker2@gmail.com', '$2y$10$7AG3wZnPjJxY6Pk/037QG.7u8D90Cabv8dNeWhQXl2UtRbp5dQMAq', 'usuario', 0, '/img/perfis/perfil_6ae4c888a94ac8.39082780.jpg', NULL, '2026-09-26 21:28:17'),
-(8, 'nicoli', 'nicoli1@gmail.com', '$2y$10$R2NOwKw3y4gkewMTcuGzXegzCm8OrD66IPzElJlH0QVmYDE6BARU6', 'usuario', 1, NULL, NULL, '2026-11-22 20:14:53');
+(4, 'jasmini', 'jasminibecker2@gmail.com', '$2y$10$egJMVNMTGESzDz3pyRgg5eRTDEikS4rlHZ5sy2gXtyM7DEWbn1Jrq', 'admin', 0, '/img/perfis/perfil_6b04d69555cb24.35021892.png', 'Um pouco de tudo', '2026-09-26 21:24:57'),
+(8, 'nicoli', 'nicoli1@gmail.com', '$2y$10$R2NOwKw3y4gkewMTcuGzXegzCm8OrD66IPzElJlH0QVmYDE6BARU6', 'usuario', 1, NULL, NULL, '2026-11-22 20:14:53'),
+(9, 'Larissa', 'larissa@gmail.com', '$2y$10$iVIMFlQKwI/0nD/CM26FhehxHLWqNFbJbRzUgfdfztqLOF6QiZKtm', 'usuario', 0, NULL, NULL, '2026-11-24 23:55:18');
 
 --
 -- Índices para tabelas despejadas
@@ -418,6 +433,12 @@ ALTER TABLE `favoritos`
   ADD KEY `fk_favorito_obra` (`obra_id`);
 
 --
+-- Índices de tabela `generos`
+--
+ALTER TABLE `generos`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Índices de tabela `itens_lista`
 --
 ALTER TABLE `itens_lista`
@@ -458,7 +479,7 @@ ALTER TABLE `avaliacoes`
 -- AUTO_INCREMENT de tabela `avisos`
 --
 ALTER TABLE `avisos`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `comentarios`
@@ -470,7 +491,7 @@ ALTER TABLE `comentarios`
 -- AUTO_INCREMENT de tabela `curtidas_comentarios`
 --
 ALTER TABLE `curtidas_comentarios`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT de tabela `denuncias_comentarios`
@@ -482,31 +503,37 @@ ALTER TABLE `denuncias_comentarios`
 -- AUTO_INCREMENT de tabela `favoritos`
 --
 ALTER TABLE `favoritos`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT de tabela `generos`
+--
+ALTER TABLE `generos`
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT de tabela `itens_lista`
 --
 ALTER TABLE `itens_lista`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT de tabela `listas_usuario`
 --
 ALTER TABLE `listas_usuario`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de tabela `obras`
 --
 ALTER TABLE `obras`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de tabela `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Restrições para tabelas despejadas
