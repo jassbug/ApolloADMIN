@@ -169,13 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $id = (int) ($_POST['id'] ?? 0);
 
-       $resultado = atualizarAviso(
-            $id,
-            $titulo,
-            $descricao,
-            $imagem,
-            $link
-        );
+        $resultado = alterarStatusAviso($id);
 
         $mensagem = $resultado['mensagem'];
 

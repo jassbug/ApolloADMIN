@@ -1220,7 +1220,7 @@ function cadastrarAviso(
     $titulo = trim($titulo);
     $descricao = trim($descricao);
     $imagem = trim($imagem);
-    $link = trim($link);
+    $link = trim((string) ($link ?? ''));
 
     if (
         empty($titulo) ||
@@ -1302,6 +1302,42 @@ function excluirAviso($id)
     ];
 }
 
+// ALTERAR STATUS DO AVISO
+function alterarStatusAviso($id)
+{
+    $id = (int) $id;
+
+    if ($id <= 0) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'Aviso inválido.'
+        ];
+    }
+
+    $conexao = conectarBanco();
+
+    $consulta = $conexao->prepare("
+        UPDATE avisos
+        SET ativo = IF(ativo = 1, 0, 1)
+        WHERE id = :id
+    ");
+
+    $consulta->execute([
+        ':id' => $id
+    ]);
+
+    if ($consulta->rowCount() === 0) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'Aviso não encontrado.'
+        ];
+    }
+
+    return [
+        'sucesso' => true,
+        'mensagem' => 'Status do aviso alterado com sucesso.'
+    ];
+}
 
 // ATUALIZAR AVISO
 function atualizarAviso(
@@ -1313,10 +1349,10 @@ function atualizarAviso(
 ) {
     $id = (int) $id;
 
-    $titulo = trim($titulo);
-    $descricao = trim($descricao);
-    $imagem = trim($imagem);
-    $link = trim($link);
+    $titulo = trim((string) ($titulo ?? ''));
+    $descricao = trim((string) ($descricao ?? ''));
+    $imagem = trim((string) ($imagem ?? ''));
+    $link = trim((string) ($link ?? ''));
 
     if ($id <= 0) {
         return [
