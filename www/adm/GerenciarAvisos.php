@@ -25,23 +25,139 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $id = (int) ($_POST['id'] ?? 0);
 
-        $titulo = $_POST['titulo'] ?? '';
-        $descricao = $_POST['descricao'] ?? '';
-        $imagem = $_POST['imagem'] ?? '';
-        $link = $_POST['link'] ?? '';
+        $titulo = trim($_POST['titulo'] ?? '');
+        $descricao = trim($_POST['descricao'] ?? '');
+        $link = trim($_POST['link'] ?? '');
 
-        $resultado = atualizarAviso(
-            $id,
-            $titulo,
-            $descricao,
-            $imagem,
-            $link
-        );
+        $conexao = conectarBanco();
+
+        $consultaImagem = $conexao->prepare("
+            SELECT imagem
+            FROM avisos
+            WHERE id = :id
+        ");
+
+        $consultaImagem->execute([
+            ':id' => $id
+        ]);
+
+        $avisoAtual = $consultaImagem->fetch(PDO::FETCH_ASSOC);
+
+        if (!$avisoAtual) {
+
+            $resultado = [
+                'sucesso' => false,
+                'mensagem' => 'Aviso não encontrado.'
+            ];
+
+        } else {
+
+            // Mantém a imagem atual se nenhuma nova for selecionada.
+            $imagem = $avisoAtual['imagem'];
+
+            if (
+                isset($_FILES['imagem']) &&
+                $_FILES['imagem']['error'] !== UPLOAD_ERR_NO_FILE
+            ) {
+
+                if ($_FILES['imagem']['error'] !== UPLOAD_ERR_OK) {
+
+                    $resultado = [
+                        'sucesso' => false,
+                        'mensagem' => 'Não foi possível enviar a imagem.'
+                    ];
+
+                } elseif ($_FILES['imagem']['size'] > 5 * 1024 * 1024) {
+
+                    $resultado = [
+                        'sucesso' => false,
+                        'mensagem' => 'A imagem deve ter no máximo 5 MB.'
+                    ];
+
+                } else {
+
+                    $tiposPermitidos = [
+                        'image/jpeg' => 'jpg',
+                        'image/png' => 'png',
+                        'image/webp' => 'webp'
+                    ];
+
+                    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+
+                    $tipoArquivo = finfo_file(
+                        $finfo,
+                        $_FILES['imagem']['tmp_name']
+                    );
+
+                    finfo_close($finfo);
+
+                    if (!isset($tiposPermitidos[$tipoArquivo])) {
+
+                        $resultado = [
+                            'sucesso' => false,
+                            'mensagem' => 'Envie apenas imagens JPG, PNG ou WEBP.'
+                        ];
+
+                    } else {
+
+                        $pastaAvisos = __DIR__ . '/../img/avisos';
+
+                        if (!is_dir($pastaAvisos)) {
+                            mkdir($pastaAvisos, 0755, true);
+                        }
+
+                        $nomeArquivo = uniqid('aviso_', true)
+                            . '.' . $tiposPermitidos[$tipoArquivo];
+
+                        $caminhoArquivo = $pastaAvisos
+                            . DIRECTORY_SEPARATOR . $nomeArquivo;
+
+                        if (!move_uploaded_file(
+                            $_FILES['imagem']['tmp_name'],
+                            $caminhoArquivo
+                        )) {
+
+                            $resultado = [
+                                'sucesso' => false,
+                                'mensagem' => 'Não foi possível salvar a imagem.'
+                            ];
+
+                        } else {
+
+                            $imagem = '/img/avisos/' . $nomeArquivo;
+
+                            $resultado = atualizarAviso(
+                                $id,
+                                $titulo,
+                                $descricao,
+                                $imagem,
+                                $link
+                            );
+
+                        }
+                    }
+                }
+
+            } else {
+
+                // Atualiza os demais dados sem trocar a imagem.
+                $resultado = atualizarAviso(
+                    $id,
+                    $titulo,
+                    $descricao,
+                    $imagem,
+                    $link
+                );
+
+            }
+        }
 
         $mensagem = $resultado['mensagem'];
+
         $tipoMensagem = $resultado['sucesso']
             ? 'sucesso'
             : 'erro';
+
     }
 
 
@@ -53,9 +169,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $id = (int) ($_POST['id'] ?? 0);
 
-        $resultado = alterarStatusAviso($id);
+       $resultado = atualizarAviso(
+            $id,
+            $titulo,
+            $descricao,
+            $imagem,
+            $link
+        );
 
         $mensagem = $resultado['mensagem'];
+
         $tipoMensagem = $resultado['sucesso']
             ? 'sucesso'
             : 'erro';
@@ -73,6 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $resultado = excluirAviso($id);
 
         $mensagem = $resultado['mensagem'];
+
         $tipoMensagem = $resultado['sucesso']
             ? 'sucesso'
             : 'erro';
@@ -512,7 +636,7 @@ $avisos = buscarTodosAvisos();
                             <div class="modal-content">
 
 
-                                <form method="POST">
+                                <form method="POST" enctype="multipart/form-data">
 
 
                                     <div class="modal-header">
@@ -584,17 +708,67 @@ $avisos = buscarTodosAvisos();
 
                                         <div class="campo-admin">
 
-                                            <label>
-                                                Caminho da imagem
-                                            </label>
+                                            <label>Imagem atual</label>
 
-                                            <input
-                                                type="text"
-                                                name="imagem"
-                                                value="<?= e($imagem) ?>"
-                                                maxlength="500"
-                                                required
+                                            <div
+                                                class="preview-imagem-aviso preview-editar-aviso"
+                                                id="previewImagem<?= $id ?>"
                                             >
+
+                                                <?php if (!empty($imagem)): ?>
+
+                                                    <img
+                                                        src="<?= e($imagem) ?>"
+                                                        alt="Imagem atual do aviso"
+                                                    >
+
+                                                <?php else: ?>
+
+                                                    <div class="preview-vazio-aviso">
+
+                                                        <i class="bi bi-image"></i>
+
+                                                        <span>Sem imagem</span>
+
+                                                    </div>
+
+                                                <?php endif; ?>
+
+                                            </div>
+
+
+                                            <div class="area-upload-aviso">
+
+                                                <label
+                                                    for="imagem<?= $id ?>"
+                                                    class="botao-upload-aviso"
+                                                >
+
+                                                    <i class="bi bi-cloud-arrow-up"></i>
+
+                                                    Escolher nova imagem
+
+                                                </label>
+
+
+                                                <input
+                                                    type="file"
+                                                    id="imagem<?= $id ?>"
+                                                    name="imagem"
+                                                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                                                    data-preview="previewImagem<?= $id ?>"
+                                                >
+
+
+                                                <p class="texto-upload-aviso">
+
+                                                    JPG, PNG ou WEBP. Tamanho máximo: 5 MB.
+
+                                                    Se não escolher uma nova imagem, a atual será mantida.
+
+                                                </p>
+
+                                            </div>
 
                                         </div>
 
@@ -784,6 +958,45 @@ $avisos = buscarTodosAvisos();
 <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
 ></script>
+
+
+<script>
+document.querySelectorAll('.area-upload-aviso input[type="file"]').forEach(function (inputImagem) {
+
+    inputImagem.addEventListener('change', function () {
+
+        const arquivo = this.files[0];
+
+        if (!arquivo) {
+            return;
+        }
+
+        const previewImagem = document.getElementById(this.dataset.preview);
+
+        if (!previewImagem) {
+            return;
+        }
+
+        const leitor = new FileReader();
+
+        leitor.onload = function (evento) {
+
+            previewImagem.innerHTML = `
+                <img
+                    src="${evento.target.result}"
+                    alt="Pré-visualização da nova imagem"
+                >
+            `;
+
+        };
+
+        leitor.readAsDataURL(arquivo);
+
+    });
+
+});
+</script>
+
 
 </body>
 
