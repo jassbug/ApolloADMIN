@@ -32,7 +32,10 @@
 
             </div>
 
-            <form action="atualizar_perfil.php" method="POST" enctype="multipart/form-data">
+            <form
+                action="/Usuario/atualizar_perfil.php"
+                method="POST"
+                enctype="multipart/form-data">
 
                 <div class="modal-body">
 
@@ -41,11 +44,13 @@
 
                         <div>
                             <i class="bi bi-person"></i>
+
                             <input
                                 type="text"
                                 id="nome"
                                 name="nome"
                                 value="<?= e($usuario['nome']) ?>"
+                                maxlength="120"
                                 required>
                         </div>
                     </div>
@@ -55,11 +60,13 @@
 
                         <div>
                             <i class="bi bi-envelope"></i>
+
                             <input
                                 type="email"
                                 id="email"
                                 name="email"
                                 value="<?= e($usuario['email']) ?>"
+                                maxlength="150"
                                 required>
                         </div>
                     </div>
@@ -85,14 +92,12 @@
                                 id="foto"
                                 name="foto"
                                 accept=".jpg,.jpeg,.png,.webp">
-
                         </div>
 
                         <small class="texto-ajuda">
                             Envie uma imagem JPG, PNG ou WEBP de até 2 MB.
                         </small>
                     </div>
-                    
 
                 </div>
 

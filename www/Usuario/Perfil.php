@@ -9,6 +9,20 @@ $usuario = usuarioAtual();
 $inicial = strtoupper(substr($usuario['nome'], 0, 1));
 $tipoConta = $usuario['tipo'] === 'admin' ? 'Administrador' : 'Usuário';
 
+// MENSAGENS DE ATUALIZAÇÃO DO PERFIL
+$mensagem = '';
+$tipoMensagem = '';
+
+if (isset($_GET['perfil']) && $_GET['perfil'] === 'atualizado') {
+    $mensagem = 'Perfil atualizado com sucesso.';
+    $tipoMensagem = 'sucesso';
+}
+
+if (isset($_GET['erro'])) {
+    $mensagem = $_GET['erro'];
+    $tipoMensagem = 'erro';
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -28,10 +42,17 @@ $tipoConta = $usuario['tipo'] === 'admin' ? 'Administrador' : 'Usuário';
 <body>
 
     <header>
-        <?php include '../menu.php'; ?>
+        <?php include __DIR__ . '/../menu.php'; ?>
     </header>
 
     <main class="container pagina-perfil">
+
+        <?php if (!empty($mensagem)): ?>
+            <div class="mensagem-autenticacao <?= e($tipoMensagem) ?>">
+                <i class="bi bi-info-circle"></i>
+                <?= e($mensagem) ?>
+            </div>
+        <?php endif; ?>
 
         <section class="cabecalho-perfil">
 
@@ -51,7 +72,7 @@ $tipoConta = $usuario['tipo'] === 'admin' ? 'Administrador' : 'Usuário';
                 type="button"
                 class="btn botao-roxo"
                 data-bs-toggle="modal"
-                data-bs-target="#modalEditarPerfil"
+                data-bs-target="#modalEditarPerfil">
 
                 <i class="bi bi-pencil-square"></i>
                 Editar perfil
@@ -80,11 +101,17 @@ $tipoConta = $usuario['tipo'] === 'admin' ? 'Administrador' : 'Usuário';
             <div class="dados-perfil">
 
                 <div class="nome-perfil">
+
                     <h2><?= e($usuario['nome']) ?></h2>
+
                     <span class="selo-tipo <?= $usuario['tipo'] === 'admin' ? 'administrador' : '' ?>">
+
                         <i class="bi <?= $usuario['tipo'] === 'admin' ? 'bi-shield-lock' : 'bi-person' ?>"></i>
+
                         <?= $tipoConta ?>
+
                     </span>
+
                 </div>
 
                 <p class="email-perfil">
@@ -107,6 +134,7 @@ $tipoConta = $usuario['tipo'] === 'admin' ? 'Administrador' : 'Usuário';
             <div class="col-md-6">
 
                 <article class="card painel-perfil h-100">
+
                     <div class="card-body">
 
                         <div class="icone-painel">
@@ -125,6 +153,7 @@ $tipoConta = $usuario['tipo'] === 'admin' ? 'Administrador' : 'Usuário';
                         </a>
 
                     </div>
+
                 </article>
 
             </div>
@@ -132,6 +161,7 @@ $tipoConta = $usuario['tipo'] === 'admin' ? 'Administrador' : 'Usuário';
             <div class="col-md-6">
 
                 <article class="card painel-perfil h-100">
+
                     <div class="card-body">
 
                         <div class="icone-painel">
@@ -150,6 +180,7 @@ $tipoConta = $usuario['tipo'] === 'admin' ? 'Administrador' : 'Usuário';
                         </a>
 
                     </div>
+
                 </article>
 
             </div>
@@ -161,6 +192,7 @@ $tipoConta = $usuario['tipo'] === 'admin' ? 'Administrador' : 'Usuário';
             <section class="painel-admin">
 
                 <div>
+
                     <p class="etiqueta-autenticacao">
                         <i class="bi bi-shield-lock"></i> ÁREA ADMINISTRATIVA
                     </p>
@@ -170,6 +202,7 @@ $tipoConta = $usuario['tipo'] === 'admin' ? 'Administrador' : 'Usuário';
                     <p>
                         Gerencie obras, avisos, gêneros e os conteúdos do Apollo.
                     </p>
+
                 </div>
 
                 <a href="/adm/index.php" class="btn botao-roxo">
@@ -183,11 +216,14 @@ $tipoConta = $usuario['tipo'] === 'admin' ? 'Administrador' : 'Usuário';
 
     </main>
 
-    <?php include 'EditarPerfilModal.php'; ?>
+    <?php include __DIR__ . '/EditarPerfilModal.php'; ?>
+
     <footer>
+
         <div class="container">
             <p>© <?= date('Y') ?> Apollo — seu universo de histórias.</p>
         </div>
+
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
