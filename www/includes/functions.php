@@ -36,9 +36,6 @@ function e($texto)
     return htmlspecialchars($texto ?? '', ENT_QUOTES, 'UTF-8');
 }
 
-
-
-
 /* ======================================================================
    2. FUNÇÕES COMPARTILHADAS
    ====================================================================== */
@@ -282,9 +279,6 @@ function buscarComentariosPorObra($obraId)
 
     return $consulta->fetchAll(PDO::FETCH_ASSOC);
 }
-
-
-
 
 /* ======================================================================
    3. FUNÇÕES DO ADMINISTRADOR
@@ -1398,113 +1392,8 @@ function atualizarAviso(
     ];
 }
 
-
-
 /* ======================================================================
-   4. FUNÇÕES DO USUÁRIO
-   ====================================================================== */
-
-// BUSCAR COMENTÁRIO DO USUÁRIO EM UMA OBRA
-function buscarComentarioUsuarioPorObra($obraId)
-{
-    $conexao = conectarBanco();
-
-    $consulta = $conexao->prepare("
-        SELECT comentario
-        FROM comentarios
-        WHERE obra_id = :obra_id
-          AND usuario_id = :usuario_id
-        LIMIT 1
-    ");
-
-    $consulta->execute([
-        ':obra_id' => $obraId,
-        ':usuario_id' => idUsuarioLogado()
-    ]);
-
-    $comentario = $consulta->fetch(PDO::FETCH_ASSOC);
-
-    return $comentario ?: null;
-}
-
-
-// REGISTRAR DENÚNCIA DE COMENTÁRIO
-function denunciarComentario($comentarioId, $usuarioId)
-{
-    $conexao = conectarBanco();
-
-    $comentarioId = (int) $comentarioId;
-    $usuarioId = (int) $usuarioId;
-
-    if ($comentarioId <= 0 || $usuarioId <= 0) {
-        return [
-            'sucesso' => false,
-            'mensagem' => 'Denúncia inválida.'
-        ];
-    }
-
-    $verificar = $conexao->prepare("
-        SELECT id
-        FROM comentarios
-        WHERE id = :id
-    ");
-
-    $verificar->execute([
-        ':id' => $comentarioId
-    ]);
-
-    if (!$verificar->fetch()) {
-        return [
-            'sucesso' => false,
-            'mensagem' => 'Comentário não encontrado.'
-        ];
-    }
-
-    $verificar = $conexao->prepare("
-        SELECT id
-        FROM denuncias_comentarios
-        WHERE comentario_id = :comentario_id
-          AND usuario_id = :usuario_id
-    ");
-
-    $verificar->execute([
-        ':comentario_id' => $comentarioId,
-        ':usuario_id' => $usuarioId
-    ]);
-
-    if ($verificar->fetch()) {
-        return [
-            'sucesso' => false,
-            'mensagem' => 'Você já denunciou este comentário.'
-        ];
-    }
-
-    $consulta = $conexao->prepare("
-        INSERT INTO denuncias_comentarios (
-            comentario_id,
-            usuario_id
-        )
-        VALUES (
-            :comentario_id,
-            :usuario_id
-        )
-    ");
-
-    $consulta->execute([
-        ':comentario_id' => $comentarioId,
-        ':usuario_id' => $usuarioId
-    ]);
-
-    return [
-        'sucesso' => true,
-        'mensagem' => 'Denúncia enviada com sucesso.'
-    ];
-}
-
-
-
-/* ======================================================================
-   5. FUNÇÕES DE MODERAÇÃO DE COMENTÁRIOS
+   5. MODERAÇÃO DE COMENTÁRIOS — ADMINISTRADOR
    ====================================================================== */
 // BUSCAR COMENTÁRIOS PARA O ADMINISTRADOR
 function buscarComentariosAdmin($busca = '')
@@ -1633,6 +1522,110 @@ function analisarDenunciasComentario($comentarioId)
     return $consulta->rowCount();
 }
 
+/* ======================================================================
+   4. FUNÇÕES DO USUÁRIO
+   ====================================================================== */
+
+// BUSCAR COMENTÁRIO DO USUÁRIO EM UMA OBRA
+function buscarComentarioUsuarioPorObra($obraId)
+{
+    $conexao = conectarBanco();
+
+    $consulta = $conexao->prepare("
+        SELECT comentario
+        FROM comentarios
+        WHERE obra_id = :obra_id
+          AND usuario_id = :usuario_id
+        LIMIT 1
+    ");
+
+    $consulta->execute([
+        ':obra_id' => $obraId,
+        ':usuario_id' => idUsuarioLogado()
+    ]);
+
+    $comentario = $consulta->fetch(PDO::FETCH_ASSOC);
+
+    return $comentario ?: null;
+}
+
+
+// REGISTRAR DENÚNCIA DE COMENTÁRIO
+function denunciarComentario($comentarioId, $usuarioId)
+{
+    $conexao = conectarBanco();
+
+    $comentarioId = (int) $comentarioId;
+    $usuarioId = (int) $usuarioId;
+
+    if ($comentarioId <= 0 || $usuarioId <= 0) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'Denúncia inválida.'
+        ];
+    }
+
+    $verificar = $conexao->prepare("
+        SELECT id
+        FROM comentarios
+        WHERE id = :id
+    ");
+
+    $verificar->execute([
+        ':id' => $comentarioId
+    ]);
+
+    if (!$verificar->fetch()) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'Comentário não encontrado.'
+        ];
+    }
+
+    $verificar = $conexao->prepare("
+        SELECT id
+        FROM denuncias_comentarios
+        WHERE comentario_id = :comentario_id
+          AND usuario_id = :usuario_id
+    ");
+
+    $verificar->execute([
+        ':comentario_id' => $comentarioId,
+        ':usuario_id' => $usuarioId
+    ]);
+
+    if ($verificar->fetch()) {
+        return [
+            'sucesso' => false,
+            'mensagem' => 'Você já denunciou este comentário.'
+        ];
+    }
+
+    $consulta = $conexao->prepare("
+        INSERT INTO denuncias_comentarios (
+            comentario_id,
+            usuario_id
+        )
+        VALUES (
+            :comentario_id,
+            :usuario_id
+        )
+    ");
+
+    $consulta->execute([
+        ':comentario_id' => $comentarioId,
+        ':usuario_id' => $usuarioId
+    ]);
+
+    return [
+        'sucesso' => true,
+        'mensagem' => 'Denúncia enviada com sucesso.'
+    ];
+}
+
+/* ======================================================================
+   LISTAS E FAVORITOS — USUÁRIO COMUM
+   ====================================================================== */
 
 /**
  * Busca uma lista do usuário e as obras adicionadas nela.
