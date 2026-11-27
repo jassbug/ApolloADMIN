@@ -61,10 +61,11 @@ $generos = buscarGeneros();
                         </a>
                     </div>
 
-                    <div class="col-lg-5 d-none d-lg-flex justify-content-center">
-                        <div class="planeta-apollo">
-                            <i class="bi bi-play-fill"></i>
-                        </div>
+                    <div class="col-lg-5 d-none d-lg-flex justify-content-center align-items-center">
+                        <img
+                            src="img/logo.png"
+                            alt="Logo Apollo"
+                            class="hero-logo-apollo">
                     </div>
 
                 </div>
@@ -257,7 +258,6 @@ $generos = buscarGeneros();
 
                 <?php foreach ($generos as $genero): ?>
                     <a href="Generos.php?id=<?= (int) $genero['id'] ?>" class="genero-btn">
-                        
                         <?= e($genero['nome']) ?>
                     </a>
                 <?php endforeach; ?>

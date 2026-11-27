@@ -60,7 +60,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="caixa-autenticacao">
 
             <a href="/index.php" class="logo-apollo">
-                APOLLO<span>.</span>
+                <img
+                    src="/img/logo.png"
+                    alt="Apollo"
+                    class="logo-apollo-imagem">
             </a>
 
             <p class="etiqueta-autenticacao">

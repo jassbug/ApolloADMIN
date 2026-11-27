@@ -21,7 +21,10 @@ $paginaAtual = basename($_SERVER['PHP_SELF']);
             </button>
 
             <a href="/index.php" class="logo-apollo">
-                APOLLO<span>.</span>
+                <img
+                    src="/img/logo.png"
+                    alt="Apollo - Página inicial"
+                    class="logo-apollo-imagem">
             </a>
 
         </div>
@@ -106,7 +109,10 @@ $paginaAtual = basename($_SERVER['PHP_SELF']);
             class="logo-apollo"
             id="tituloMenuLateral">
 
-            APOLLO<span>.</span>
+            <img
+                src="/img/logo.png"
+                alt="Apollo - Página inicial"
+                class="logo-apollo-imagem">
 
         </a>
 
